@@ -242,7 +242,6 @@ Library mode:
 
 - iPhone Bluetooth proximity
 - Location-based triggers
-- Notification preferences
 - Public session presets
 - Apple Watch support
 - Shortcuts integration

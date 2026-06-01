@@ -28,12 +28,12 @@ PublicGuard should stay:
 
 ## Good First Issues
 
-- Add unit tests for guard state and event logging
+- Add unit tests around new triggers and actions
 - Improve menu bar copy
-- Add a configurable grace period
-- Add user notifications for silent mode
 - Research reliable macOS lid-close detection
-- Add network change trigger support
+- Add custom alarm sound support
+- Add an app icon
+- Improve release packaging documentation
 
 ## Pull Requests
 
@@ -43,4 +43,3 @@ Please keep pull requests focused and explain:
 - Why it changed
 - How it was tested
 - Whether it changes privacy, permissions, or background behavior
-
