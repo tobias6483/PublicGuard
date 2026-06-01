@@ -9,6 +9,7 @@ final class SettingsStoreTests: XCTestCase {
         let settings = store.load()
 
         XCTAssertEqual(settings.gracePeriodSeconds, 5)
+        XCTAssertEqual(settings.idleTimeoutSeconds, 300)
         XCTAssertEqual(settings.responseMode, .loudAlarm)
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
         XCTAssertTrue(settings.notificationsEnabled)
@@ -24,6 +25,7 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
         let expected = GuardSettings(
             gracePeriodSeconds: 15,
+            idleTimeoutSeconds: 600,
             responseMode: .silent,
             enabledTriggers: [.chargerDisconnect, .networkChange],
             notificationsEnabled: false,
@@ -37,6 +39,7 @@ final class SettingsStoreTests: XCTestCase {
         store.save(expected)
 
         XCTAssertEqual(store.load().gracePeriodSeconds, 15)
+        XCTAssertEqual(store.load().idleTimeoutSeconds, 600)
         XCTAssertEqual(store.load().responseMode, .silent)
         XCTAssertEqual(store.load().enabledTriggers, [.chargerDisconnect, .networkChange])
         XCTAssertFalse(store.load().notificationsEnabled)
@@ -77,6 +80,14 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().gracePeriodSeconds, 5)
+    }
+
+    func testInvalidIdleTimeoutFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set(999, forKey: "idleTimeoutSeconds")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().idleTimeoutSeconds, 300)
     }
 
     func testZeroGracePeriodIsValid() {
@@ -144,6 +155,7 @@ final class SettingsStoreTests: XCTestCase {
         let settings = customSettings().applyingPreset(.cafe)
 
         XCTAssertEqual(settings.gracePeriodSeconds, 5)
+        XCTAssertEqual(settings.idleTimeoutSeconds, 300)
         XCTAssertEqual(settings.responseMode, .loudAlarm)
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
         XCTAssertTrue(settings.notificationsEnabled)
@@ -158,6 +170,7 @@ final class SettingsStoreTests: XCTestCase {
         let settings = customSettings().applyingPreset(.library)
 
         XCTAssertEqual(settings.gracePeriodSeconds, 15)
+        XCTAssertEqual(settings.idleTimeoutSeconds, 900)
         XCTAssertEqual(settings.responseMode, .silent)
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
         XCTAssertTrue(settings.notificationsEnabled)
@@ -217,6 +230,7 @@ private extension GuardSettings {
 private func customSettings() -> GuardSettings {
     GuardSettings(
         gracePeriodSeconds: 30,
+        idleTimeoutSeconds: 60,
         responseMode: .loudAlarm,
         enabledTriggers: [.chargerDisconnect],
         notificationsEnabled: false,

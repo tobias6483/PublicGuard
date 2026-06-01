@@ -66,6 +66,7 @@ enum GuardEvent {
     case networkChanged(previous: String?, current: String?)
     case bluetoothDeviceLearned(name: String)
     case bluetoothDeviceOutOfRange(name: String)
+    case idleTimeout(seconds: Int)
     case systemWillSleep
     case systemDidWake
     case gracePeriodStarted(reason: String, seconds: Duration)
@@ -74,6 +75,7 @@ enum GuardEvent {
     case silentResponseTriggered(reason: String)
     case settingsChanged(
         gracePeriodSeconds: Int,
+        idleTimeoutSeconds: Int,
         responseMode: GuardSettings.ResponseMode,
         alarmSound: GuardSettings.AlarmSound,
         alarmVolume: GuardSettings.AlarmVolume,
@@ -102,6 +104,8 @@ enum GuardEvent {
             "bluetooth_device_learned name=\"\(name)\""
         case let .bluetoothDeviceOutOfRange(name):
             "bluetooth_device_out_of_range name=\"\(name)\""
+        case let .idleTimeout(seconds):
+            "idle_timeout seconds=\(seconds)"
         case .systemWillSleep:
             "system_will_sleep"
         case .systemDidWake:
@@ -114,8 +118,8 @@ enum GuardEvent {
             "alarm_stopped"
         case let .silentResponseTriggered(reason):
             "silent_response_triggered reason=\"\(reason)\""
-        case let .settingsChanged(gracePeriodSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled):
-            "settings_changed grace_period_seconds=\(gracePeriodSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled)"
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled):
+            "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled)"
         case let .triggerIgnored(name):
             "trigger_ignored name=\"\(name)\""
         case .logCleared:

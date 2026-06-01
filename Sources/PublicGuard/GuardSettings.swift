@@ -20,6 +20,7 @@ struct GuardSettings {
         case networkChange
         case wakeFromSleep
         case bluetoothProximity
+        case idleTimeout
 
         var title: String {
             switch self {
@@ -31,6 +32,8 @@ struct GuardSettings {
                 "Wake From Sleep"
             case .bluetoothProximity:
                 "Bluetooth Proximity"
+            case .idleTimeout:
+                "Idle Timeout"
             }
         }
     }
@@ -137,10 +140,12 @@ struct GuardSettings {
             switch self {
             case .cafe:
                 updated.gracePeriodSeconds = 5
+                updated.idleTimeoutSeconds = 300
                 updated.responseMode = .loudAlarm
                 updated.alarmVolume = .maximum
             case .library:
                 updated.gracePeriodSeconds = 15
+                updated.idleTimeoutSeconds = 900
                 updated.responseMode = .silent
                 updated.alarmVolume = .normal
             }
@@ -150,6 +155,7 @@ struct GuardSettings {
     }
 
     var gracePeriodSeconds: Int
+    var idleTimeoutSeconds: Int = 300
     var responseMode: ResponseMode
     var enabledTriggers: Set<TriggerKind>
     var notificationsEnabled: Bool
@@ -171,6 +177,7 @@ struct GuardSettings {
 struct SettingsStore {
     private enum Key {
         static let gracePeriodSeconds = "gracePeriodSeconds"
+        static let idleTimeoutSeconds = "idleTimeoutSeconds"
         static let responseMode = "responseMode"
         static let enabledTriggers = "enabledTriggers"
         static let notificationsEnabled = "notificationsEnabled"
@@ -190,6 +197,8 @@ struct SettingsStore {
     func load() -> GuardSettings {
         let storedGracePeriod = defaults.object(forKey: Key.gracePeriodSeconds) as? Int
         let gracePeriod = storedGracePeriod.flatMap { Self.validGracePeriods.contains($0) ? $0 : nil } ?? 5
+        let storedIdleTimeout = defaults.object(forKey: Key.idleTimeoutSeconds) as? Int
+        let idleTimeout = storedIdleTimeout.flatMap { Self.validIdleTimeouts.contains($0) ? $0 : nil } ?? 300
 
         let storedMode = defaults.string(forKey: Key.responseMode)
         let mode = storedMode.flatMap(GuardSettings.ResponseMode.init(rawValue:)) ?? .loudAlarm
@@ -211,6 +220,7 @@ struct SettingsStore {
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
+            idleTimeoutSeconds: idleTimeout,
             responseMode: mode,
             enabledTriggers: enabledTriggers,
             notificationsEnabled: notificationsEnabled,
@@ -224,6 +234,7 @@ struct SettingsStore {
 
     func save(_ settings: GuardSettings) {
         defaults.set(settings.gracePeriodSeconds, forKey: Key.gracePeriodSeconds)
+        defaults.set(settings.idleTimeoutSeconds, forKey: Key.idleTimeoutSeconds)
         defaults.set(settings.responseMode.rawValue, forKey: Key.responseMode)
         defaults.set(settings.enabledTriggers.map(\.rawValue).sorted(), forKey: Key.enabledTriggers)
         defaults.set(settings.notificationsEnabled, forKey: Key.notificationsEnabled)
@@ -235,6 +246,7 @@ struct SettingsStore {
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]
+    static let validIdleTimeouts = [60, 300, 600, 900]
 
     private func setOptional(_ value: String?, forKey key: String) {
         if let value {

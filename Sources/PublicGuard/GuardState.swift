@@ -28,6 +28,7 @@ enum GuardTrigger {
     case chargerDisconnected
     case networkChanged(previous: String?, current: String?)
     case bluetoothDeviceOutOfRange(name: String)
+    case idleTimeout(seconds: Int)
     case systemWillSleep
     case systemDidWake
 }

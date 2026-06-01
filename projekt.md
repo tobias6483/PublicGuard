@@ -117,6 +117,7 @@ Implementeret:
 - Wi-Fi network change trigger via CoreWLAN polling
 - Sleep/wake trigger via NSWorkspace notifications
 - Experimental Bluetooth proximity trigger via CoreBluetooth scanning
+- Idle timeout trigger via lokal HID idle-time polling
 - Konfigurerbar grace period før respons
 - Loud alarm og silent response modes
 - Configurable alarm sound setting med bundled local choices og Apple Alarm som default
@@ -145,7 +146,8 @@ Implementeret:
 - Unit tests for Bluetooth target persistence and Bluetooth event logging
 - Unit tests for alarm volume persistence, fallback and log output
 - Unit tests for Café and Library preset behavior
-- `swift test` verifieret med 31 passing tests
+- Unit tests for idle timeout persistence and event logging
+- `swift test` verifieret med 33 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:

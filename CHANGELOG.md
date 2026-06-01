@@ -32,3 +32,4 @@
 - Added an experimental Bluetooth proximity trigger for a learned local BLE device.
 - Added configurable alarm playback volume.
 - Added Café and Library session presets.
+- Added a local idle timeout trigger.

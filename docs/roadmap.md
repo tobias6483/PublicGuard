@@ -8,6 +8,7 @@
 - Wi-Fi network change trigger
 - Sleep/wake trigger
 - Experimental Bluetooth proximity trigger for a learned BLE device
+- Idle timeout trigger
 - Configurable grace period before response
 - Loud local alarm
 - Configurable alarm sound with bundled local choices
