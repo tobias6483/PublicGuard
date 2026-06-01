@@ -38,6 +38,19 @@ struct EventLog {
         try? Data().write(to: url)
     }
 
+    func recentEntries(limit: Int = 5) -> [String] {
+        guard limit > 0,
+              let contents = try? String(contentsOf: url, encoding: .utf8)
+        else {
+            return []
+        }
+
+        return contents
+            .split(separator: "\n")
+            .suffix(limit)
+            .map(String.init)
+    }
+
     private static func timestamp() -> String {
         ISO8601DateFormatter().string(from: Date())
     }

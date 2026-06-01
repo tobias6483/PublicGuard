@@ -15,6 +15,7 @@
 - Notification enable/disable setting
 - Lock screen action
 - Local-only event log
+- Recent event preview in the menu bar
 - Event log open and clear actions
 - Local unsigned app bundle script
 - App icon for local app bundles
