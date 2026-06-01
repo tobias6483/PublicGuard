@@ -18,6 +18,7 @@
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Optional lock screen action
+- Optional launch at login setting for app bundle builds
 - Local-only event log
 - Recent event preview in the menu bar
 - Authenticated alarm stop with local audit logging

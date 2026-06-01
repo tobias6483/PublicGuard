@@ -107,10 +107,17 @@ final class EventLogTests: XCTestCase {
             responseMode: .silent,
             alarmSound: .ping,
             alarmVolume: .maximum,
-            lockScreenEnabled: false
+            lockScreenEnabled: false,
+            launchAtLoginEnabled: true
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true")
+    }
+
+    func testLaunchAtLoginChangeFailedMessageContainsError() {
+        let message = GuardEvent.launchAtLoginChangeFailed(error: "requiresAppBundle").message
+
+        XCTAssertEqual(message, "launch_at_login_change_failed error=\"requiresAppBundle\"")
     }
 
     func testTriggerIgnoredMessageContainsName() {

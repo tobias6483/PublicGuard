@@ -22,6 +22,7 @@ let package = Package(
                 .linkedFramework("CoreWLAN"),
                 .linkedFramework("IOKit"),
                 .linkedFramework("LocalAuthentication"),
+                .linkedFramework("ServiceManagement"),
                 .linkedFramework("UserNotifications")
             ]
         ),

@@ -33,3 +33,4 @@
 - Added configurable alarm playback volume.
 - Added Café and Library session presets.
 - Added a local idle timeout trigger.
+- Added an optional launch at login setting for app bundle builds.

@@ -16,6 +16,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.alarmSound, .appleAlarm)
         XCTAssertEqual(settings.alarmVolume, .normal)
         XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertFalse(settings.launchAtLoginEnabled)
         XCTAssertNil(settings.bluetoothTargetIdentifier)
         XCTAssertNil(settings.bluetoothTargetName)
     }
@@ -32,6 +33,7 @@ final class SettingsStoreTests: XCTestCase {
             alarmSound: .sosumi,
             alarmVolume: .maximum,
             lockScreenEnabled: false,
+            launchAtLoginEnabled: true,
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
             bluetoothTargetName: "Tobias iPhone"
         )
@@ -46,6 +48,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().alarmSound, .sosumi)
         XCTAssertEqual(store.load().alarmVolume, .maximum)
         XCTAssertFalse(store.load().lockScreenEnabled)
+        XCTAssertTrue(store.load().launchAtLoginEnabled)
         XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
     }
@@ -162,6 +165,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.alarmSound, .ping)
         XCTAssertEqual(settings.alarmVolume, .maximum)
         XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertTrue(settings.launchAtLoginEnabled)
         XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
     }
@@ -177,6 +181,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.alarmSound, .ping)
         XCTAssertEqual(settings.alarmVolume, .normal)
         XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertTrue(settings.launchAtLoginEnabled)
         XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
     }
@@ -195,6 +200,23 @@ final class SettingsStoreTests: XCTestCase {
         ))
 
         XCTAssertFalse(store.load().lockScreenEnabled)
+    }
+
+    func testLaunchAtLoginCanBeEnabled() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            launchAtLoginEnabled: true
+        ))
+
+        XCTAssertTrue(store.load().launchAtLoginEnabled)
     }
 
     func testBundledAlarmSoundsDeclareResources() {
@@ -237,6 +259,7 @@ private func customSettings() -> GuardSettings {
         alarmSound: .ping,
         alarmVolume: .normal,
         lockScreenEnabled: false,
+        launchAtLoginEnabled: true,
         bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
         bluetoothTargetName: "Tobias iPhone"
     )
