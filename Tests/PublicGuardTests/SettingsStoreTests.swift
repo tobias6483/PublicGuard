@@ -13,6 +13,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
         XCTAssertTrue(settings.notificationsEnabled)
         XCTAssertEqual(settings.alarmSound, .appleAlarm)
+        XCTAssertEqual(settings.alarmVolume, .normal)
         XCTAssertTrue(settings.lockScreenEnabled)
         XCTAssertNil(settings.bluetoothTargetIdentifier)
         XCTAssertNil(settings.bluetoothTargetName)
@@ -27,6 +28,7 @@ final class SettingsStoreTests: XCTestCase {
             enabledTriggers: [.chargerDisconnect, .networkChange],
             notificationsEnabled: false,
             alarmSound: .sosumi,
+            alarmVolume: .maximum,
             lockScreenEnabled: false,
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
             bluetoothTargetName: "Tobias iPhone"
@@ -39,6 +41,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().enabledTriggers, [.chargerDisconnect, .networkChange])
         XCTAssertFalse(store.load().notificationsEnabled)
         XCTAssertEqual(store.load().alarmSound, .sosumi)
+        XCTAssertEqual(store.load().alarmVolume, .maximum)
         XCTAssertFalse(store.load().lockScreenEnabled)
         XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
@@ -122,6 +125,19 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().alarmSound, .appleAlarm)
+    }
+
+    func testInvalidAlarmVolumeFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set("not-a-real-volume", forKey: "alarmVolume")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().alarmVolume, .normal)
+    }
+
+    func testAlarmVolumeValuesMapToSoundVolumes() {
+        XCTAssertEqual(GuardSettings.AlarmVolume.normal.soundVolume, 0.8)
+        XCTAssertEqual(GuardSettings.AlarmVolume.maximum.soundVolume, 1.0)
     }
 
     func testLockScreenCanBeDisabled() {

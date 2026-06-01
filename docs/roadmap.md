@@ -11,6 +11,7 @@
 - Configurable grace period before response
 - Loud local alarm
 - Configurable alarm sound with bundled local choices
+- Configurable alarm playback volume
 - Silent response mode
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
@@ -27,7 +28,7 @@
 - Complete manual hardware QA and record results
 - Validate Bluetooth proximity behavior with iPhone and common BLE accessories
 - Validate lid-close sleep/wake behavior against the research note
-- Tune bundled alarm sound loudness after hardware testing
+- Tune bundled alarm sound files after hardware testing
 
 ## Later
 

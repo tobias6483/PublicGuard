@@ -92,11 +92,35 @@ struct GuardSettings {
         }
     }
 
+    enum AlarmVolume: String, CaseIterable {
+        case normal
+        case maximum
+
+        var title: String {
+            switch self {
+            case .normal:
+                "Normal"
+            case .maximum:
+                "Maximum"
+            }
+        }
+
+        var soundVolume: Float {
+            switch self {
+            case .normal:
+                0.8
+            case .maximum:
+                1.0
+            }
+        }
+    }
+
     var gracePeriodSeconds: Int
     var responseMode: ResponseMode
     var enabledTriggers: Set<TriggerKind>
     var notificationsEnabled: Bool
     var alarmSound: AlarmSound
+    var alarmVolume: AlarmVolume = .normal
     var lockScreenEnabled: Bool
     var bluetoothTargetIdentifier: String?
     var bluetoothTargetName: String?
@@ -117,6 +141,7 @@ struct SettingsStore {
         static let enabledTriggers = "enabledTriggers"
         static let notificationsEnabled = "notificationsEnabled"
         static let alarmSound = "alarmSound"
+        static let alarmVolume = "alarmVolume"
         static let lockScreenEnabled = "lockScreenEnabled"
         static let bluetoothTargetIdentifier = "bluetoothTargetIdentifier"
         static let bluetoothTargetName = "bluetoothTargetName"
@@ -144,6 +169,8 @@ struct SettingsStore {
         let notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
         let storedAlarmSound = defaults.string(forKey: Key.alarmSound)
         let alarmSound = storedAlarmSound.flatMap(GuardSettings.AlarmSound.init(rawValue:)) ?? .appleAlarm
+        let storedAlarmVolume = defaults.string(forKey: Key.alarmVolume)
+        let alarmVolume = storedAlarmVolume.flatMap(GuardSettings.AlarmVolume.init(rawValue:)) ?? .normal
         let lockScreenEnabled = defaults.object(forKey: Key.lockScreenEnabled) as? Bool ?? true
         let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
         let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
@@ -154,6 +181,7 @@ struct SettingsStore {
             enabledTriggers: enabledTriggers,
             notificationsEnabled: notificationsEnabled,
             alarmSound: alarmSound,
+            alarmVolume: alarmVolume,
             lockScreenEnabled: lockScreenEnabled,
             bluetoothTargetIdentifier: bluetoothTargetIdentifier,
             bluetoothTargetName: bluetoothTargetName
@@ -166,6 +194,7 @@ struct SettingsStore {
         defaults.set(settings.enabledTriggers.map(\.rawValue).sorted(), forKey: Key.enabledTriggers)
         defaults.set(settings.notificationsEnabled, forKey: Key.notificationsEnabled)
         defaults.set(settings.alarmSound.rawValue, forKey: Key.alarmSound)
+        defaults.set(settings.alarmVolume.rawValue, forKey: Key.alarmVolume)
         defaults.set(settings.lockScreenEnabled, forKey: Key.lockScreenEnabled)
         setOptional(settings.bluetoothTargetIdentifier, forKey: Key.bluetoothTargetIdentifier)
         setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)

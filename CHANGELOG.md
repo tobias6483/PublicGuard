@@ -30,3 +30,4 @@
 - Added a `Lock Screen` setting for enabling or disabling the lock action.
 - Added `alarm_stopped` audit logging for authenticated alarm stops.
 - Added an experimental Bluetooth proximity trigger for a learned local BLE device.
+- Added configurable alarm playback volume.

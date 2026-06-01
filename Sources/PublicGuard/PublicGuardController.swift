@@ -176,6 +176,19 @@ final class PublicGuardController {
         alarmSound.submenu = alarmSoundSubmenu
         submenu.addItem(alarmSound)
 
+        let alarmVolume = NSMenuItem(title: "Alarm Volume", action: nil, keyEquivalent: "")
+        let alarmVolumeSubmenu = NSMenu()
+
+        for volume in GuardSettings.AlarmVolume.allCases {
+            let volumeItem = NSMenuItem(title: volume.title, action: #selector(setAlarmVolume(_:)), keyEquivalent: "", target: self)
+            volumeItem.representedObject = volume.rawValue
+            volumeItem.state = settings.alarmVolume == volume ? .on : .off
+            alarmVolumeSubmenu.addItem(volumeItem)
+        }
+
+        alarmVolume.submenu = alarmVolumeSubmenu
+        submenu.addItem(alarmVolume)
+
         let triggers = NSMenuItem(title: "Triggers", action: nil, keyEquivalent: "")
         let triggerSubmenu = NSMenu()
 
@@ -371,6 +384,18 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func setAlarmVolume(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let volume = GuardSettings.AlarmVolume(rawValue: rawValue)
+        else {
+            return
+        }
+
+        settings.alarmVolume = volume
+        persistSettings()
+    }
+
     @objc private func quit() {
         NSApp.terminate(nil)
     }
@@ -381,6 +406,7 @@ final class PublicGuardController {
             gracePeriodSeconds: settings.gracePeriodSeconds,
             responseMode: settings.responseMode,
             alarmSound: settings.alarmSound,
+            alarmVolume: settings.alarmVolume,
             lockScreenEnabled: settings.lockScreenEnabled
         ))
         rebuildMenu()
@@ -451,7 +477,7 @@ final class PublicGuardController {
                 if self.settings.responseMode == .loudAlarm {
                     self.state.markAlarmActive()
                     self.eventLog.write(.alarmTriggered(reason: reason))
-                    self.alarm.start(sound: self.settings.alarmSound)
+                    self.alarm.start(sound: self.settings.alarmSound, volume: self.settings.alarmVolume)
                 } else {
                     self.eventLog.write(.silentResponseTriggered(reason: reason))
                 }

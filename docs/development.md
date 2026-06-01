@@ -46,31 +46,33 @@ Maintainers and project agents with write access should follow the detailed work
 3. Change `Settings > Grace Period` and confirm the checkmark moves.
 4. Change `Settings > Response Mode` and confirm the checkmark moves.
 5. Change `Settings > Alarm Sound` and confirm the checkmark moves.
-6. Change `Settings > Triggers` and confirm trigger checkmarks toggle.
-7. Toggle `Settings > Notifications` and confirm the checkmark moves.
-8. Toggle `Settings > Lock Screen` and confirm the checkmark moves.
-9. Click `Arm`.
-10. Disconnect the power adapter.
-11. Confirm an event is written to the log.
-12. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged when that trigger is enabled.
-13. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
-14. Wait for the grace period.
-15. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled.
-16. With lock screen disabled, confirm alarm/log/notification behavior continues without locking the screen.
-17. In silent mode, confirm log and optional lock happen without alarm sound.
-18. With notifications enabled, confirm macOS notification behavior in an app bundle build.
-19. With notifications disabled, confirm no macOS notification is sent.
-20. Open `Recent Events` and confirm the newest local log entries are shown first.
-21. Choose `Clear Event Log` and confirm the log resets with a `log_cleared` entry.
-22. Re-open the app and choose `Disarm`.
-23. Confirm Touch ID/password is required.
-24. Confirm alarm stops after successful authentication.
-25. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
-26. In the app bundle build, grant Bluetooth permission when prompted.
-27. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
-28. Confirm the event log records `bluetooth_device_learned`.
-29. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
-30. After roughly 30 seconds, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
+6. Change `Settings > Alarm Volume` and confirm the checkmark moves.
+7. Change `Settings > Triggers` and confirm trigger checkmarks toggle.
+8. Toggle `Settings > Notifications` and confirm the checkmark moves.
+9. Toggle `Settings > Lock Screen` and confirm the checkmark moves.
+10. Click `Arm`.
+11. Disconnect the power adapter.
+12. Confirm an event is written to the log.
+13. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged when that trigger is enabled.
+14. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
+15. Wait for the grace period.
+16. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled.
+17. In maximum alarm volume mode, confirm alarm playback is louder without changing the Mac's global system volume.
+18. With lock screen disabled, confirm alarm/log/notification behavior continues without locking the screen.
+19. In silent mode, confirm log and optional lock happen without alarm sound.
+20. With notifications enabled, confirm macOS notification behavior in an app bundle build.
+21. With notifications disabled, confirm no macOS notification is sent.
+22. Open `Recent Events` and confirm the newest local log entries are shown first.
+23. Choose `Clear Event Log` and confirm the log resets with a `log_cleared` entry.
+24. Re-open the app and choose `Disarm`.
+25. Confirm Touch ID/password is required.
+26. Confirm alarm stops after successful authentication.
+27. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
+28. In the app bundle build, grant Bluetooth permission when prompted.
+29. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
+30. Confirm the event log records `bluetooth_device_learned`.
+31. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
+32. After roughly 30 seconds, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
 
 Bluetooth proximity is experimental. iPhones may not advertise a stable BLE identity in every state, so record which device and macOS/iOS versions were tested.
 
