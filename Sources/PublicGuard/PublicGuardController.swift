@@ -103,6 +103,7 @@ final class PublicGuardController {
         menu.addItem(.separator())
         menu.addItem(settingsMenuItem())
         menu.addItem(NSMenuItem(title: "Test Response", action: #selector(testResponse), keyEquivalent: "t", target: self))
+        menu.addItem(recentEventsMenuItem())
         menu.addItem(NSMenuItem(title: "Open Event Log", action: #selector(openEventLog), keyEquivalent: "l", target: self))
         menu.addItem(NSMenuItem(title: "Clear Event Log", action: #selector(clearEventLog), keyEquivalent: "", target: self))
         menu.addItem(.separator())
@@ -173,6 +174,27 @@ final class PublicGuardController {
         let notificationsItem = NSMenuItem(title: "Notifications", action: #selector(toggleNotifications), keyEquivalent: "", target: self)
         notificationsItem.state = settings.notificationsEnabled ? .on : .off
         submenu.addItem(notificationsItem)
+
+        item.submenu = submenu
+        return item
+    }
+
+    private func recentEventsMenuItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "Recent Events", action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+        let entries = eventLog.recentEntries()
+
+        if entries.isEmpty {
+            let emptyItem = NSMenuItem(title: "No events yet", action: nil, keyEquivalent: "")
+            emptyItem.isEnabled = false
+            submenu.addItem(emptyItem)
+        } else {
+            for entry in entries.reversed() {
+                let eventItem = NSMenuItem(title: entry, action: nil, keyEquivalent: "")
+                eventItem.isEnabled = false
+                submenu.addItem(eventItem)
+            }
+        }
 
         item.submenu = submenu
         return item

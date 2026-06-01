@@ -29,6 +29,43 @@ final class EventLogTests: XCTestCase {
         XCTAssertEqual(contents, "")
     }
 
+    func testRecentEntriesReturnsNewestEventsWithinLimit() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url)
+
+        log.write(.appStarted)
+        log.write(.armed)
+        log.write(.chargerDisconnected)
+
+        let entries = log.recentEntries(limit: 2)
+
+        XCTAssertEqual(entries.count, 2)
+        XCTAssertTrue(entries[0].contains("armed"))
+        XCTAssertTrue(entries[1].contains("charger_disconnected"))
+    }
+
+    func testRecentEntriesReturnsEmptyListWhenLogDoesNotExist() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url)
+
+        XCTAssertEqual(log.recentEntries(), [])
+    }
+
+    func testRecentEntriesReturnsEmptyListForNonPositiveLimit() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url)
+
+        log.write(.armed)
+
+        XCTAssertEqual(log.recentEntries(limit: 0), [])
+    }
+
     func testAlarmTriggeredMessageContainsReason() {
         let message = GuardEvent.alarmTriggered(reason: "Power adapter disconnected").message
 

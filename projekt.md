@@ -111,6 +111,7 @@ Implementeret:
 - Arm/Disarm flow
 - Touch ID/password-beskyttet disarm via LocalAuthentication
 - Lokal event-log i Application Support
+- Recent Events preview i menu bar
 - Event log open/clear actions
 - Charger disconnect trigger via IOKit power polling
 - Wi-Fi network change trigger via CoreWLAN polling
@@ -131,9 +132,10 @@ Implementeret:
 - Unit tests for trigger settings persistence and ignored trigger logging
 - Unit tests for notification setting persistence
 - Unit tests for event log clearing
+- Unit tests for recent event log previews
 - Unit tests for settings persistence
 - Unit tests for alarm sound setting persistence and bundled resource metadata
-- `swift test` verifieret med 18 passing tests
+- `swift test` verifieret med 21 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:

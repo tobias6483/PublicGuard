@@ -58,10 +58,11 @@ Maintainers and project agents with write access should follow the detailed work
 15. In silent mode, confirm log/lock happen without alarm sound.
 16. With notifications enabled, confirm macOS notification behavior in an app bundle build.
 17. With notifications disabled, confirm no macOS notification is sent.
-18. Choose `Clear Event Log` and confirm the log resets with a `log_cleared` entry.
-19. Re-open the app and choose `Disarm`.
-20. Confirm Touch ID/password is required.
-21. Confirm alarm stops after successful authentication.
+18. Open `Recent Events` and confirm the newest local log entries are shown first.
+19. Choose `Clear Event Log` and confirm the log resets with a `log_cleared` entry.
+20. Re-open the app and choose `Disarm`.
+21. Confirm Touch ID/password is required.
+22. Confirm alarm stops after successful authentication.
 
 ## Log Location
 
