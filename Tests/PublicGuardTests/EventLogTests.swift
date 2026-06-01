@@ -82,6 +82,18 @@ final class EventLogTests: XCTestCase {
         XCTAssertEqual(message, "network_changed previous=\"Cafe WiFi\" current=\"none\"")
     }
 
+    func testBluetoothDeviceLearnedMessageContainsValues() {
+        let message = GuardEvent.bluetoothDeviceLearned(name: "Tobias iPhone").message
+
+        XCTAssertEqual(message, "bluetooth_device_learned name=\"Tobias iPhone\"")
+    }
+
+    func testBluetoothDeviceOutOfRangeMessageContainsName() {
+        let message = GuardEvent.bluetoothDeviceOutOfRange(name: "Tobias iPhone").message
+
+        XCTAssertEqual(message, "bluetooth_device_out_of_range name=\"Tobias iPhone\"")
+    }
+
     func testSettingsChangedMessageContainsValues() {
         let message = GuardEvent.settingsChanged(
             gracePeriodSeconds: 10,

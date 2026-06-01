@@ -13,6 +13,7 @@ final class PublicGuardController {
     private let powerMonitor = PowerMonitor()
     private let networkMonitor = NetworkMonitor()
     private let sleepWakeMonitor = SleepWakeMonitor()
+    private let bluetoothMonitor = BluetoothProximityMonitor()
 
     private var settings: GuardSettings
     private var statusItem: NSStatusItem?
@@ -53,9 +54,25 @@ final class PublicGuardController {
             }
         }
 
+        bluetoothMonitor.onDeviceLearned = { [weak self] device in
+            Task { @MainActor in
+                self?.storeLearnedBluetoothDevice(device)
+            }
+        }
+
+        bluetoothMonitor.onDeviceOutOfRange = { [weak self] device in
+            Task { @MainActor in
+                self?.handleTrigger(.bluetoothDeviceOutOfRange(name: device.name))
+            }
+        }
+
         powerMonitor.start()
         networkMonitor.start()
         sleepWakeMonitor.start()
+        bluetoothMonitor.start(
+            targetIdentifier: settings.bluetoothTargetIdentifier,
+            targetName: settings.bluetoothTargetName
+        )
     }
 
     func stop() {
@@ -65,6 +82,7 @@ final class PublicGuardController {
         powerMonitor.stop()
         networkMonitor.stop()
         sleepWakeMonitor.stop()
+        bluetoothMonitor.stop()
     }
 
     private func setupMenuBar() {
@@ -171,6 +189,8 @@ final class PublicGuardController {
         triggers.submenu = triggerSubmenu
         submenu.addItem(triggers)
 
+        submenu.addItem(bluetoothProximityMenuItem())
+
         let notificationsItem = NSMenuItem(title: "Notifications", action: #selector(toggleNotifications), keyEquivalent: "", target: self)
         notificationsItem.state = settings.notificationsEnabled ? .on : .off
         submenu.addItem(notificationsItem)
@@ -199,6 +219,30 @@ final class PublicGuardController {
                 submenu.addItem(eventItem)
             }
         }
+
+        item.submenu = submenu
+        return item
+    }
+
+    private func bluetoothProximityMenuItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "Bluetooth Proximity", action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+
+        let targetTitle: String
+        if let name = settings.bluetoothTargetName {
+            targetTitle = "Learned Device: \(name)"
+        } else {
+            targetTitle = "No Learned Device"
+        }
+
+        let targetItem = NSMenuItem(title: targetTitle, action: nil, keyEquivalent: "")
+        targetItem.isEnabled = false
+        submenu.addItem(targetItem)
+        submenu.addItem(NSMenuItem(title: "Learn Nearby Device", action: #selector(learnBluetoothDevice), keyEquivalent: "", target: self))
+
+        let clearItem = NSMenuItem(title: "Clear Learned Device", action: #selector(clearBluetoothDevice), keyEquivalent: "", target: self)
+        clearItem.isEnabled = settings.bluetoothTargetIdentifier != nil
+        submenu.addItem(clearItem)
 
         item.submenu = submenu
         return item
@@ -250,6 +294,18 @@ final class PublicGuardController {
 
     @objc private func testResponse() {
         triggerAlarmAfterGracePeriod(reason: "Manual response test", bypassArmedCheck: true)
+    }
+
+    @objc private func learnBluetoothDevice() {
+        bluetoothMonitor.learnNearbyDevice()
+    }
+
+    @objc private func clearBluetoothDevice() {
+        settings.bluetoothTargetIdentifier = nil
+        settings.bluetoothTargetName = nil
+        settingsStore.save(settings)
+        bluetoothMonitor.start(targetIdentifier: nil, targetName: nil)
+        rebuildMenu()
     }
 
     @objc private func setGracePeriod(_ sender: NSMenuItem) {
@@ -330,6 +386,19 @@ final class PublicGuardController {
         rebuildMenu()
     }
 
+    private func storeLearnedBluetoothDevice(_ device: LearnedBluetoothDevice) {
+        settings.bluetoothTargetIdentifier = device.identifier.uuidString
+        settings.bluetoothTargetName = device.name
+        settings.enabledTriggers.insert(.bluetoothProximity)
+        settingsStore.save(settings)
+        eventLog.write(.bluetoothDeviceLearned(name: device.name))
+        bluetoothMonitor.start(
+            targetIdentifier: settings.bluetoothTargetIdentifier,
+            targetName: settings.bluetoothTargetName
+        )
+        rebuildMenu()
+    }
+
     private func handleTrigger(_ trigger: GuardTrigger) {
         guard state.isArmed else { return }
 
@@ -348,6 +417,13 @@ final class PublicGuardController {
             }
             eventLog.write(.networkChanged(previous: previous, current: current))
             triggerAlarmAfterGracePeriod(reason: "Wi-Fi network changed")
+        case let .bluetoothDeviceOutOfRange(name):
+            guard settings.isTriggerEnabled(.bluetoothProximity) else {
+                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.bluetoothProximity.rawValue))
+                return
+            }
+            eventLog.write(.bluetoothDeviceOutOfRange(name: name))
+            triggerAlarmAfterGracePeriod(reason: "Bluetooth device out of range: \(name)")
         case .systemWillSleep:
             eventLog.write(.systemWillSleep)
         case .systemDidWake:

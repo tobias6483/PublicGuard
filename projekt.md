@@ -116,6 +116,7 @@ Implementeret:
 - Charger disconnect trigger via IOKit power polling
 - Wi-Fi network change trigger via CoreWLAN polling
 - Sleep/wake trigger via NSWorkspace notifications
+- Experimental Bluetooth proximity trigger via CoreBluetooth scanning
 - Konfigurerbar grace period før respons
 - Loud alarm og silent response modes
 - Configurable alarm sound setting med bundled local choices og Apple Alarm som default
@@ -139,7 +140,8 @@ Implementeret:
 - Unit tests for settings persistence
 - Unit tests for alarm sound setting persistence and bundled resource metadata
 - Unit tests for alarm stop state and event logging
-- `swift test` verifieret med 24 passing tests
+- Unit tests for Bluetooth target persistence and Bluetooth event logging
+- `swift test` verifieret med 27 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:
@@ -247,7 +249,7 @@ Library mode:
 
 ## Roadmap
 
-- iPhone Bluetooth proximity
+- Validate experimental iPhone/BLE proximity behavior on real hardware
 - Location-based triggers
 - Public session presets
 - Apple Watch support

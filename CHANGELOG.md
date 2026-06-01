@@ -29,3 +29,4 @@
 - Added a `Recent Events` menu preview for the local event log.
 - Added a `Lock Screen` setting for enabling or disabling the lock action.
 - Added `alarm_stopped` audit logging for authenticated alarm stops.
+- Added an experimental Bluetooth proximity trigger for a learned local BLE device.

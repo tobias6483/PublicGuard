@@ -19,6 +19,7 @@ struct GuardSettings {
         case chargerDisconnect
         case networkChange
         case wakeFromSleep
+        case bluetoothProximity
 
         var title: String {
             switch self {
@@ -28,6 +29,8 @@ struct GuardSettings {
                 "Wi-Fi Change"
             case .wakeFromSleep:
                 "Wake From Sleep"
+            case .bluetoothProximity:
+                "Bluetooth Proximity"
             }
         }
     }
@@ -95,6 +98,8 @@ struct GuardSettings {
     var notificationsEnabled: Bool
     var alarmSound: AlarmSound
     var lockScreenEnabled: Bool
+    var bluetoothTargetIdentifier: String?
+    var bluetoothTargetName: String?
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
@@ -113,6 +118,8 @@ struct SettingsStore {
         static let notificationsEnabled = "notificationsEnabled"
         static let alarmSound = "alarmSound"
         static let lockScreenEnabled = "lockScreenEnabled"
+        static let bluetoothTargetIdentifier = "bluetoothTargetIdentifier"
+        static let bluetoothTargetName = "bluetoothTargetName"
     }
 
     private let defaults: UserDefaults
@@ -138,6 +145,8 @@ struct SettingsStore {
         let storedAlarmSound = defaults.string(forKey: Key.alarmSound)
         let alarmSound = storedAlarmSound.flatMap(GuardSettings.AlarmSound.init(rawValue:)) ?? .appleAlarm
         let lockScreenEnabled = defaults.object(forKey: Key.lockScreenEnabled) as? Bool ?? true
+        let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
+        let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
@@ -145,7 +154,9 @@ struct SettingsStore {
             enabledTriggers: enabledTriggers,
             notificationsEnabled: notificationsEnabled,
             alarmSound: alarmSound,
-            lockScreenEnabled: lockScreenEnabled
+            lockScreenEnabled: lockScreenEnabled,
+            bluetoothTargetIdentifier: bluetoothTargetIdentifier,
+            bluetoothTargetName: bluetoothTargetName
         )
     }
 
@@ -156,7 +167,17 @@ struct SettingsStore {
         defaults.set(settings.notificationsEnabled, forKey: Key.notificationsEnabled)
         defaults.set(settings.alarmSound.rawValue, forKey: Key.alarmSound)
         defaults.set(settings.lockScreenEnabled, forKey: Key.lockScreenEnabled)
+        setOptional(settings.bluetoothTargetIdentifier, forKey: Key.bluetoothTargetIdentifier)
+        setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]
+
+    private func setOptional(_ value: String?, forKey key: String) {
+        if let value {
+            defaults.set(value, forKey: key)
+        } else {
+            defaults.removeObject(forKey: key)
+        }
+    }
 }

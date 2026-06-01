@@ -25,7 +25,7 @@ open dist/PublicGuard.app
 
 The generated bundle is unsigned and intended for local manual testing.
 
-The local bundle includes the `PublicGuard.icns` app icon and bundled alarm sounds from `Sources/PublicGuard/Resources`.
+The local bundle includes the `PublicGuard.icns` app icon, bundled alarm sounds from `Sources/PublicGuard/Resources`, and a Bluetooth usage description for proximity testing.
 
 ## Test
 
@@ -66,6 +66,13 @@ Maintainers and project agents with write access should follow the detailed work
 23. Confirm Touch ID/password is required.
 24. Confirm alarm stops after successful authentication.
 25. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
+26. In the app bundle build, grant Bluetooth permission when prompted.
+27. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
+28. Confirm the event log records `bluetooth_device_learned`.
+29. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
+30. After roughly 30 seconds, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
+
+Bluetooth proximity is experimental. iPhones may not advertise a stable BLE identity in every state, so record which device and macOS/iOS versions were tested.
 
 ## Log Location
 

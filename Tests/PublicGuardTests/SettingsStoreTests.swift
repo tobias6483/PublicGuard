@@ -14,6 +14,8 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertTrue(settings.notificationsEnabled)
         XCTAssertEqual(settings.alarmSound, .appleAlarm)
         XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertNil(settings.bluetoothTargetIdentifier)
+        XCTAssertNil(settings.bluetoothTargetName)
     }
 
     func testSaveAndLoadRoundTripsSettings() {
@@ -25,7 +27,9 @@ final class SettingsStoreTests: XCTestCase {
             enabledTriggers: [.chargerDisconnect, .networkChange],
             notificationsEnabled: false,
             alarmSound: .sosumi,
-            lockScreenEnabled: false
+            lockScreenEnabled: false,
+            bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
+            bluetoothTargetName: "Tobias iPhone"
         )
 
         store.save(expected)
@@ -36,6 +40,32 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertFalse(store.load().notificationsEnabled)
         XCTAssertEqual(store.load().alarmSound, .sosumi)
         XCTAssertFalse(store.load().lockScreenEnabled)
+        XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
+        XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
+    }
+
+    func testBluetoothTargetCanBeCleared() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
+            bluetoothTargetName: "Tobias iPhone"
+        ))
+
+        var settings = store.load()
+        settings.bluetoothTargetIdentifier = nil
+        settings.bluetoothTargetName = nil
+        store.save(settings)
+
+        XCTAssertNil(store.load().bluetoothTargetIdentifier)
+        XCTAssertNil(store.load().bluetoothTargetName)
     }
 
     func testInvalidGracePeriodFallsBackToDefault() {
