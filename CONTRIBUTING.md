@@ -30,8 +30,9 @@ PublicGuard should stay:
 
 - Add unit tests around new triggers and actions
 - Improve menu bar copy
-- Research reliable macOS lid-close detection
-- Add bundled alarm sound assets
+- Run and document manual hardware QA
+- Research reliable macOS lid-close behavior
+- Tune bundled alarm sound loudness after hardware testing
 - Improve release packaging documentation
 
 ## Pull Requests

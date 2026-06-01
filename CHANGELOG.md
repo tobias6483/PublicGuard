@@ -24,4 +24,5 @@
 - Added configurable alarm sound selection with a bundled looping Apple Alarm default.
 - Added a generated app icon to local `.app` bundles.
 - Added Beacon Pulse and High Alert bundled alarm sounds.
+- Documented lid-close behavior research and tightened MVP limitation language.
 - Enabled `main` branch protection with required pull requests and the `Swift Build and Test` check.

@@ -14,8 +14,7 @@ PublicGuard er en open-source macOS menu bar app, der hjælper udviklere, studer
 
 Appen reagerer på mistænkelige fysiske events som:
 
-- Lukning af låg
-- Bevægelse eller wake-events
+- Sleep/wake-events
 - Frakobling af oplader
 - Bluetooth-afstand fra telefon
 - Netværks- eller lokationsændringer
@@ -35,7 +34,7 @@ Favoritten er **PublicGuard**, fordi det lyder seriøst, OSS-agtigt og ikke gimm
 
 ## Kort Pitch
 
-PublicGuard is an open-source macOS menu bar app that helps developers, students, and creators protect their laptop when working in public spaces. It triggers loud alarms and optional lock/security workflows when suspicious physical events occur, such as lid close, movement, charger disconnect, Bluetooth distance from phone, or network/location changes.
+PublicGuard is an open-source macOS menu bar app that helps developers, students, and creators protect their laptop when working in public spaces. It triggers loud alarms and optional lock/security workflows when suspicious physical events occur, such as charger disconnect, wake while armed, Bluetooth distance from phone, or network/location changes.
 
 ## Stærk README-positionering
 
@@ -54,7 +53,7 @@ Og som:
 Core:
 
 > Arm your Mac before stepping away.
-> If someone closes the lid, unplugs the charger, wakes it, or moves it away from your phone, PublicGuard reacts instantly with alarms, lock actions, and local security logs.
+> If someone unplugs the charger, wakes it while armed, changes networks, or moves it away from your phone, PublicGuard reacts with alarms, lock actions, and local security logs.
 
 ## MVP
 
@@ -65,13 +64,13 @@ Start simpelt.
 - macOS menu bar app
 - "Arm / Disarm" knap
 - Meget høj alarmlyd
-- Alarm hvis låget lukkes
+- Log sleep and respond when Mac wakes while armed
 - Alarm hvis oplader fjernes
 - Alarm hvis Mac vågner fra sleep mens appen er armed
 - Kræv password/Touch ID for at disarme
 - Log over events:
   - Armed time
-  - Lid closed
+  - Sleep/wake while armed
   - Charger removed
   - Alarm triggered
   - Alarm stopped
@@ -81,7 +80,7 @@ Det er realistisk hurtigt og kan stadig virke professionelt.
 ## MVP Feature-List til GitHub
 
 - Menu bar Arm/Disarm
-- Loud alarm when lid closes while armed
+- Loud alarm when Mac wakes while armed
 - Alarm when charger disconnects
 - Lock screen action
 - Grace period before alarm
@@ -204,13 +203,13 @@ Ikke altid skal appen skrige. Nogle vil hellere have:
 
 Webcam snapshot kan dog være følsomt privacy-wise, så det skal være opt-in og meget tydeligt.
 
-### 6. Panic Delay
+### 6. Sleep/Wake Delay
 
-Når brugeren selv lukker låget, skal appen ikke nødvendigvis gå amok med det samme.
+Når Mac'en vågner mens PublicGuard er armed, skal appen ikke nødvendigvis gå amok med det samme.
 
 Eksempel:
 
-> Lid closed while armed -> configured grace period -> configured response
+> Wake while armed -> configured grace period -> configured response
 
 Så brugeren kan nå at disarme.
 

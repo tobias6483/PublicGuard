@@ -32,7 +32,7 @@ Implemented:
 
 Planned:
 
-- Better lid-close detection
+- Better lid-close research and behavior
 - iPhone Bluetooth proximity trigger
 - Encrypted event logs
 - Shortcuts and Apple Watch support
@@ -108,7 +108,7 @@ The menu also includes `Clear Event Log`, which resets the local log and writes 
 
 ## Current Technical Notes
 
-macOS usually sleeps immediately when a MacBook lid closes. That means a process cannot reliably keep running and play an alarm while the lid is closed. The first MVP logs sleep events and reacts when the Mac wakes while armed. Better lid-close behavior is tracked as a roadmap item.
+macOS usually sleeps immediately when a MacBook lid closes. That means a process cannot reliably keep running and play an alarm while the lid is closed. The first MVP logs sleep events and reacts when the Mac wakes while armed. Better lid-close behavior is tracked as a roadmap item; see [docs/lid-close-research.md](docs/lid-close-research.md).
 
 ## Architecture
 
