@@ -44,9 +44,9 @@ Maintainers and project agents with write access should follow the detailed work
 ## Manual Test Checklist
 
 1. Launch PublicGuard.
-2. Confirm it appears in the menu bar.
-3. Apply `Settings > Presets > Café` and confirm grace period, loud mode, maximum alarm volume, notifications, lock screen, and trigger checkmarks update.
-4. Apply `Settings > Presets > Library` and confirm 15 second grace period, silent mode, normal alarm volume, notifications, lock screen, and trigger checkmarks update.
+2. Confirm it appears in the menu bar with the PublicGuard icon and label.
+3. Apply `Settings > Presets > Café` and confirm the Café preset checkmark, `Settings (Café)` title, grace period, loud mode, maximum alarm volume, notifications, lock screen, and trigger checkmarks update.
+4. Apply `Settings > Presets > Library` and confirm the Library preset checkmark, `Settings (Library)` title, 15 second grace period, silent mode, normal alarm volume, notifications, lock screen, and trigger checkmarks update.
 5. Change `Settings > Grace Period` and confirm the checkmark moves.
 6. Change `Settings > Idle Timeout` and confirm the checkmark moves.
 7. Change `Settings > Response Mode` and confirm the checkmark moves.
@@ -99,9 +99,9 @@ Minimal event log detail affects new log entries only. Existing standard-detail 
 
 ## Known macOS Behavior
 
-When a MacBook lid closes, macOS usually suspends regular app execution. PublicGuard currently treats sleep/wake as the practical MVP signal:
+When a MacBook lid closes, macOS usually suspends regular app execution. PublicGuard treats sleep/wake as the practical MVP signal:
 
-- `willSleep` is logged while armed.
+- `willSleep` is logged while armed and starts the configured response immediately when macOS gives PublicGuard time to run before suspension.
 - `didWake` triggers the grace period and configured response while armed.
 
 Future versions should research whether power assertions, IOKit notifications, or helper processes can improve lid-close handling without harming battery life or privacy.

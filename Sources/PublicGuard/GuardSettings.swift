@@ -29,7 +29,7 @@ struct GuardSettings {
             case .networkChange:
                 "Wi-Fi Change"
             case .wakeFromSleep:
-                "Wake From Sleep"
+                "Lid Close / Wake"
             case .bluetoothProximity:
                 "Bluetooth Proximity"
             case .idleTimeout:
@@ -165,6 +165,52 @@ struct GuardSettings {
             }
 
             return updated
+        }
+
+        func matches(_ settings: GuardSettings) -> Bool {
+            settings.enabledTriggers == Set(TriggerKind.allCases)
+                && settings.notificationsEnabled
+                && settings.lockScreenEnabled
+                && settings.gracePeriodSeconds == gracePeriodSeconds
+                && settings.idleTimeoutSeconds == idleTimeoutSeconds
+                && settings.responseMode == responseMode
+                && settings.alarmVolume == alarmVolume
+        }
+
+        private var gracePeriodSeconds: Int {
+            switch self {
+            case .cafe:
+                5
+            case .library:
+                15
+            }
+        }
+
+        private var idleTimeoutSeconds: Int {
+            switch self {
+            case .cafe:
+                300
+            case .library:
+                900
+            }
+        }
+
+        private var responseMode: ResponseMode {
+            switch self {
+            case .cafe:
+                .loudAlarm
+            case .library:
+                .silent
+            }
+        }
+
+        private var alarmVolume: AlarmVolume {
+            switch self {
+            case .cafe:
+                .maximum
+            case .library:
+                .normal
+            }
         }
     }
 

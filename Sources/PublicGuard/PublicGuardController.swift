@@ -98,7 +98,7 @@ final class PublicGuardController {
 
     private func setupMenuBar() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.title = "PublicGuard"
+        configureStatusButton(item.button)
         item.button?.target = self
         item.button?.action = #selector(openMenu)
         statusItem = item
@@ -141,11 +141,17 @@ final class PublicGuardController {
         statusItem?.menu = menu
         let modeSuffix = settings.responseMode == .silent ? " Silent" : ""
         statusItem?.button?.title = state.isArmed ? "PublicGuard On\(modeSuffix)" : "PublicGuard"
+        statusItem?.button?.toolTip = state.isArmed ? "PublicGuard armed" : "PublicGuard disarmed"
     }
 
     private func settingsMenuItem() -> NSMenuItem {
-        let item = NSMenuItem(title: "Settings", action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: "Settings \(currentPresetSummary())", action: nil, keyEquivalent: "")
         let submenu = NSMenu()
+
+        let currentSettings = NSMenuItem(title: currentSettingsSummary(), action: nil, keyEquivalent: "")
+        currentSettings.isEnabled = false
+        submenu.addItem(currentSettings)
+        submenu.addItem(.separator())
 
         let presets = NSMenuItem(title: "Presets", action: nil, keyEquivalent: "")
         let presetsSubmenu = NSMenu()
@@ -153,6 +159,7 @@ final class PublicGuardController {
         for preset in GuardSettings.SessionPreset.allCases {
             let presetItem = NSMenuItem(title: preset.title, action: #selector(applyPreset(_:)), keyEquivalent: "", target: self)
             presetItem.representedObject = preset.rawValue
+            presetItem.state = preset.matches(settings) ? .on : .off
             presetsSubmenu.addItem(presetItem)
         }
 
@@ -569,6 +576,11 @@ final class PublicGuardController {
             triggerAlarmAfterGracePeriod(reason: "Mac idle for \(Self.idleTimeoutTitle(seconds: seconds))")
         case .systemWillSleep:
             writeEvent(.systemWillSleep)
+            guard settings.isTriggerEnabled(.wakeFromSleep) else {
+                writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
+                return
+            }
+            triggerConfiguredResponse(reason: "Mac is going to sleep while armed")
         case .systemDidWake:
             guard settings.isTriggerEnabled(.wakeFromSleep) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
@@ -590,24 +602,27 @@ final class PublicGuardController {
 
             await MainActor.run {
                 guard bypassArmedCheck || self.state.isArmed else { return }
-
-                if self.settings.responseMode == .loudAlarm {
-                    self.state.markAlarmActive()
-                    self.writeEvent(.alarmTriggered(reason: reason))
-                    self.alarm.start(sound: self.settings.alarmSound, volume: self.settings.alarmVolume)
-                } else {
-                    self.writeEvent(.silentResponseTriggered(reason: reason))
-                }
-
-                if self.settings.notificationsEnabled {
-                    self.notifications.sendAlarmNotification(reason: reason)
-                }
-                if self.settings.lockScreenEnabled {
-                    self.locker.lock()
-                }
-                self.rebuildMenu()
+                self.triggerConfiguredResponse(reason: reason)
             }
         }
+    }
+
+    private func triggerConfiguredResponse(reason: String) {
+        if settings.responseMode == .loudAlarm {
+            state.markAlarmActive()
+            writeEvent(.alarmTriggered(reason: reason))
+            alarm.start(sound: settings.alarmSound, volume: settings.alarmVolume)
+        } else {
+            writeEvent(.silentResponseTriggered(reason: reason))
+        }
+
+        if settings.notificationsEnabled {
+            notifications.sendAlarmNotification(reason: reason)
+        }
+        if settings.lockScreenEnabled {
+            locker.lock()
+        }
+        rebuildMenu()
     }
 
     private func writeEvent(_ event: GuardEvent) {
@@ -616,6 +631,40 @@ final class PublicGuardController {
 }
 
 private extension PublicGuardController {
+    func configureStatusButton(_ button: NSStatusBarButton?) {
+        guard let button else { return }
+
+        button.title = "PublicGuard"
+        button.image = Self.statusIcon()
+        button.imagePosition = .imageLeading
+    }
+
+    static func statusIcon() -> NSImage? {
+        guard let iconURL = Bundle.module.url(forResource: "PublicGuard", withExtension: "icns"),
+              let image = NSImage(contentsOf: iconURL)
+        else {
+            return nil
+        }
+
+        image.size = NSSize(width: 18, height: 18)
+        image.isTemplate = false
+        return image
+    }
+
+    func currentPresetSummary() -> String {
+        guard let preset = GuardSettings.SessionPreset.allCases.first(where: { $0.matches(settings) }) else {
+            return "(Custom)"
+        }
+
+        return "(\(preset.title))"
+    }
+
+    func currentSettingsSummary() -> String {
+        let enabledTriggerCount = settings.enabledTriggers.count
+        let totalTriggerCount = GuardSettings.TriggerKind.allCases.count
+        return "Current: \(currentPresetSummary().trimmingCharacters(in: CharacterSet(charactersIn: "()"))) | \(settings.responseMode.title), \(Self.idleTimeoutTitle(seconds: settings.idleTimeoutSeconds)), \(enabledTriggerCount)/\(totalTriggerCount) triggers"
+    }
+
     static func idleTimeoutTitle(seconds: Int) -> String {
         if seconds < 60 {
             return "\(seconds) seconds"
