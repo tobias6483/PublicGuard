@@ -25,6 +25,8 @@ open dist/PublicGuard.app
 
 The generated bundle is unsigned and intended for local manual testing.
 
+The local bundle includes the `PublicGuard.icns` app icon from `Sources/PublicGuard/Resources`.
+
 ## Test
 
 ```sh

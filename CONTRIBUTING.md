@@ -32,7 +32,6 @@ PublicGuard should stay:
 - Improve menu bar copy
 - Research reliable macOS lid-close detection
 - Add bundled alarm sound assets
-- Add an app icon
 - Improve release packaging documentation
 
 ## Pull Requests

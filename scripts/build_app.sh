@@ -20,6 +20,9 @@ cp "$BUILD_DIR/PublicGuard" "$MACOS_DIR/PublicGuard"
 if compgen -G "$BUILD_DIR/*.bundle" > /dev/null; then
   cp -R "$BUILD_DIR"/*.bundle "$RESOURCES_DIR/"
 fi
+if [[ -f "$ROOT_DIR/Sources/PublicGuard/Resources/PublicGuard.icns" ]]; then
+  cp "$ROOT_DIR/Sources/PublicGuard/Resources/PublicGuard.icns" "$RESOURCES_DIR/PublicGuard.icns"
+fi
 
 cat > "$CONTENTS_DIR/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -32,6 +35,8 @@ cat > "$CONTENTS_DIR/Info.plist" <<'PLIST'
   <string>PublicGuard</string>
   <key>CFBundleIdentifier</key>
   <string>dev.publicguard.PublicGuard</string>
+  <key>CFBundleIconFile</key>
+  <string>PublicGuard</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>

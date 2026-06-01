@@ -23,6 +23,7 @@ open dist/PublicGuard.app
 The bundle is intentionally local and unsigned for now. It includes:
 
 - `CFBundleIdentifier`: `dev.publicguard.PublicGuard`
+- `CFBundleIconFile`: `PublicGuard`, backed by `Sources/PublicGuard/Resources/PublicGuard.icns`
 - `LSUIElement`: enabled, so PublicGuard appears as a menu bar app without a Dock icon
 - `LSMinimumSystemVersion`: macOS 14.0
 - SwiftPM resource bundles, including the default alarm sound
@@ -31,6 +32,5 @@ The bundle is intentionally local and unsigned for now. It includes:
 
 - Add a signed Developer ID release workflow.
 - Add notarization.
-- Add an icon.
 - Add a zipped release artifact.
 - Consider a Homebrew cask once the app is stable.

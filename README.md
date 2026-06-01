@@ -24,6 +24,7 @@ Implemented:
 - Notification enable/disable setting
 - Manual response test from the menu bar
 - Looping local alarm sound
+- App icon in local app bundle builds
 - Local macOS alarm notification
 - Lock screen action
 - Local-only event log

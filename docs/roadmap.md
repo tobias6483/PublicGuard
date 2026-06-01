@@ -17,11 +17,11 @@
 - Local-only event log
 - Event log open and clear actions
 - Local unsigned app bundle script
+- App icon for local app bundles
 
 ## Next
 
 - Improve lid-close behavior research
-- Add app icon
 - Add more bundled alarm sound assets
 
 ## Later
