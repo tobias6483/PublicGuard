@@ -5,3 +5,6 @@
 *.xcuserdata/
 *.xcuserstate
 *.swp
+
+# Local planning notes
+projekt.md
