@@ -72,6 +72,10 @@ final class EventLogTests: XCTestCase {
         XCTAssertEqual(message, "alarm_triggered reason=\"Power adapter disconnected\"")
     }
 
+    func testAlarmStoppedMessage() {
+        XCTAssertEqual(GuardEvent.alarmStopped.message, "alarm_stopped")
+    }
+
     func testNetworkChangedMessageContainsSSIDValues() {
         let message = GuardEvent.networkChanged(previous: "Cafe WiFi", current: nil).message
 

@@ -65,6 +65,7 @@ Maintainers and project agents with write access should follow the detailed work
 22. Re-open the app and choose `Disarm`.
 23. Confirm Touch ID/password is required.
 24. Confirm alarm stops after successful authentication.
+25. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
 
 ## Log Location
 

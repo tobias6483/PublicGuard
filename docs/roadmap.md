@@ -16,6 +16,7 @@
 - Optional lock screen action
 - Local-only event log
 - Recent event preview in the menu bar
+- Authenticated alarm stop with local audit logging
 - Event log open and clear actions
 - Local unsigned app bundle script
 - App icon for local app bundles

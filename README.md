@@ -25,6 +25,7 @@ Implemented:
 - Lock screen enable/disable setting
 - Manual response test from the menu bar
 - Looping local alarm sound
+- Touch ID/password protected alarm stop
 - App icon in local app bundle builds
 - Local macOS alarm notification
 - Optional lock screen action
@@ -107,6 +108,7 @@ The local event log is written to:
 
 You can also open it from the PublicGuard menu bar menu.
 The menu includes a `Recent Events` submenu with the newest local log entries for quick inspection.
+Stopping an active alarm writes an `alarm_stopped` entry before any armed guard session is logged as disarmed.
 The menu also includes `Clear Event Log`, which resets the local log and writes a fresh `log_cleared` entry.
 
 ## Current Technical Notes

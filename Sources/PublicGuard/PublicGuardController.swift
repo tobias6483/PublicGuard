@@ -220,9 +220,20 @@ final class PublicGuardController {
             }
 
             graceTask?.cancel()
-            alarm.stop()
-            state.disarm()
-            eventLog.write(.disarmed)
+            let wasArmed = state.isArmed
+            let wasAlarmActive = state.isAlarmActive
+
+            if wasAlarmActive {
+                alarm.stop()
+                state.markAlarmInactive()
+                eventLog.write(.alarmStopped)
+            }
+
+            if wasArmed {
+                state.disarm()
+                eventLog.write(.disarmed)
+            }
+
             NotificationCenter.default.post(name: .guardStateDidChange, object: nil)
             rebuildMenu()
         }

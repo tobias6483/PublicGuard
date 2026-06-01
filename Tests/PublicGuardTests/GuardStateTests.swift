@@ -23,4 +23,15 @@ final class GuardStateTests: XCTestCase {
         XCTAssertFalse(state.isArmed)
         XCTAssertFalse(state.isAlarmActive)
     }
+
+    func testMarkAlarmInactiveLeavesGuardArmed() {
+        let state = GuardState()
+
+        state.arm()
+        state.markAlarmActive()
+        state.markAlarmInactive()
+
+        XCTAssertTrue(state.isArmed)
+        XCTAssertFalse(state.isAlarmActive)
+    }
 }
