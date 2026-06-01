@@ -21,6 +21,7 @@ Implemented:
 - Configurable grace period before response
 - Loud alarm and silent response modes
 - Configurable alarm sound with bundled local choices and Apple Alarm default
+- Configurable alarm playback volume
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Lock screen enable/disable setting
@@ -116,6 +117,10 @@ The menu also includes `Clear Event Log`, which resets the local log and writes 
 PublicGuard can learn a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Learn Nearby Device`. While armed, it starts the configured response if that learned device was seen and then disappears for about 30 seconds.
 
 This is local-only and stores the CoreBluetooth device identifier and display name in macOS user defaults. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory.
+
+## Alarm Volume
+
+`Settings > Alarm Volume` controls PublicGuard's own alarm playback volume. `Maximum` sets bundled and system alarm sounds to full app playback volume, but it does not change the Mac's global system volume.
 
 ## Current Technical Notes
 

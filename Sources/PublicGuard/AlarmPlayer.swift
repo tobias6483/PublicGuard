@@ -5,10 +5,12 @@ final class AlarmPlayer {
     private var timer: Timer?
     private var fileSound: NSSound?
     private var sound = GuardSettings.AlarmSound.appleAlarm
+    private var volume = GuardSettings.AlarmVolume.normal
 
-    func start(sound: GuardSettings.AlarmSound) {
+    func start(sound: GuardSettings.AlarmSound, volume: GuardSettings.AlarmVolume) {
         stop()
         self.sound = sound
+        self.volume = volume
 
         if let resource = sound.bundledResource, startBundledSound(named: resource.name, extension: resource.extension) {
             return
@@ -37,13 +39,16 @@ final class AlarmPlayer {
         }
 
         sound.loops = true
+        sound.volume = volume.soundVolume
         fileSound = sound
         return sound.play()
     }
 
     private func playBurst() {
         for name in sound.systemSoundNames {
-            NSSound(named: NSSound.Name(name))?.play()
+            let systemSound = NSSound(named: NSSound.Name(name))
+            systemSound?.volume = volume.soundVolume
+            systemSound?.play()
         }
     }
 }

@@ -76,6 +76,7 @@ enum GuardEvent {
         gracePeriodSeconds: Int,
         responseMode: GuardSettings.ResponseMode,
         alarmSound: GuardSettings.AlarmSound,
+        alarmVolume: GuardSettings.AlarmVolume,
         lockScreenEnabled: Bool
     )
     case triggerIgnored(name: String)
@@ -113,8 +114,8 @@ enum GuardEvent {
             "alarm_stopped"
         case let .silentResponseTriggered(reason):
             "silent_response_triggered reason=\"\(reason)\""
-        case let .settingsChanged(gracePeriodSeconds, responseMode, alarmSound, lockScreenEnabled):
-            "settings_changed grace_period_seconds=\(gracePeriodSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" lock_screen_enabled=\(lockScreenEnabled)"
+        case let .settingsChanged(gracePeriodSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled):
+            "settings_changed grace_period_seconds=\(gracePeriodSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled)"
         case let .triggerIgnored(name):
             "trigger_ignored name=\"\(name)\""
         case .logCleared:

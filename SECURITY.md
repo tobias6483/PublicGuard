@@ -11,6 +11,7 @@ PublicGuard is security-adjacent software. Changes that affect permissions, auth
 - Make every sensitive permission clear to the user.
 - Keep sensitive actions, including screen locking, user-controlled.
 - Keep alarm sound selection local; do not fetch or upload audio.
+- Do not silently change global system volume; alarm volume settings should affect PublicGuard playback only.
 - Keep Bluetooth proximity local-only; do not upload learned device identifiers, names, or scan history.
 
 ## Reporting Issues

@@ -120,6 +120,7 @@ Implementeret:
 - Konfigurerbar grace period før respons
 - Loud alarm og silent response modes
 - Configurable alarm sound setting med bundled local choices og Apple Alarm som default
+- Configurable alarm playback volume uden global system-volume ændring
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Lock screen enable/disable setting
@@ -141,7 +142,8 @@ Implementeret:
 - Unit tests for alarm sound setting persistence and bundled resource metadata
 - Unit tests for alarm stop state and event logging
 - Unit tests for Bluetooth target persistence and Bluetooth event logging
-- `swift test` verifieret med 27 passing tests
+- Unit tests for alarm volume persistence, fallback and log output
+- `swift test` verifieret med 29 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:
@@ -239,7 +241,7 @@ Café mode:
 - Lid close alarm
 - Charger disconnect alarm
 - Phone distance trigger
-- Max volume alarm
+- Max app playback volume alarm
 
 Library mode:
 
