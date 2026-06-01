@@ -18,6 +18,10 @@ final class GuardState {
     func markAlarmActive() {
         isAlarmActive = true
     }
+
+    func markAlarmInactive() {
+        isAlarmActive = false
+    }
 }
 
 enum GuardTrigger {

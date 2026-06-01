@@ -124,6 +124,7 @@ Implementeret:
 - Lock screen enable/disable setting
 - Manual response test fra menu bar
 - Looping alarmlyd via bundled MP3/WAV eller gentagne macOS system sounds
+- Authenticated alarm stop med lokal `alarm_stopped` audit logging
 - Lokal macOS-notifikation ved alarm
 - Optional lock screen action via CGSession
 - Lokal app bundle build via `scripts/build_app.sh`
@@ -137,7 +138,8 @@ Implementeret:
 - Unit tests for recent event log previews
 - Unit tests for settings persistence
 - Unit tests for alarm sound setting persistence and bundled resource metadata
-- `swift test` verifieret med 22 passing tests
+- Unit tests for alarm stop state and event logging
+- `swift test` verifieret med 24 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:
