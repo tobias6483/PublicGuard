@@ -40,7 +40,7 @@ Implemented:
 
 Planned:
 
-- Better lid-close research and behavior
+- Manual lid-close hardware QA and follow-up sleep/wake tuning
 - Encrypted event logs
 - Shortcuts and Apple Watch support
 
@@ -146,7 +146,7 @@ The setting is only active when running `dist/PublicGuard.app`; `swift run Publi
 
 ## Current Technical Notes
 
-macOS usually sleeps immediately when a MacBook lid closes. That means a process cannot reliably keep running and play an alarm while the lid is closed. The first MVP logs sleep events and reacts when the Mac wakes while armed. Better lid-close behavior is tracked as a roadmap item; see [docs/lid-close-research.md](docs/lid-close-research.md).
+macOS usually sleeps immediately when a MacBook lid closes. That means a process cannot reliably keep running and play an alarm while the lid is closed. The first MVP logs sleep events and reacts when the Mac wakes while armed. Better lid-close behavior depends on hardware QA; see [docs/lid-close-research.md](docs/lid-close-research.md) and [docs/lid-close-qa.md](docs/lid-close-qa.md).
 
 ## Architecture
 

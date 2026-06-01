@@ -155,6 +155,7 @@ Implementeret:
 Kendt MVP-begrænsning:
 
 - Direkte alarm mens låget er lukket kan ikke pålideligt køre, fordi Mac'en typisk går i sleep. Første native version logger sleep og reagerer på wake while armed. Lid-close-detektion skal senere forbedres med mere specifik power/sleep-state håndtering.
+- Lid-close-sporet har en manuel QA-protokol i `docs/lid-close-qa.md`, så næste skridt er hardwarevalidering frem for at overclaim'e lukket-låg alarmadfærd.
 
 ## Features der Gør Projektet Stærkere
 
@@ -258,6 +259,7 @@ Library mode:
 ## Roadmap
 
 - Validate experimental iPhone/BLE proximity behavior on real hardware
+- Run lid-close hardware QA against the research checklist
 - Location-based triggers
 - Apple Watch support
 - Shortcuts integration

@@ -43,10 +43,13 @@ Keep the current sleep/wake trigger and document the limitation clearly:
 - PublicGuard can react when the Mac wakes while armed.
 - PublicGuard may log that sleep is about to happen.
 - PublicGuard does not guarantee alarm playback while the lid remains closed.
+- PublicGuard should not use broad sleep-prevention assertions by default.
 
 Before changing behavior, run a manual hardware QA pass on at least one Apple
 silicon MacBook and record whether `willSleep` and `didWake` events are written
 reliably when the lid is closed and reopened.
+
+Use [lid-close-qa.md](lid-close-qa.md) for the manual test protocol.
 
 ## References
 

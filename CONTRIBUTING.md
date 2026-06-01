@@ -32,7 +32,7 @@ PublicGuard should stay:
 - Improve menu bar copy
 - Run and document manual hardware QA
 - Validate Bluetooth proximity behavior with real devices
-- Research reliable macOS lid-close behavior
+- Run and document lid-close hardware QA
 - Tune bundled alarm sound loudness after hardware testing
 - Verify launch at login behavior from local app bundle builds
 - Improve release packaging documentation
