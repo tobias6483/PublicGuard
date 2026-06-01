@@ -19,6 +19,7 @@ Implemented:
 - Sleep/wake trigger
 - Experimental Bluetooth proximity trigger for a learned nearby BLE device
 - Idle timeout trigger
+- Visible menu bar icon and active preset/status summary
 - Configurable grace period before response
 - Loud alarm and silent response modes
 - Configurable alarm sound with bundled local choices and Apple Alarm default
@@ -149,7 +150,7 @@ The setting is only active when running `dist/PublicGuard.app`; `swift run Publi
 
 ## Current Technical Notes
 
-macOS usually sleeps immediately when a MacBook lid closes. That means a process cannot reliably keep running and play an alarm while the lid is closed. The first MVP logs sleep events and reacts when the Mac wakes while armed. Better lid-close behavior depends on hardware QA; see [docs/lid-close-research.md](docs/lid-close-research.md) and [docs/lid-close-qa.md](docs/lid-close-qa.md).
+When PublicGuard is armed and macOS reports that the system is about to sleep, PublicGuard immediately starts the configured response before suspension when the OS gives the app time to run. It also reacts after wake while armed. macOS can still suspend regular app execution quickly when a MacBook lid closes, so alarm playback is not guaranteed to continue while the lid remains closed and the machine is actually asleep. Better lid-close behavior depends on hardware QA; see [docs/lid-close-research.md](docs/lid-close-research.md) and [docs/lid-close-qa.md](docs/lid-close-qa.md).
 
 ## Architecture
 

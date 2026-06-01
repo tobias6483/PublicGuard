@@ -199,6 +199,20 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
     }
 
+    func testPresetMatchesOnlyWhenPresetControlledSettingsMatch() {
+        var settings = customSettings().applyingPreset(.cafe)
+
+        XCTAssertTrue(GuardSettings.SessionPreset.cafe.matches(settings))
+        XCTAssertFalse(GuardSettings.SessionPreset.library.matches(settings))
+
+        settings.alarmSound = .basso
+        settings.bluetoothTargetName = nil
+        XCTAssertTrue(GuardSettings.SessionPreset.cafe.matches(settings))
+
+        settings.enabledTriggers.remove(.idleTimeout)
+        XCTAssertFalse(GuardSettings.SessionPreset.cafe.matches(settings))
+    }
+
     func testLockScreenCanBeDisabled() {
         let defaults = makeDefaults()
         let store = SettingsStore(defaults: defaults)

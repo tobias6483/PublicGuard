@@ -36,3 +36,4 @@
 - Added an optional launch at login setting for app bundle builds.
 - Added a lid-close hardware QA checklist.
 - Added a minimal event log detail setting.
+- Added a visible menu bar icon, active preset summary, preset checkmarks, and immediate armed sleep/lid-close response.
