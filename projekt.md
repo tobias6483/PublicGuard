@@ -107,6 +107,7 @@ Implementeret:
 - GitHub Actions CI workflow
 - GitHub issue templates
 - Pull request template
+- Local unsigned `.app` bundle build script
 - Menu bar status item
 - Arm/Disarm flow
 - Touch ID/password-beskyttet disarm via LocalAuthentication
@@ -119,6 +120,7 @@ Implementeret:
 - Alarmlyd via gentagne macOS system sounds
 - Lokal macOS-notifikation ved alarm
 - Lock screen action via CGSession
+- Lokal app bundle build via `scripts/build_app.sh`
 - `swift build` verifieret
 - Unit tests for guard state og event logging
 - Unit tests for settings persistence

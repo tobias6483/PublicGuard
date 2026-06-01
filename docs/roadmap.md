@@ -11,6 +11,7 @@
 - Silent response mode
 - Lock screen action
 - Local-only event log
+- Local unsigned app bundle script
 
 ## Next
 
@@ -18,6 +19,7 @@
 - Add network change trigger
 - Add notification preferences
 - Add custom alarm sound support
+- Add app icon
 
 ## Later
 

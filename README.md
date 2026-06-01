@@ -82,6 +82,15 @@ PublicGuard appears in the macOS menu bar.
 
 When running directly through SwiftPM, macOS notification delivery may be skipped because the process is not inside a signed app bundle. The rest of the local response loop still runs.
 
+## Local App Bundle
+
+```sh
+scripts/build_app.sh
+open dist/PublicGuard.app
+```
+
+The local bundle is unsigned, but it gives PublicGuard a real app bundle identity for more realistic manual testing. See [docs/release.md](docs/release.md).
+
 ## Event Log
 
 The local event log is written to:

@@ -16,6 +16,15 @@ The app runs as a menu bar utility and does not open a Dock icon.
 
 SwiftPM runs the executable without a full app bundle identity. PublicGuard skips UserNotifications in that mode so local development does not crash; bundled builds can request notification permission normally.
 
+## Build Local App Bundle
+
+```sh
+scripts/build_app.sh
+open dist/PublicGuard.app
+```
+
+The generated bundle is unsigned and intended for local manual testing.
+
 ## Test
 
 ```sh

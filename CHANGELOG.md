@@ -16,3 +16,4 @@
 - Added configurable grace period settings.
 - Added loud alarm and silent response modes.
 - Added a manual response test menu item.
+- Added local unsigned `.app` bundle build script.
