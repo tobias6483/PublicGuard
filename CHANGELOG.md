@@ -27,3 +27,4 @@
 - Documented lid-close behavior research and tightened MVP limitation language.
 - Enabled `main` branch protection with required pull requests and the `Swift Build and Test` check.
 - Added a `Recent Events` menu preview for the local event log.
+- Added a `Lock Screen` setting for enabling or disabling the lock action.

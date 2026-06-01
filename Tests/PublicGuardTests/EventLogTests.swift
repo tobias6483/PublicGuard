@@ -82,10 +82,11 @@ final class EventLogTests: XCTestCase {
         let message = GuardEvent.settingsChanged(
             gracePeriodSeconds: 10,
             responseMode: .silent,
-            alarmSound: .ping
+            alarmSound: .ping,
+            lockScreenEnabled: false
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 response_mode=\"silent\" alarm_sound=\"ping\"")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 response_mode=\"silent\" alarm_sound=\"ping\" lock_screen_enabled=false")
     }
 
     func testTriggerIgnoredMessageContainsName() {

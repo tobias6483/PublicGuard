@@ -13,7 +13,7 @@
 - Silent response mode
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
-- Lock screen action
+- Optional lock screen action
 - Local-only event log
 - Recent event preview in the menu bar
 - Event log open and clear actions

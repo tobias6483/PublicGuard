@@ -175,6 +175,10 @@ final class PublicGuardController {
         notificationsItem.state = settings.notificationsEnabled ? .on : .off
         submenu.addItem(notificationsItem)
 
+        let lockScreenItem = NSMenuItem(title: "Lock Screen", action: #selector(toggleLockScreen), keyEquivalent: "", target: self)
+        lockScreenItem.state = settings.lockScreenEnabled ? .on : .off
+        submenu.addItem(lockScreenItem)
+
         item.submenu = submenu
         return item
     }
@@ -268,6 +272,11 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func toggleLockScreen() {
+        settings.lockScreenEnabled.toggle()
+        persistSettings()
+    }
+
     @objc private func setResponseMode(_ sender: NSMenuItem) {
         guard
             let rawValue = sender.representedObject as? String,
@@ -304,7 +313,8 @@ final class PublicGuardController {
         eventLog.write(.settingsChanged(
             gracePeriodSeconds: settings.gracePeriodSeconds,
             responseMode: settings.responseMode,
-            alarmSound: settings.alarmSound
+            alarmSound: settings.alarmSound,
+            lockScreenEnabled: settings.lockScreenEnabled
         ))
         rebuildMenu()
     }
@@ -362,7 +372,9 @@ final class PublicGuardController {
                 if self.settings.notificationsEnabled {
                     self.notifications.sendAlarmNotification(reason: reason)
                 }
-                self.locker.lock()
+                if self.settings.lockScreenEnabled {
+                    self.locker.lock()
+                }
                 self.rebuildMenu()
             }
         }

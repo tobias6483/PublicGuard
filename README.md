@@ -22,11 +22,12 @@ Implemented:
 - Configurable alarm sound with bundled local choices and Apple Alarm default
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
+- Lock screen enable/disable setting
 - Manual response test from the menu bar
 - Looping local alarm sound
 - App icon in local app bundle builds
 - Local macOS alarm notification
-- Lock screen action
+- Optional lock screen action
 - Local-only event log
 - Recent event preview from the menu bar
 - Event log open and clear actions
