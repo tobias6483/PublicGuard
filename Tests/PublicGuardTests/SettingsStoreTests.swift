@@ -12,6 +12,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.responseMode, .loudAlarm)
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
         XCTAssertTrue(settings.notificationsEnabled)
+        XCTAssertEqual(settings.alarmSound, .appleAlarm)
     }
 
     func testSaveAndLoadRoundTripsSettings() {
@@ -21,7 +22,8 @@ final class SettingsStoreTests: XCTestCase {
             gracePeriodSeconds: 15,
             responseMode: .silent,
             enabledTriggers: [.chargerDisconnect, .networkChange],
-            notificationsEnabled: false
+            notificationsEnabled: false,
+            alarmSound: .sosumi
         )
 
         store.save(expected)
@@ -30,6 +32,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().responseMode, .silent)
         XCTAssertEqual(store.load().enabledTriggers, [.chargerDisconnect, .networkChange])
         XCTAssertFalse(store.load().notificationsEnabled)
+        XCTAssertEqual(store.load().alarmSound, .sosumi)
     }
 
     func testInvalidGracePeriodFallsBackToDefault() {
@@ -48,7 +51,8 @@ final class SettingsStoreTests: XCTestCase {
             gracePeriodSeconds: 0,
             responseMode: .loudAlarm,
             enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
-            notificationsEnabled: true
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm
         ))
 
         XCTAssertEqual(store.load().gracePeriodSeconds, 0)
@@ -70,10 +74,19 @@ final class SettingsStoreTests: XCTestCase {
             gracePeriodSeconds: 5,
             responseMode: .loudAlarm,
             enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
-            notificationsEnabled: false
+            notificationsEnabled: false,
+            alarmSound: .appleAlarm
         ))
 
         XCTAssertFalse(store.load().notificationsEnabled)
+    }
+
+    func testInvalidAlarmSoundFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set("not-a-real-sound", forKey: "alarmSound")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().alarmSound, .appleAlarm)
     }
 
     private func makeDefaults() -> UserDefaults {

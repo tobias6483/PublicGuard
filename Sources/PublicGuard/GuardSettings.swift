@@ -32,10 +32,58 @@ struct GuardSettings {
         }
     }
 
+    enum AlarmSound: String, CaseIterable {
+        case appleAlarm
+        case classic
+        case basso
+        case sosumi
+        case ping
+
+        var title: String {
+            switch self {
+            case .appleAlarm:
+                "Apple Alarm"
+            case .classic:
+                "Classic Burst"
+            case .basso:
+                "Basso"
+            case .sosumi:
+                "Sosumi"
+            case .ping:
+                "Ping"
+            }
+        }
+
+        var systemSoundNames: [String] {
+            switch self {
+            case .appleAlarm:
+                []
+            case .classic:
+                ["Basso", "Sosumi", "Ping"]
+            case .basso:
+                ["Basso"]
+            case .sosumi:
+                ["Sosumi"]
+            case .ping:
+                ["Ping"]
+            }
+        }
+
+        var bundledResourceName: String? {
+            switch self {
+            case .appleAlarm:
+                "AppleAlarm"
+            case .classic, .basso, .sosumi, .ping:
+                nil
+            }
+        }
+    }
+
     var gracePeriodSeconds: Int
     var responseMode: ResponseMode
     var enabledTriggers: Set<TriggerKind>
     var notificationsEnabled: Bool
+    var alarmSound: AlarmSound
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
@@ -52,6 +100,7 @@ struct SettingsStore {
         static let responseMode = "responseMode"
         static let enabledTriggers = "enabledTriggers"
         static let notificationsEnabled = "notificationsEnabled"
+        static let alarmSound = "alarmSound"
     }
 
     private let defaults: UserDefaults
@@ -74,12 +123,15 @@ struct SettingsStore {
 
         let enabledTriggers = triggers.isEmpty ? Set(GuardSettings.TriggerKind.allCases) : triggers
         let notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
+        let storedAlarmSound = defaults.string(forKey: Key.alarmSound)
+        let alarmSound = storedAlarmSound.flatMap(GuardSettings.AlarmSound.init(rawValue:)) ?? .appleAlarm
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
             responseMode: mode,
             enabledTriggers: enabledTriggers,
-            notificationsEnabled: notificationsEnabled
+            notificationsEnabled: notificationsEnabled,
+            alarmSound: alarmSound
         )
     }
 
@@ -88,6 +140,7 @@ struct SettingsStore {
         defaults.set(settings.responseMode.rawValue, forKey: Key.responseMode)
         defaults.set(settings.enabledTriggers.map(\.rawValue).sorted(), forKey: Key.enabledTriggers)
         defaults.set(settings.notificationsEnabled, forKey: Key.notificationsEnabled)
+        defaults.set(settings.alarmSound.rawValue, forKey: Key.alarmSound)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]

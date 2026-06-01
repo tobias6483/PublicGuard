@@ -7,15 +7,19 @@ DIST_DIR="$ROOT_DIR/dist"
 APP_DIR="$DIST_DIR/PublicGuard.app"
 CONTENTS_DIR="$APP_DIR/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
+RESOURCES_DIR="$CONTENTS_DIR/Resources"
 
 cd "$ROOT_DIR"
 
 swift build -c release
 
 rm -rf "$APP_DIR"
-mkdir -p "$MACOS_DIR"
+mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 
 cp "$BUILD_DIR/PublicGuard" "$MACOS_DIR/PublicGuard"
+if compgen -G "$BUILD_DIR/*.bundle" > /dev/null; then
+  cp -R "$BUILD_DIR"/*.bundle "$RESOURCES_DIR/"
+fi
 
 cat > "$CONTENTS_DIR/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>

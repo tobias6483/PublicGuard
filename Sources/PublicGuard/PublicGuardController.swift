@@ -144,6 +144,19 @@ final class PublicGuardController {
         responseMode.submenu = responseSubmenu
         submenu.addItem(responseMode)
 
+        let alarmSound = NSMenuItem(title: "Alarm Sound", action: nil, keyEquivalent: "")
+        let alarmSoundSubmenu = NSMenu()
+
+        for sound in GuardSettings.AlarmSound.allCases {
+            let soundItem = NSMenuItem(title: sound.title, action: #selector(setAlarmSound(_:)), keyEquivalent: "", target: self)
+            soundItem.representedObject = sound.rawValue
+            soundItem.state = settings.alarmSound == sound ? .on : .off
+            alarmSoundSubmenu.addItem(soundItem)
+        }
+
+        alarmSound.submenu = alarmSoundSubmenu
+        submenu.addItem(alarmSound)
+
         let triggers = NSMenuItem(title: "Triggers", action: nil, keyEquivalent: "")
         let triggerSubmenu = NSMenu()
 
@@ -248,6 +261,18 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func setAlarmSound(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let sound = GuardSettings.AlarmSound(rawValue: rawValue)
+        else {
+            return
+        }
+
+        settings.alarmSound = sound
+        persistSettings()
+    }
+
     @objc private func quit() {
         NSApp.terminate(nil)
     }
@@ -256,7 +281,8 @@ final class PublicGuardController {
         settingsStore.save(settings)
         eventLog.write(.settingsChanged(
             gracePeriodSeconds: settings.gracePeriodSeconds,
-            responseMode: settings.responseMode
+            responseMode: settings.responseMode,
+            alarmSound: settings.alarmSound
         ))
         rebuildMenu()
     }
@@ -306,7 +332,7 @@ final class PublicGuardController {
                 if self.settings.responseMode == .loudAlarm {
                     self.state.markAlarmActive()
                     self.eventLog.write(.alarmTriggered(reason: reason))
-                    self.alarm.start()
+                    self.alarm.start(sound: self.settings.alarmSound)
                 } else {
                     self.eventLog.write(.silentResponseTriggered(reason: reason))
                 }
