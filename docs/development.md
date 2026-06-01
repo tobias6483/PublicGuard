@@ -102,4 +102,4 @@ When a MacBook lid closes, macOS usually suspends regular app execution. PublicG
 
 Future versions should research whether power assertions, IOKit notifications, or helper processes can improve lid-close handling without harming battery life or privacy.
 
-See [lid-close-research.md](lid-close-research.md) for the current research note and v0.1 recommendation.
+See [lid-close-research.md](lid-close-research.md) for the current research note and v0.1 recommendation. Use [lid-close-qa.md](lid-close-qa.md) when recording hardware results.
