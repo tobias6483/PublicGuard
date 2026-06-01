@@ -35,7 +35,9 @@ swift test
 
 ## GitHub Workflow
 
-Work on a branch, not directly on `main`.
+PublicGuard is open source. External contributors can fork the repository, push a branch to their fork, and open a pull request against `main`.
+
+Maintainers and project agents with write access should work on a branch, not directly on `main`.
 
 ```sh
 git switch main
@@ -63,7 +65,7 @@ If app resources, bundle metadata, or release packaging changes, also run:
 scripts/build_app.sh
 ```
 
-Publish with the authenticated GitHub CLI:
+Maintainers and project agents should publish with the authenticated GitHub CLI:
 
 ```sh
 git commit -m "Short description"
@@ -71,7 +73,7 @@ git push -u origin codex/short-description
 gh pr create --base main --head codex/short-description --draft
 ```
 
-After the `Swift Build and Test` check is green, mark the PR ready and merge:
+After the `Swift Build and Test` check is green, a maintainer can mark the PR ready and merge:
 
 ```sh
 gh pr ready <number>
@@ -81,7 +83,7 @@ git pull --ff-only
 git fetch --prune
 ```
 
-Use `gh` for PR creation and merge operations in this repo. The GitHub app connector can still be useful for reading repository and PR metadata.
+Use `gh` for maintainer PR creation and merge operations in this repo. The GitHub app connector can still be useful for reading repository and PR metadata.
 
 ## Manual Test Checklist
 
