@@ -37,53 +37,7 @@ swift test
 
 PublicGuard is open source. External contributors can fork the repository, push a branch to their fork, and open a pull request against `main`.
 
-Maintainers and project agents with write access should work on a branch, not directly on `main`.
-
-```sh
-git switch main
-git pull --ff-only
-git switch -c codex/short-description
-```
-
-Before committing, inspect the diff and stage only the files that belong to the change:
-
-```sh
-git status -sb
-git diff
-git add <relevant-files>
-```
-
-Run the required local check:
-
-```sh
-swift test
-```
-
-If app resources, bundle metadata, or release packaging changes, also run:
-
-```sh
-scripts/build_app.sh
-```
-
-Maintainers and project agents should publish with the authenticated GitHub CLI:
-
-```sh
-git commit -m "Short description"
-git push -u origin codex/short-description
-gh pr create --base main --head codex/short-description --draft
-```
-
-After the `Swift Build and Test` check is green, a maintainer can mark the PR ready and merge:
-
-```sh
-gh pr ready <number>
-gh pr merge <number> --squash --delete-branch
-git switch main
-git pull --ff-only
-git fetch --prune
-```
-
-Use `gh` for maintainer PR creation and merge operations in this repo. The GitHub app connector can still be useful for reading repository and PR metadata.
+Maintainers and project agents with write access should follow the detailed workflow in [../AGENTS.md](../AGENTS.md). The short version is: work on a branch, stage only relevant files, run `swift test`, use `gh` for PR creation and merge, wait for the `Swift Build and Test` check, then squash-merge and delete the branch. Do not commit or push directly to `main`.
 
 ## Manual Test Checklist
 

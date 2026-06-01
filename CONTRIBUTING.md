@@ -46,34 +46,7 @@ External contributors are welcome to use the standard GitHub fork workflow:
 3. Push your branch.
 4. Open a pull request against `tobias6483/PublicGuard:main`.
 
-Maintainers and project agents with write access should use local `git` plus the authenticated GitHub CLI (`gh`) for the full publish flow. Do not commit or push directly to `main`.
-
-Maintainer flow:
-
-```sh
-git switch main
-git pull --ff-only
-git switch -c codex/short-description
-git status -sb
-git diff
-git add <relevant-files>
-swift test
-git commit -m "Short description"
-git push -u origin codex/short-description
-gh pr create --base main --head codex/short-description --draft
-```
-
-When CI is green and the PR is ready, a maintainer can merge it:
-
-```sh
-gh pr ready <number>
-gh pr merge <number> --squash --delete-branch
-git switch main
-git pull --ff-only
-git fetch --prune
-```
-
-The GitHub app connector may be useful for reading PR metadata, issues, and comments, but `gh` is the preferred tool for maintainer PR creation and merge operations in this repo.
+Maintainers and project agents with write access should follow [AGENTS.md](AGENTS.md). In short: work on a branch, stage only relevant files, run `swift test`, create a PR with `gh`, wait for `Swift Build and Test`, then squash-merge and delete the branch. Do not commit or push directly to `main`.
 
 Please keep pull requests focused and explain:
 
