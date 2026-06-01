@@ -33,6 +33,56 @@ The local bundle includes the `PublicGuard.icns` app icon and bundled alarm soun
 swift test
 ```
 
+## GitHub Workflow
+
+Work on a branch, not directly on `main`.
+
+```sh
+git switch main
+git pull --ff-only
+git switch -c codex/short-description
+```
+
+Before committing, inspect the diff and stage only the files that belong to the change:
+
+```sh
+git status -sb
+git diff
+git add <relevant-files>
+```
+
+Run the required local check:
+
+```sh
+swift test
+```
+
+If app resources, bundle metadata, or release packaging changes, also run:
+
+```sh
+scripts/build_app.sh
+```
+
+Publish with the authenticated GitHub CLI:
+
+```sh
+git commit -m "Short description"
+git push -u origin codex/short-description
+gh pr create --base main --head codex/short-description --draft
+```
+
+After the `Swift Build and Test` check is green, mark the PR ready and merge:
+
+```sh
+gh pr ready <number>
+gh pr merge <number> --squash --delete-branch
+git switch main
+git pull --ff-only
+git fetch --prune
+```
+
+Use `gh` for PR creation and merge operations in this repo. The GitHub app connector can still be useful for reading repository and PR metadata.
+
 ## Manual Test Checklist
 
 1. Launch PublicGuard.
