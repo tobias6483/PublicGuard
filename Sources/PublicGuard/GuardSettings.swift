@@ -35,6 +35,7 @@ struct GuardSettings {
     var gracePeriodSeconds: Int
     var responseMode: ResponseMode
     var enabledTriggers: Set<TriggerKind>
+    var notificationsEnabled: Bool
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
@@ -50,6 +51,7 @@ struct SettingsStore {
         static let gracePeriodSeconds = "gracePeriodSeconds"
         static let responseMode = "responseMode"
         static let enabledTriggers = "enabledTriggers"
+        static let notificationsEnabled = "notificationsEnabled"
     }
 
     private let defaults: UserDefaults
@@ -71,11 +73,13 @@ struct SettingsStore {
         } ?? Set(GuardSettings.TriggerKind.allCases)
 
         let enabledTriggers = triggers.isEmpty ? Set(GuardSettings.TriggerKind.allCases) : triggers
+        let notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
             responseMode: mode,
-            enabledTriggers: enabledTriggers
+            enabledTriggers: enabledTriggers,
+            notificationsEnabled: notificationsEnabled
         )
     }
 
@@ -83,6 +87,7 @@ struct SettingsStore {
         defaults.set(settings.gracePeriodSeconds, forKey: Key.gracePeriodSeconds)
         defaults.set(settings.responseMode.rawValue, forKey: Key.responseMode)
         defaults.set(settings.enabledTriggers.map(\.rawValue).sorted(), forKey: Key.enabledTriggers)
+        defaults.set(settings.notificationsEnabled, forKey: Key.notificationsEnabled)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]

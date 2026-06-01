@@ -11,6 +11,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.gracePeriodSeconds, 5)
         XCTAssertEqual(settings.responseMode, .loudAlarm)
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
+        XCTAssertTrue(settings.notificationsEnabled)
     }
 
     func testSaveAndLoadRoundTripsSettings() {
@@ -19,7 +20,8 @@ final class SettingsStoreTests: XCTestCase {
         let expected = GuardSettings(
             gracePeriodSeconds: 15,
             responseMode: .silent,
-            enabledTriggers: [.chargerDisconnect, .networkChange]
+            enabledTriggers: [.chargerDisconnect, .networkChange],
+            notificationsEnabled: false
         )
 
         store.save(expected)
@@ -27,6 +29,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().gracePeriodSeconds, 15)
         XCTAssertEqual(store.load().responseMode, .silent)
         XCTAssertEqual(store.load().enabledTriggers, [.chargerDisconnect, .networkChange])
+        XCTAssertFalse(store.load().notificationsEnabled)
     }
 
     func testInvalidGracePeriodFallsBackToDefault() {
@@ -44,7 +47,8 @@ final class SettingsStoreTests: XCTestCase {
         store.save(GuardSettings(
             gracePeriodSeconds: 0,
             responseMode: .loudAlarm,
-            enabledTriggers: Set(GuardSettings.TriggerKind.allCases)
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true
         ))
 
         XCTAssertEqual(store.load().gracePeriodSeconds, 0)
@@ -56,6 +60,20 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
+    }
+
+    func testNotificationsCanBeDisabled() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: false
+        ))
+
+        XCTAssertFalse(store.load().notificationsEnabled)
     }
 
     private func makeDefaults() -> UserDefaults {

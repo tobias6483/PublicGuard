@@ -24,7 +24,9 @@ final class PublicGuardController {
 
     func start() {
         eventLog.write(.appStarted)
-        notifications.requestAuthorization()
+        if settings.notificationsEnabled {
+            notifications.requestAuthorization()
+        }
         setupMenuBar()
 
         powerMonitor.onPowerAdapterDisconnected = { [weak self] in
@@ -154,6 +156,10 @@ final class PublicGuardController {
         triggers.submenu = triggerSubmenu
         submenu.addItem(triggers)
 
+        let notificationsItem = NSMenuItem(title: "Notifications", action: #selector(toggleNotifications), keyEquivalent: "", target: self)
+        notificationsItem.state = settings.notificationsEnabled ? .on : .off
+        submenu.addItem(notificationsItem)
+
         item.submenu = submenu
         return item
     }
@@ -210,6 +216,14 @@ final class PublicGuardController {
             settings.enabledTriggers.insert(trigger)
         }
 
+        persistSettings()
+    }
+
+    @objc private func toggleNotifications() {
+        settings.notificationsEnabled.toggle()
+        if settings.notificationsEnabled {
+            notifications.requestAuthorization()
+        }
         persistSettings()
     }
 
@@ -291,7 +305,9 @@ final class PublicGuardController {
                     self.eventLog.write(.silentResponseTriggered(reason: reason))
                 }
 
-                self.notifications.sendAlarmNotification(reason: reason)
+                if self.settings.notificationsEnabled {
+                    self.notifications.sendAlarmNotification(reason: reason)
+                }
                 self.locker.lock()
                 self.rebuildMenu()
             }

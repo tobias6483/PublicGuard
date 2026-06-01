@@ -19,3 +19,4 @@
 - Added local unsigned `.app` bundle build script.
 - Added Wi-Fi network change trigger.
 - Added per-trigger enable/disable settings.
+- Added notification enable/disable setting.

@@ -118,6 +118,7 @@ Implementeret:
 - Konfigurerbar grace period før respons
 - Loud alarm og silent response modes
 - Per-trigger enable/disable settings
+- Notification enable/disable setting
 - Manual response test fra menu bar
 - Alarmlyd via gentagne macOS system sounds
 - Lokal macOS-notifikation ved alarm
@@ -127,8 +128,9 @@ Implementeret:
 - Unit tests for guard state og event logging
 - Unit tests for network change event logging
 - Unit tests for trigger settings persistence and ignored trigger logging
+- Unit tests for notification setting persistence
 - Unit tests for settings persistence
-- `swift test` verifieret med 12 passing tests
+- `swift test` verifieret med 13 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:

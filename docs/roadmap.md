@@ -11,6 +11,7 @@
 - Loud local alarm
 - Silent response mode
 - Per-trigger enable/disable settings
+- Notification enable/disable setting
 - Lock screen action
 - Local-only event log
 - Local unsigned app bundle script
@@ -18,7 +19,6 @@
 ## Next
 
 - Improve lid-close behavior research
-- Add notification preferences
 - Add custom alarm sound support
 - Add app icon
 
