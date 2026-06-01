@@ -18,6 +18,7 @@ Implemented:
 - Wi-Fi network change trigger
 - Sleep/wake trigger
 - Experimental Bluetooth proximity trigger for a learned nearby BLE device
+- Idle timeout trigger
 - Configurable grace period before response
 - Loud alarm and silent response modes
 - Configurable alarm sound with bundled local choices and Apple Alarm default
@@ -127,10 +128,14 @@ This is local-only and stores the CoreBluetooth device identifier and display na
 
 `Settings > Presets` can quickly apply local public-work profiles:
 
-- `Café`: 5 second grace period, loud response, maximum app playback volume, notifications, lock screen, and all triggers enabled.
-- `Library`: 15 second grace period, silent response, normal app playback volume, notifications, lock screen, and all triggers enabled.
+- `Café`: 5 second grace period, 5 minute idle timeout, loud response, maximum app playback volume, notifications, lock screen, and all triggers enabled.
+- `Library`: 15 second grace period, 15 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and all triggers enabled.
 
 Presets keep the selected alarm sound and learned Bluetooth device.
+
+## Idle Timeout
+
+`Settings > Idle Timeout` controls how long the Mac can go without local keyboard or pointer activity before PublicGuard responds while armed. It uses macOS' local HID idle timer and does not record keystrokes, pointer movement, app usage, or content.
 
 ## Current Technical Notes
 
@@ -146,6 +151,7 @@ Triggers:
 - `NetworkMonitor`
 - `SleepWakeMonitor`
 - `BluetoothProximityMonitor`
+- `IdleActivityMonitor`
 
 Actions:
 

@@ -14,6 +14,7 @@ final class PublicGuardController {
     private let networkMonitor = NetworkMonitor()
     private let sleepWakeMonitor = SleepWakeMonitor()
     private let bluetoothMonitor = BluetoothProximityMonitor()
+    private let idleMonitor = IdleActivityMonitor()
 
     private var settings: GuardSettings
     private var statusItem: NSStatusItem?
@@ -66,6 +67,13 @@ final class PublicGuardController {
             }
         }
 
+        idleMonitor.onIdleTimeout = { [weak self] in
+            Task { @MainActor in
+                guard let self else { return }
+                self.handleTrigger(.idleTimeout(seconds: self.settings.idleTimeoutSeconds))
+            }
+        }
+
         powerMonitor.start()
         networkMonitor.start()
         sleepWakeMonitor.start()
@@ -73,6 +81,7 @@ final class PublicGuardController {
             targetIdentifier: settings.bluetoothTargetIdentifier,
             targetName: settings.bluetoothTargetName
         )
+        idleMonitor.start(thresholdSeconds: settings.idleTimeoutSeconds)
     }
 
     func stop() {
@@ -83,6 +92,7 @@ final class PublicGuardController {
         networkMonitor.stop()
         sleepWakeMonitor.stop()
         bluetoothMonitor.stop()
+        idleMonitor.stop()
     }
 
     private func setupMenuBar() {
@@ -161,6 +171,19 @@ final class PublicGuardController {
 
         gracePeriod.submenu = graceSubmenu
         submenu.addItem(gracePeriod)
+
+        let idleTimeout = NSMenuItem(title: "Idle Timeout", action: nil, keyEquivalent: "")
+        let idleTimeoutSubmenu = NSMenu()
+
+        for seconds in SettingsStore.validIdleTimeouts {
+            let idleItem = NSMenuItem(title: Self.idleTimeoutTitle(seconds: seconds), action: #selector(setIdleTimeout(_:)), keyEquivalent: "", target: self)
+            idleItem.representedObject = seconds
+            idleItem.state = settings.idleTimeoutSeconds == seconds ? .on : .off
+            idleTimeoutSubmenu.addItem(idleItem)
+        }
+
+        idleTimeout.submenu = idleTimeoutSubmenu
+        submenu.addItem(idleTimeout)
 
         let responseMode = NSMenuItem(title: "Response Mode", action: nil, keyEquivalent: "")
         let responseSubmenu = NSMenu()
@@ -275,6 +298,7 @@ final class PublicGuardController {
 
     @objc private func arm() {
         state.arm()
+        idleMonitor.resetBaseline()
         eventLog.write(.armed)
         NotificationCenter.default.post(name: .guardStateDidChange, object: nil)
         rebuildMenu()
@@ -339,6 +363,13 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func setIdleTimeout(_ sender: NSMenuItem) {
+        guard let seconds = sender.representedObject as? Int else { return }
+        settings.idleTimeoutSeconds = seconds
+        idleMonitor.updateThreshold(seconds: seconds)
+        persistSettings()
+    }
+
     @objc private func applyPreset(_ sender: NSMenuItem) {
         guard
             let rawValue = sender.representedObject as? String,
@@ -348,6 +379,7 @@ final class PublicGuardController {
         }
 
         settings = preset.applied(to: settings)
+        idleMonitor.updateThreshold(seconds: settings.idleTimeoutSeconds)
         if settings.notificationsEnabled {
             notifications.requestAuthorization()
         }
@@ -434,6 +466,7 @@ final class PublicGuardController {
         settingsStore.save(settings)
         eventLog.write(.settingsChanged(
             gracePeriodSeconds: settings.gracePeriodSeconds,
+            idleTimeoutSeconds: settings.idleTimeoutSeconds,
             responseMode: settings.responseMode,
             alarmSound: settings.alarmSound,
             alarmVolume: settings.alarmVolume,
@@ -480,6 +513,13 @@ final class PublicGuardController {
             }
             eventLog.write(.bluetoothDeviceOutOfRange(name: name))
             triggerAlarmAfterGracePeriod(reason: "Bluetooth device out of range: \(name)")
+        case let .idleTimeout(seconds):
+            guard settings.isTriggerEnabled(.idleTimeout) else {
+                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.idleTimeout.rawValue))
+                return
+            }
+            eventLog.write(.idleTimeout(seconds: seconds))
+            triggerAlarmAfterGracePeriod(reason: "Mac idle for \(Self.idleTimeoutTitle(seconds: seconds))")
         case .systemWillSleep:
             eventLog.write(.systemWillSleep)
         case .systemDidWake:
@@ -521,6 +561,17 @@ final class PublicGuardController {
                 self.rebuildMenu()
             }
         }
+    }
+}
+
+private extension PublicGuardController {
+    static func idleTimeoutTitle(seconds: Int) -> String {
+        if seconds < 60 {
+            return "\(seconds) seconds"
+        }
+
+        let minutes = seconds / 60
+        return minutes == 1 ? "1 minute" : "\(minutes) minutes"
     }
 }
 

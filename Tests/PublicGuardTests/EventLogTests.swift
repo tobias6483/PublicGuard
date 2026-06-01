@@ -94,16 +94,23 @@ final class EventLogTests: XCTestCase {
         XCTAssertEqual(message, "bluetooth_device_out_of_range name=\"Tobias iPhone\"")
     }
 
+    func testIdleTimeoutMessageContainsSeconds() {
+        let message = GuardEvent.idleTimeout(seconds: 300).message
+
+        XCTAssertEqual(message, "idle_timeout seconds=300")
+    }
+
     func testSettingsChangedMessageContainsValues() {
         let message = GuardEvent.settingsChanged(
             gracePeriodSeconds: 10,
+            idleTimeoutSeconds: 300,
             responseMode: .silent,
             alarmSound: .ping,
             alarmVolume: .maximum,
             lockScreenEnabled: false
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false")
     }
 
     func testTriggerIgnoredMessageContainsName() {
