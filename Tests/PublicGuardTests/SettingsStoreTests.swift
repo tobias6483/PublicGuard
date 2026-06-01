@@ -140,6 +140,34 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(GuardSettings.AlarmVolume.maximum.soundVolume, 1.0)
     }
 
+    func testCafePresetAppliesFastLoudPublicSettings() {
+        let settings = customSettings().applyingPreset(.cafe)
+
+        XCTAssertEqual(settings.gracePeriodSeconds, 5)
+        XCTAssertEqual(settings.responseMode, .loudAlarm)
+        XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
+        XCTAssertTrue(settings.notificationsEnabled)
+        XCTAssertEqual(settings.alarmSound, .ping)
+        XCTAssertEqual(settings.alarmVolume, .maximum)
+        XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
+        XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
+    }
+
+    func testLibraryPresetAppliesQuietPublicSettings() {
+        let settings = customSettings().applyingPreset(.library)
+
+        XCTAssertEqual(settings.gracePeriodSeconds, 15)
+        XCTAssertEqual(settings.responseMode, .silent)
+        XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
+        XCTAssertTrue(settings.notificationsEnabled)
+        XCTAssertEqual(settings.alarmSound, .ping)
+        XCTAssertEqual(settings.alarmVolume, .normal)
+        XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
+        XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
+    }
+
     func testLockScreenCanBeDisabled() {
         let defaults = makeDefaults()
         let store = SettingsStore(defaults: defaults)
@@ -178,4 +206,24 @@ final class SettingsStoreTests: XCTestCase {
         defaults.removePersistentDomain(forName: suiteName)
         return defaults
     }
+}
+
+private extension GuardSettings {
+    func applyingPreset(_ preset: GuardSettings.SessionPreset) -> GuardSettings {
+        preset.applied(to: self)
+    }
+}
+
+private func customSettings() -> GuardSettings {
+    GuardSettings(
+        gracePeriodSeconds: 30,
+        responseMode: .loudAlarm,
+        enabledTriggers: [.chargerDisconnect],
+        notificationsEnabled: false,
+        alarmSound: .ping,
+        alarmVolume: .normal,
+        lockScreenEnabled: false,
+        bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
+        bluetoothTargetName: "Tobias iPhone"
+    )
 }

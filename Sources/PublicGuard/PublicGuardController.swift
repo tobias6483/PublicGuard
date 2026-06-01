@@ -136,6 +136,18 @@ final class PublicGuardController {
         let item = NSMenuItem(title: "Settings", action: nil, keyEquivalent: "")
         let submenu = NSMenu()
 
+        let presets = NSMenuItem(title: "Presets", action: nil, keyEquivalent: "")
+        let presetsSubmenu = NSMenu()
+
+        for preset in GuardSettings.SessionPreset.allCases {
+            let presetItem = NSMenuItem(title: preset.title, action: #selector(applyPreset(_:)), keyEquivalent: "", target: self)
+            presetItem.representedObject = preset.rawValue
+            presetsSubmenu.addItem(presetItem)
+        }
+
+        presets.submenu = presetsSubmenu
+        submenu.addItem(presets)
+
         let gracePeriod = NSMenuItem(title: "Grace Period", action: nil, keyEquivalent: "")
         let graceSubmenu = NSMenu()
 
@@ -324,6 +336,24 @@ final class PublicGuardController {
     @objc private func setGracePeriod(_ sender: NSMenuItem) {
         guard let seconds = sender.representedObject as? Int else { return }
         settings.gracePeriodSeconds = seconds
+        persistSettings()
+    }
+
+    @objc private func applyPreset(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let preset = GuardSettings.SessionPreset(rawValue: rawValue)
+        else {
+            return
+        }
+
+        settings = preset.applied(to: settings)
+        if settings.notificationsEnabled {
+            notifications.requestAuthorization()
+        }
+        if settings.responseMode == .silent {
+            alarm.stop()
+        }
         persistSettings()
     }
 

@@ -115,6 +115,40 @@ struct GuardSettings {
         }
     }
 
+    enum SessionPreset: String, CaseIterable {
+        case cafe
+        case library
+
+        var title: String {
+            switch self {
+            case .cafe:
+                "Café"
+            case .library:
+                "Library"
+            }
+        }
+
+        func applied(to settings: GuardSettings) -> GuardSettings {
+            var updated = settings
+            updated.enabledTriggers = Set(TriggerKind.allCases)
+            updated.notificationsEnabled = true
+            updated.lockScreenEnabled = true
+
+            switch self {
+            case .cafe:
+                updated.gracePeriodSeconds = 5
+                updated.responseMode = .loudAlarm
+                updated.alarmVolume = .maximum
+            case .library:
+                updated.gracePeriodSeconds = 15
+                updated.responseMode = .silent
+                updated.alarmVolume = .normal
+            }
+
+            return updated
+        }
+    }
+
     var gracePeriodSeconds: Int
     var responseMode: ResponseMode
     var enabledTriggers: Set<TriggerKind>
