@@ -52,6 +52,7 @@ enum GuardEvent {
     case alarmTriggered(reason: String)
     case silentResponseTriggered(reason: String)
     case settingsChanged(gracePeriodSeconds: Int, responseMode: GuardSettings.ResponseMode)
+    case triggerIgnored(name: String)
 
     var message: String {
         switch self {
@@ -81,6 +82,8 @@ enum GuardEvent {
             "silent_response_triggered reason=\"\(reason)\""
         case let .settingsChanged(gracePeriodSeconds, responseMode):
             "settings_changed grace_period_seconds=\(gracePeriodSeconds) response_mode=\"\(responseMode.rawValue)\""
+        case let .triggerIgnored(name):
+            "trigger_ignored name=\"\(name)\""
         }
     }
 }

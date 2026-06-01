@@ -141,6 +141,19 @@ final class PublicGuardController {
         responseMode.submenu = responseSubmenu
         submenu.addItem(responseMode)
 
+        let triggers = NSMenuItem(title: "Triggers", action: nil, keyEquivalent: "")
+        let triggerSubmenu = NSMenu()
+
+        for trigger in GuardSettings.TriggerKind.allCases {
+            let triggerItem = NSMenuItem(title: trigger.title, action: #selector(toggleTrigger(_:)), keyEquivalent: "", target: self)
+            triggerItem.representedObject = trigger.rawValue
+            triggerItem.state = settings.isTriggerEnabled(trigger) ? .on : .off
+            triggerSubmenu.addItem(triggerItem)
+        }
+
+        triggers.submenu = triggerSubmenu
+        submenu.addItem(triggers)
+
         item.submenu = submenu
         return item
     }
@@ -183,6 +196,23 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func toggleTrigger(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let trigger = GuardSettings.TriggerKind(rawValue: rawValue)
+        else {
+            return
+        }
+
+        if settings.enabledTriggers.contains(trigger) {
+            settings.enabledTriggers.remove(trigger)
+        } else {
+            settings.enabledTriggers.insert(trigger)
+        }
+
+        persistSettings()
+    }
+
     @objc private func setResponseMode(_ sender: NSMenuItem) {
         guard
             let rawValue = sender.representedObject as? String,
@@ -216,14 +246,26 @@ final class PublicGuardController {
 
         switch trigger {
         case .chargerDisconnected:
+            guard settings.isTriggerEnabled(.chargerDisconnect) else {
+                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.chargerDisconnect.rawValue))
+                return
+            }
             eventLog.write(.chargerDisconnected)
             triggerAlarmAfterGracePeriod(reason: "Power adapter disconnected")
         case let .networkChanged(previous, current):
+            guard settings.isTriggerEnabled(.networkChange) else {
+                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.networkChange.rawValue))
+                return
+            }
             eventLog.write(.networkChanged(previous: previous, current: current))
             triggerAlarmAfterGracePeriod(reason: "Wi-Fi network changed")
         case .systemWillSleep:
             eventLog.write(.systemWillSleep)
         case .systemDidWake:
+            guard settings.isTriggerEnabled(.wakeFromSleep) else {
+                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
+                return
+            }
             eventLog.write(.systemDidWake)
             triggerAlarmAfterGracePeriod(reason: "Mac woke while armed")
         }

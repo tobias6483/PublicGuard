@@ -37,16 +37,18 @@ swift test
 2. Confirm it appears in the menu bar.
 3. Change `Settings > Grace Period` and confirm the checkmark moves.
 4. Change `Settings > Response Mode` and confirm the checkmark moves.
-5. Click `Arm`.
-6. Disconnect the power adapter.
-7. Confirm an event is written to the log.
-8. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged.
-9. Wait for the grace period.
-10. In loud mode, confirm alarm sound starts and the screen lock action runs.
-11. In silent mode, confirm notification/log/lock happen without alarm sound.
-12. Re-open the app and choose `Disarm`.
-13. Confirm Touch ID/password is required.
-14. Confirm alarm stops after successful authentication.
+5. Change `Settings > Triggers` and confirm trigger checkmarks toggle.
+6. Click `Arm`.
+7. Disconnect the power adapter.
+8. Confirm an event is written to the log.
+9. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged when that trigger is enabled.
+10. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
+11. Wait for the grace period.
+12. In loud mode, confirm alarm sound starts and the screen lock action runs.
+13. In silent mode, confirm notification/log/lock happen without alarm sound.
+14. Re-open the app and choose `Disarm`.
+15. Confirm Touch ID/password is required.
+16. Confirm alarm stops after successful authentication.
 
 ## Log Location
 

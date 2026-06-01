@@ -18,3 +18,4 @@
 - Added a manual response test menu item.
 - Added local unsigned `.app` bundle build script.
 - Added Wi-Fi network change trigger.
+- Added per-trigger enable/disable settings.

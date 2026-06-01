@@ -33,4 +33,10 @@ final class EventLogTests: XCTestCase {
 
         XCTAssertEqual(message, "settings_changed grace_period_seconds=10 response_mode=\"silent\"")
     }
+
+    func testTriggerIgnoredMessageContainsName() {
+        let message = GuardEvent.triggerIgnored(name: "networkChange").message
+
+        XCTAssertEqual(message, "trigger_ignored name=\"networkChange\"")
+    }
 }

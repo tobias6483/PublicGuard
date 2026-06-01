@@ -19,6 +19,7 @@ Implemented:
 - Sleep/wake trigger
 - Configurable grace period before response
 - Loud alarm and silent response modes
+- Per-trigger enable/disable settings
 - Manual response test from the menu bar
 - Repeating local alarm sound
 - Local macOS alarm notification

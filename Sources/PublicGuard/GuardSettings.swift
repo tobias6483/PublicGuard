@@ -15,11 +15,33 @@ struct GuardSettings {
         }
     }
 
+    enum TriggerKind: String, CaseIterable {
+        case chargerDisconnect
+        case networkChange
+        case wakeFromSleep
+
+        var title: String {
+            switch self {
+            case .chargerDisconnect:
+                "Charger Disconnect"
+            case .networkChange:
+                "Wi-Fi Change"
+            case .wakeFromSleep:
+                "Wake From Sleep"
+            }
+        }
+    }
+
     var gracePeriodSeconds: Int
     var responseMode: ResponseMode
+    var enabledTriggers: Set<TriggerKind>
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
+    }
+
+    func isTriggerEnabled(_ trigger: TriggerKind) -> Bool {
+        enabledTriggers.contains(trigger)
     }
 }
 
@@ -27,6 +49,7 @@ struct SettingsStore {
     private enum Key {
         static let gracePeriodSeconds = "gracePeriodSeconds"
         static let responseMode = "responseMode"
+        static let enabledTriggers = "enabledTriggers"
     }
 
     private let defaults: UserDefaults
@@ -42,12 +65,24 @@ struct SettingsStore {
         let storedMode = defaults.string(forKey: Key.responseMode)
         let mode = storedMode.flatMap(GuardSettings.ResponseMode.init(rawValue:)) ?? .loudAlarm
 
-        return GuardSettings(gracePeriodSeconds: gracePeriod, responseMode: mode)
+        let storedTriggerValues = defaults.stringArray(forKey: Key.enabledTriggers)
+        let triggers = storedTriggerValues.map { values in
+            Set(values.compactMap(GuardSettings.TriggerKind.init(rawValue:)))
+        } ?? Set(GuardSettings.TriggerKind.allCases)
+
+        let enabledTriggers = triggers.isEmpty ? Set(GuardSettings.TriggerKind.allCases) : triggers
+
+        return GuardSettings(
+            gracePeriodSeconds: gracePeriod,
+            responseMode: mode,
+            enabledTriggers: enabledTriggers
+        )
     }
 
     func save(_ settings: GuardSettings) {
         defaults.set(settings.gracePeriodSeconds, forKey: Key.gracePeriodSeconds)
         defaults.set(settings.responseMode.rawValue, forKey: Key.responseMode)
+        defaults.set(settings.enabledTriggers.map(\.rawValue).sorted(), forKey: Key.enabledTriggers)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]

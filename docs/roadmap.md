@@ -10,6 +10,7 @@
 - Configurable grace period before response
 - Loud local alarm
 - Silent response mode
+- Per-trigger enable/disable settings
 - Lock screen action
 - Local-only event log
 - Local unsigned app bundle script
