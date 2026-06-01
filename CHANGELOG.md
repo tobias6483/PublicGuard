@@ -35,3 +35,4 @@
 - Added a local idle timeout trigger.
 - Added an optional launch at login setting for app bundle builds.
 - Added a lid-close hardware QA checklist.
+- Added a minimal event log detail setting.

@@ -18,8 +18,8 @@ struct EventLog {
         self.url = directory.appendingPathComponent("events.log")
     }
 
-    func write(_ event: GuardEvent) {
-        let line = "\(Self.timestamp()) \(event.message)\n"
+    func write(_ event: GuardEvent, detail: GuardSettings.EventLogDetail = .standard) {
+        let line = "\(Self.timestamp()) \(event.message(detail: detail))\n"
         guard let data = line.data(using: .utf8) else { return }
 
         if FileManager.default.fileExists(atPath: url.path) {
@@ -80,13 +80,18 @@ enum GuardEvent {
         alarmSound: GuardSettings.AlarmSound,
         alarmVolume: GuardSettings.AlarmVolume,
         lockScreenEnabled: Bool,
-        launchAtLoginEnabled: Bool
+        launchAtLoginEnabled: Bool,
+        eventLogDetail: GuardSettings.EventLogDetail
     )
     case launchAtLoginChangeFailed(error: String)
     case triggerIgnored(name: String)
     case logCleared
 
     var message: String {
+        message(detail: .standard)
+    }
+
+    func message(detail: GuardSettings.EventLogDetail) -> String {
         switch self {
         case .appStarted:
             "app_started"
@@ -101,11 +106,26 @@ enum GuardEvent {
         case .chargerDisconnected:
             "charger_disconnected"
         case let .networkChanged(previous, current):
-            "network_changed previous=\"\(previous ?? "none")\" current=\"\(current ?? "none")\""
+            switch detail {
+            case .standard:
+                "network_changed previous=\"\(previous ?? "none")\" current=\"\(current ?? "none")\""
+            case .minimal:
+                "network_changed"
+            }
         case let .bluetoothDeviceLearned(name):
-            "bluetooth_device_learned name=\"\(name)\""
+            switch detail {
+            case .standard:
+                "bluetooth_device_learned name=\"\(name)\""
+            case .minimal:
+                "bluetooth_device_learned"
+            }
         case let .bluetoothDeviceOutOfRange(name):
-            "bluetooth_device_out_of_range name=\"\(name)\""
+            switch detail {
+            case .standard:
+                "bluetooth_device_out_of_range name=\"\(name)\""
+            case .minimal:
+                "bluetooth_device_out_of_range"
+            }
         case let .idleTimeout(seconds):
             "idle_timeout seconds=\(seconds)"
         case .systemWillSleep:
@@ -113,19 +133,49 @@ enum GuardEvent {
         case .systemDidWake:
             "system_did_wake"
         case let .gracePeriodStarted(reason, seconds):
-            "grace_period_started seconds=\(seconds.components.seconds) reason=\"\(reason)\""
+            switch detail {
+            case .standard:
+                "grace_period_started seconds=\(seconds.components.seconds) reason=\"\(reason)\""
+            case .minimal:
+                "grace_period_started seconds=\(seconds.components.seconds)"
+            }
         case let .alarmTriggered(reason):
-            "alarm_triggered reason=\"\(reason)\""
+            switch detail {
+            case .standard:
+                "alarm_triggered reason=\"\(reason)\""
+            case .minimal:
+                "alarm_triggered"
+            }
         case .alarmStopped:
             "alarm_stopped"
         case let .silentResponseTriggered(reason):
-            "silent_response_triggered reason=\"\(reason)\""
-        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled):
-            "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled)"
+            switch detail {
+            case .standard:
+                "silent_response_triggered reason=\"\(reason)\""
+            case .minimal:
+                "silent_response_triggered"
+            }
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail):
+            switch detail {
+            case .standard:
+                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\""
+            case .minimal:
+                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\""
+            }
         case let .launchAtLoginChangeFailed(error):
-            "launch_at_login_change_failed error=\"\(error)\""
+            switch detail {
+            case .standard:
+                "launch_at_login_change_failed error=\"\(error)\""
+            case .minimal:
+                "launch_at_login_change_failed"
+            }
         case let .triggerIgnored(name):
-            "trigger_ignored name=\"\(name)\""
+            switch detail {
+            case .standard:
+                "trigger_ignored name=\"\(name)\""
+            case .minimal:
+                "trigger_ignored"
+            }
         case .logCleared:
             "log_cleared"
         }

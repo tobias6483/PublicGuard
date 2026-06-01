@@ -17,6 +17,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.alarmVolume, .normal)
         XCTAssertTrue(settings.lockScreenEnabled)
         XCTAssertFalse(settings.launchAtLoginEnabled)
+        XCTAssertEqual(settings.eventLogDetail, .standard)
         XCTAssertNil(settings.bluetoothTargetIdentifier)
         XCTAssertNil(settings.bluetoothTargetName)
     }
@@ -34,6 +35,7 @@ final class SettingsStoreTests: XCTestCase {
             alarmVolume: .maximum,
             lockScreenEnabled: false,
             launchAtLoginEnabled: true,
+            eventLogDetail: .minimal,
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
             bluetoothTargetName: "Tobias iPhone"
         )
@@ -49,6 +51,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().alarmVolume, .maximum)
         XCTAssertFalse(store.load().lockScreenEnabled)
         XCTAssertTrue(store.load().launchAtLoginEnabled)
+        XCTAssertEqual(store.load().eventLogDetail, .minimal)
         XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
     }
@@ -149,6 +152,14 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().alarmVolume, .normal)
     }
 
+    func testInvalidEventLogDetailFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set("not-a-real-detail", forKey: "eventLogDetail")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().eventLogDetail, .standard)
+    }
+
     func testAlarmVolumeValuesMapToSoundVolumes() {
         XCTAssertEqual(GuardSettings.AlarmVolume.normal.soundVolume, 0.8)
         XCTAssertEqual(GuardSettings.AlarmVolume.maximum.soundVolume, 1.0)
@@ -166,6 +177,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.alarmVolume, .maximum)
         XCTAssertTrue(settings.lockScreenEnabled)
         XCTAssertTrue(settings.launchAtLoginEnabled)
+        XCTAssertEqual(settings.eventLogDetail, .minimal)
         XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
     }
@@ -182,6 +194,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.alarmVolume, .normal)
         XCTAssertTrue(settings.lockScreenEnabled)
         XCTAssertTrue(settings.launchAtLoginEnabled)
+        XCTAssertEqual(settings.eventLogDetail, .minimal)
         XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
     }
@@ -217,6 +230,23 @@ final class SettingsStoreTests: XCTestCase {
         ))
 
         XCTAssertTrue(store.load().launchAtLoginEnabled)
+    }
+
+    func testEventLogDetailCanBeMinimal() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            eventLogDetail: .minimal
+        ))
+
+        XCTAssertEqual(store.load().eventLogDetail, .minimal)
     }
 
     func testBundledAlarmSoundsDeclareResources() {
@@ -260,6 +290,7 @@ private func customSettings() -> GuardSettings {
         alarmVolume: .normal,
         lockScreenEnabled: false,
         launchAtLoginEnabled: true,
+        eventLogDetail: .minimal,
         bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
         bluetoothTargetName: "Tobias iPhone"
     )

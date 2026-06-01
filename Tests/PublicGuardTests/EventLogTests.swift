@@ -108,16 +108,55 @@ final class EventLogTests: XCTestCase {
             alarmSound: .ping,
             alarmVolume: .maximum,
             lockScreenEnabled: false,
-            launchAtLoginEnabled: true
+            launchAtLoginEnabled: true,
+            eventLogDetail: .standard
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\"")
     }
 
     func testLaunchAtLoginChangeFailedMessageContainsError() {
         let message = GuardEvent.launchAtLoginChangeFailed(error: "requiresAppBundle").message
 
         XCTAssertEqual(message, "launch_at_login_change_failed error=\"requiresAppBundle\"")
+    }
+
+    func testMinimalDetailOmitsNetworkValues() {
+        let message = GuardEvent.networkChanged(previous: "Cafe WiFi", current: "Library WiFi").message(detail: .minimal)
+
+        XCTAssertEqual(message, "network_changed")
+    }
+
+    func testMinimalDetailOmitsBluetoothNames() {
+        let learned = GuardEvent.bluetoothDeviceLearned(name: "Tobias iPhone").message(detail: .minimal)
+        let outOfRange = GuardEvent.bluetoothDeviceOutOfRange(name: "Tobias iPhone").message(detail: .minimal)
+
+        XCTAssertEqual(learned, "bluetooth_device_learned")
+        XCTAssertEqual(outOfRange, "bluetooth_device_out_of_range")
+    }
+
+    func testMinimalDetailOmitsResponseReasons() {
+        let grace = GuardEvent.gracePeriodStarted(reason: "Bluetooth device out of range: Tobias iPhone", seconds: .seconds(5)).message(detail: .minimal)
+        let alarm = GuardEvent.alarmTriggered(reason: "Bluetooth device out of range: Tobias iPhone").message(detail: .minimal)
+        let silent = GuardEvent.silentResponseTriggered(reason: "Bluetooth device out of range: Tobias iPhone").message(detail: .minimal)
+
+        XCTAssertEqual(grace, "grace_period_started seconds=5")
+        XCTAssertEqual(alarm, "alarm_triggered")
+        XCTAssertEqual(silent, "silent_response_triggered")
+    }
+
+    func testWriteUsesSelectedDetail() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url)
+
+        log.write(.networkChanged(previous: "Cafe WiFi", current: "Library WiFi"), detail: .minimal)
+
+        let contents = try String(contentsOf: url, encoding: .utf8)
+        XCTAssertTrue(contents.contains("network_changed"))
+        XCTAssertFalse(contents.contains("Cafe WiFi"))
+        XCTAssertFalse(contents.contains("Library WiFi"))
     }
 
     func testTriggerIgnoredMessageContainsName() {
