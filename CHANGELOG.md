@@ -20,3 +20,4 @@
 - Added Wi-Fi network change trigger.
 - Added per-trigger enable/disable settings.
 - Added notification enable/disable setting.
+- Added event log clearing from the menu bar.

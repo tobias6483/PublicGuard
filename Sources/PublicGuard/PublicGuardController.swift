@@ -104,6 +104,7 @@ final class PublicGuardController {
         menu.addItem(settingsMenuItem())
         menu.addItem(NSMenuItem(title: "Test Response", action: #selector(testResponse), keyEquivalent: "t", target: self))
         menu.addItem(NSMenuItem(title: "Open Event Log", action: #selector(openEventLog), keyEquivalent: "l", target: self))
+        menu.addItem(NSMenuItem(title: "Clear Event Log", action: #selector(clearEventLog), keyEquivalent: "", target: self))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit PublicGuard", action: #selector(quit), keyEquivalent: "q", target: self))
 
@@ -190,6 +191,11 @@ final class PublicGuardController {
 
     @objc private func openEventLog() {
         NSWorkspace.shared.activateFileViewerSelecting([eventLog.url])
+    }
+
+    @objc private func clearEventLog() {
+        eventLog.clear()
+        eventLog.write(.logCleared)
     }
 
     @objc private func testResponse() {

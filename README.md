@@ -26,6 +26,7 @@ Implemented:
 - Local macOS alarm notification
 - Lock screen action
 - Local-only event log
+- Event log open and clear actions
 
 Planned:
 
@@ -102,6 +103,7 @@ The local event log is written to:
 ```
 
 You can also open it from the PublicGuard menu bar menu.
+The menu also includes `Clear Event Log`, which resets the local log and writes a fresh `log_cleared` entry.
 
 ## Current Technical Notes
 

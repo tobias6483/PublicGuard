@@ -33,6 +33,11 @@ struct EventLog {
         }
     }
 
+    func clear() {
+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try? Data().write(to: url)
+    }
+
     private static func timestamp() -> String {
         ISO8601DateFormatter().string(from: Date())
     }
@@ -53,6 +58,7 @@ enum GuardEvent {
     case silentResponseTriggered(reason: String)
     case settingsChanged(gracePeriodSeconds: Int, responseMode: GuardSettings.ResponseMode)
     case triggerIgnored(name: String)
+    case logCleared
 
     var message: String {
         switch self {
@@ -84,6 +90,8 @@ enum GuardEvent {
             "settings_changed grace_period_seconds=\(gracePeriodSeconds) response_mode=\"\(responseMode.rawValue)\""
         case let .triggerIgnored(name):
             "trigger_ignored name=\"\(name)\""
+        case .logCleared:
+            "log_cleared"
         }
     }
 }

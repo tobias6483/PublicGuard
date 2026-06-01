@@ -49,9 +49,10 @@ swift test
 14. In silent mode, confirm log/lock happen without alarm sound.
 15. With notifications enabled, confirm macOS notification behavior in an app bundle build.
 16. With notifications disabled, confirm no macOS notification is sent.
-17. Re-open the app and choose `Disarm`.
-18. Confirm Touch ID/password is required.
-19. Confirm alarm stops after successful authentication.
+17. Choose `Clear Event Log` and confirm the log resets with a `log_cleared` entry.
+18. Re-open the app and choose `Disarm`.
+19. Confirm Touch ID/password is required.
+20. Confirm alarm stops after successful authentication.
 
 ## Log Location
 
