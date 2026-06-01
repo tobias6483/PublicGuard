@@ -39,6 +39,35 @@ PublicGuard should stay:
 
 The `main` branch is protected. Changes should go through a pull request, and the `Swift Build and Test` GitHub Actions check must pass before merging.
 
+For this repository, use local `git` plus the authenticated GitHub CLI (`gh`) for the full publish flow. Do not commit or push directly to `main`.
+
+Recommended flow:
+
+```sh
+git switch main
+git pull --ff-only
+git switch -c codex/short-description
+git status -sb
+git diff
+git add <relevant-files>
+swift test
+git commit -m "Short description"
+git push -u origin codex/short-description
+gh pr create --base main --head codex/short-description --draft
+```
+
+When CI is green and the PR is ready:
+
+```sh
+gh pr ready <number>
+gh pr merge <number> --squash --delete-branch
+git switch main
+git pull --ff-only
+git fetch --prune
+```
+
+The GitHub app connector may be useful for reading PR metadata, issues, and comments, but `gh` is the preferred tool for PR creation and merge operations in this repo.
+
 Please keep pull requests focused and explain:
 
 - What changed
