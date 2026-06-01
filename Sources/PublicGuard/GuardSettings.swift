@@ -94,6 +94,7 @@ struct GuardSettings {
     var enabledTriggers: Set<TriggerKind>
     var notificationsEnabled: Bool
     var alarmSound: AlarmSound
+    var lockScreenEnabled: Bool
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
@@ -111,6 +112,7 @@ struct SettingsStore {
         static let enabledTriggers = "enabledTriggers"
         static let notificationsEnabled = "notificationsEnabled"
         static let alarmSound = "alarmSound"
+        static let lockScreenEnabled = "lockScreenEnabled"
     }
 
     private let defaults: UserDefaults
@@ -135,13 +137,15 @@ struct SettingsStore {
         let notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
         let storedAlarmSound = defaults.string(forKey: Key.alarmSound)
         let alarmSound = storedAlarmSound.flatMap(GuardSettings.AlarmSound.init(rawValue:)) ?? .appleAlarm
+        let lockScreenEnabled = defaults.object(forKey: Key.lockScreenEnabled) as? Bool ?? true
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
             responseMode: mode,
             enabledTriggers: enabledTriggers,
             notificationsEnabled: notificationsEnabled,
-            alarmSound: alarmSound
+            alarmSound: alarmSound,
+            lockScreenEnabled: lockScreenEnabled
         )
     }
 
@@ -151,6 +155,7 @@ struct SettingsStore {
         defaults.set(settings.enabledTriggers.map(\.rawValue).sorted(), forKey: Key.enabledTriggers)
         defaults.set(settings.notificationsEnabled, forKey: Key.notificationsEnabled)
         defaults.set(settings.alarmSound.rawValue, forKey: Key.alarmSound)
+        defaults.set(settings.lockScreenEnabled, forKey: Key.lockScreenEnabled)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]

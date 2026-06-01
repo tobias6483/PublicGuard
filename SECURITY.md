@@ -9,6 +9,7 @@ PublicGuard is security-adjacent software. Changes that affect permissions, auth
 - Do not send device data to a server by default.
 - Prefer local-only behavior.
 - Make every sensitive permission clear to the user.
+- Keep sensitive actions, including screen locking, user-controlled.
 - Keep alarm sound selection local; do not fetch or upload audio.
 
 ## Reporting Issues
