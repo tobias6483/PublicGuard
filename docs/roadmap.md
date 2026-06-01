@@ -6,16 +6,15 @@
 - Touch ID/password protected disarm
 - Charger disconnect trigger
 - Sleep/wake trigger
-- Grace period before alarm
+- Configurable grace period before response
 - Loud local alarm
+- Silent response mode
 - Lock screen action
 - Local-only event log
 
 ## Next
 
 - Improve lid-close behavior research
-- Add configurable grace period
-- Add silent mode
 - Add network change trigger
 - Add notification preferences
 - Add custom alarm sound support

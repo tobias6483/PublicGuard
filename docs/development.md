@@ -14,6 +14,8 @@ swift run PublicGuard
 
 The app runs as a menu bar utility and does not open a Dock icon.
 
+SwiftPM runs the executable without a full app bundle identity. PublicGuard skips UserNotifications in that mode so local development does not crash; bundled builds can request notification permission normally.
+
 ## Test
 
 ```sh
@@ -24,14 +26,17 @@ swift test
 
 1. Launch PublicGuard.
 2. Confirm it appears in the menu bar.
-3. Click `Arm`.
-4. Disconnect the power adapter.
-5. Confirm an event is written to the log.
-6. Wait for the grace period.
-7. Confirm alarm sound starts and the screen lock action runs.
-8. Re-open the app and choose `Disarm`.
-9. Confirm Touch ID/password is required.
-10. Confirm alarm stops after successful authentication.
+3. Change `Settings > Grace Period` and confirm the checkmark moves.
+4. Change `Settings > Response Mode` and confirm the checkmark moves.
+5. Click `Arm`.
+6. Disconnect the power adapter.
+7. Confirm an event is written to the log.
+8. Wait for the grace period.
+9. In loud mode, confirm alarm sound starts and the screen lock action runs.
+10. In silent mode, confirm notification/log/lock happen without alarm sound.
+11. Re-open the app and choose `Disarm`.
+12. Confirm Touch ID/password is required.
+13. Confirm alarm stops after successful authentication.
 
 ## Log Location
 
@@ -44,6 +49,6 @@ swift test
 When a MacBook lid closes, macOS usually suspends regular app execution. PublicGuard currently treats sleep/wake as the practical MVP signal:
 
 - `willSleep` is logged while armed.
-- `didWake` triggers the grace period and alarm while armed.
+- `didWake` triggers the grace period and configured response while armed.
 
 Future versions should research whether power assertions, IOKit notifications, or helper processes can improve lid-close handling without harming battery life or privacy.

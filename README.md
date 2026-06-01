@@ -16,7 +16,9 @@ Implemented:
 - Touch ID/password protected disarm
 - Charger disconnect trigger
 - Sleep/wake trigger
-- 5 second grace period before alarm
+- Configurable grace period before response
+- Loud alarm and silent response modes
+- Manual response test from the menu bar
 - Repeating local alarm sound
 - Local macOS alarm notification
 - Lock screen action
@@ -27,7 +29,6 @@ Planned:
 - Better lid-close detection
 - iPhone Bluetooth proximity trigger
 - Wi-Fi/network change trigger
-- Silent alert mode
 - Configurable alarm sounds
 - Encrypted event logs
 - Shortcuts and Apple Watch support
@@ -79,6 +80,8 @@ swift run PublicGuard
 
 PublicGuard appears in the macOS menu bar.
 
+When running directly through SwiftPM, macOS notification delivery may be skipped because the process is not inside a signed app bundle. The rest of the local response loop still runs.
+
 ## Event Log
 
 The local event log is written to:
@@ -110,6 +113,7 @@ Actions:
 - `ScreenLocker`
 - `NotificationAction`
 - `EventLog`
+- `SettingsStore`
 - Future: `DelayAction`
 
 ## Contributing
@@ -119,5 +123,4 @@ PublicGuard is intentionally small and modular. Good first contributions include
 - Improving trigger reliability
 - Adding tests around state and logging
 - Improving documentation
-- Adding configurable alarm behavior
 - Adding privacy-preserving proximity detection

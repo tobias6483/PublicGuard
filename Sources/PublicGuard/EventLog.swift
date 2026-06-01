@@ -49,6 +49,8 @@ enum GuardEvent {
     case systemDidWake
     case gracePeriodStarted(reason: String, seconds: Duration)
     case alarmTriggered(reason: String)
+    case silentResponseTriggered(reason: String)
+    case settingsChanged(gracePeriodSeconds: Int, responseMode: GuardSettings.ResponseMode)
 
     var message: String {
         switch self {
@@ -72,6 +74,10 @@ enum GuardEvent {
             "grace_period_started seconds=\(seconds.components.seconds) reason=\"\(reason)\""
         case let .alarmTriggered(reason):
             "alarm_triggered reason=\"\(reason)\""
+        case let .silentResponseTriggered(reason):
+            "silent_response_triggered reason=\"\(reason)\""
+        case let .settingsChanged(gracePeriodSeconds, responseMode):
+            "settings_changed grace_period_seconds=\(gracePeriodSeconds) response_mode=\"\(responseMode.rawValue)\""
         }
     }
 }

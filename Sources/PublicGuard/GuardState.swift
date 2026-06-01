@@ -4,7 +4,6 @@ import Foundation
 final class GuardState {
     private(set) var isArmed = false
     private(set) var isAlarmActive = false
-    let gracePeriodSeconds: Duration = .seconds(5)
 
     func arm() {
         isArmed = true

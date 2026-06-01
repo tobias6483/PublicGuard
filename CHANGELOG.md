@@ -13,3 +13,6 @@
 - Added local macOS alarm notification.
 - Added lock screen action.
 - Added initial unit tests for guard state and event logging.
+- Added configurable grace period settings.
+- Added loud alarm and silent response modes.
+- Added a manual response test menu item.

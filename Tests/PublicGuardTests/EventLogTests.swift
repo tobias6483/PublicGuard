@@ -21,4 +21,10 @@ final class EventLogTests: XCTestCase {
 
         XCTAssertEqual(message, "alarm_triggered reason=\"Power adapter disconnected\"")
     }
+
+    func testSettingsChangedMessageContainsValues() {
+        let message = GuardEvent.settingsChanged(gracePeriodSeconds: 10, responseMode: .silent).message
+
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 response_mode=\"silent\"")
+    }
 }

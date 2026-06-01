@@ -113,13 +113,16 @@ Implementeret:
 - Lokal event-log i Application Support
 - Charger disconnect trigger via IOKit power polling
 - Sleep/wake trigger via NSWorkspace notifications
-- 5 sekunders grace period før alarm
+- Konfigurerbar grace period før respons
+- Loud alarm og silent response modes
+- Manual response test fra menu bar
 - Alarmlyd via gentagne macOS system sounds
 - Lokal macOS-notifikation ved alarm
 - Lock screen action via CGSession
 - `swift build` verifieret
 - Unit tests for guard state og event logging
-- `swift test` verifieret med 4 passing tests
+- Unit tests for settings persistence
+- `swift test` verifieret med 9 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:
