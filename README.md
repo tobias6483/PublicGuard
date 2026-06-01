@@ -19,10 +19,11 @@ Implemented:
 - Sleep/wake trigger
 - Configurable grace period before response
 - Loud alarm and silent response modes
+- Configurable alarm sound with bundled Apple Alarm default
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Manual response test from the menu bar
-- Repeating local alarm sound
+- Looping local alarm sound
 - Local macOS alarm notification
 - Lock screen action
 - Local-only event log
@@ -32,7 +33,6 @@ Planned:
 
 - Better lid-close detection
 - iPhone Bluetooth proximity trigger
-- Configurable alarm sounds
 - Encrypted event logs
 - Shortcuts and Apple Watch support
 

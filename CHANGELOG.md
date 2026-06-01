@@ -21,3 +21,4 @@
 - Added per-trigger enable/disable settings.
 - Added notification enable/disable setting.
 - Added event log clearing from the menu bar.
+- Added configurable alarm sound selection with a bundled looping Apple Alarm default.
