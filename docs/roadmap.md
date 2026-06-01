@@ -12,6 +12,7 @@
 - Loud local alarm
 - Configurable alarm sound with bundled local choices
 - Configurable alarm playback volume
+- Café and Library session presets
 - Silent response mode
 - Per-trigger enable/disable settings
 - Notification enable/disable setting

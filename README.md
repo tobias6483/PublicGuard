@@ -22,6 +22,7 @@ Implemented:
 - Loud alarm and silent response modes
 - Configurable alarm sound with bundled local choices and Apple Alarm default
 - Configurable alarm playback volume
+- Café and Library session presets
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Lock screen enable/disable setting
@@ -121,6 +122,15 @@ This is local-only and stores the CoreBluetooth device identifier and display na
 ## Alarm Volume
 
 `Settings > Alarm Volume` controls PublicGuard's own alarm playback volume. `Maximum` sets bundled and system alarm sounds to full app playback volume, but it does not change the Mac's global system volume.
+
+## Session Presets
+
+`Settings > Presets` can quickly apply local public-work profiles:
+
+- `Café`: 5 second grace period, loud response, maximum app playback volume, notifications, lock screen, and all triggers enabled.
+- `Library`: 15 second grace period, silent response, normal app playback volume, notifications, lock screen, and all triggers enabled.
+
+Presets keep the selected alarm sound and learned Bluetooth device.
 
 ## Current Technical Notes
 

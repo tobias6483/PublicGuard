@@ -121,6 +121,7 @@ Implementeret:
 - Loud alarm og silent response modes
 - Configurable alarm sound setting med bundled local choices og Apple Alarm som default
 - Configurable alarm playback volume uden global system-volume ændring
+- Café og Library session presets
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Lock screen enable/disable setting
@@ -143,7 +144,8 @@ Implementeret:
 - Unit tests for alarm stop state and event logging
 - Unit tests for Bluetooth target persistence and Bluetooth event logging
 - Unit tests for alarm volume persistence, fallback and log output
-- `swift test` verifieret med 29 passing tests
+- Unit tests for Café and Library preset behavior
+- `swift test` verifieret med 31 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:
@@ -253,7 +255,6 @@ Library mode:
 
 - Validate experimental iPhone/BLE proximity behavior on real hardware
 - Location-based triggers
-- Public session presets
 - Apple Watch support
 - Shortcuts integration
 - Find My-style helper workflow
