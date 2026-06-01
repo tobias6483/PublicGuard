@@ -34,6 +34,8 @@ struct GuardSettings {
 
     enum AlarmSound: String, CaseIterable {
         case appleAlarm
+        case beaconPulse
+        case highAlert
         case classic
         case basso
         case sosumi
@@ -43,6 +45,10 @@ struct GuardSettings {
             switch self {
             case .appleAlarm:
                 "Apple Alarm"
+            case .beaconPulse:
+                "Beacon Pulse"
+            case .highAlert:
+                "High Alert"
             case .classic:
                 "Classic Burst"
             case .basso:
@@ -56,7 +62,7 @@ struct GuardSettings {
 
         var systemSoundNames: [String] {
             switch self {
-            case .appleAlarm:
+            case .appleAlarm, .beaconPulse, .highAlert:
                 []
             case .classic:
                 ["Basso", "Sosumi", "Ping"]
@@ -69,10 +75,14 @@ struct GuardSettings {
             }
         }
 
-        var bundledResourceName: String? {
+        var bundledResource: (name: String, extension: String)? {
             switch self {
             case .appleAlarm:
-                "AppleAlarm"
+                ("AppleAlarm", "mp3")
+            case .beaconPulse:
+                ("BeaconPulse", "wav")
+            case .highAlert:
+                ("HighAlert", "wav")
             case .classic, .basso, .sosumi, .ping:
                 nil
             }

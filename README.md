@@ -19,7 +19,7 @@ Implemented:
 - Sleep/wake trigger
 - Configurable grace period before response
 - Loud alarm and silent response modes
-- Configurable alarm sound with bundled Apple Alarm default
+- Configurable alarm sound with bundled local choices and Apple Alarm default
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Manual response test from the menu bar

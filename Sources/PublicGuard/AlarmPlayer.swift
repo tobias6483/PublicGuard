@@ -10,7 +10,7 @@ final class AlarmPlayer {
         stop()
         self.sound = sound
 
-        if let resourceName = sound.bundledResourceName, startBundledSound(named: resourceName) {
+        if let resource = sound.bundledResource, startBundledSound(named: resource.name, extension: resource.extension) {
             return
         }
 
@@ -29,8 +29,8 @@ final class AlarmPlayer {
         fileSound = nil
     }
 
-    private func startBundledSound(named name: String) -> Bool {
-        guard let url = Bundle.module.url(forResource: name, withExtension: "mp3"),
+    private func startBundledSound(named name: String, extension fileExtension: String) -> Bool {
+        guard let url = Bundle.module.url(forResource: name, withExtension: fileExtension),
               let sound = NSSound(contentsOf: url, byReference: false)
         else {
             return false

@@ -118,11 +118,11 @@ Implementeret:
 - Sleep/wake trigger via NSWorkspace notifications
 - Konfigurerbar grace period før respons
 - Loud alarm og silent response modes
-- Configurable alarm sound setting med bundled Apple Alarm som default
+- Configurable alarm sound setting med bundled local choices og Apple Alarm som default
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Manual response test fra menu bar
-- Looping alarmlyd via bundled MP3 eller gentagne macOS system sounds
+- Looping alarmlyd via bundled MP3/WAV eller gentagne macOS system sounds
 - Lokal macOS-notifikation ved alarm
 - Lock screen action via CGSession
 - Lokal app bundle build via `scripts/build_app.sh`
@@ -133,8 +133,8 @@ Implementeret:
 - Unit tests for notification setting persistence
 - Unit tests for event log clearing
 - Unit tests for settings persistence
-- Unit tests for alarm sound setting persistence
-- `swift test` verifieret med 16 passing tests
+- Unit tests for alarm sound setting persistence and bundled resource metadata
+- `swift test` verifieret med 18 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:
@@ -249,7 +249,7 @@ Library mode:
 - Shortcuts integration
 - Find My-style helper workflow
 - Encrypted event logs
-- Additional alarm sound choices
+- More alarm sound tuning and manual loudness QA
 
 ## OpenAI- og OSS-Vinkel
 

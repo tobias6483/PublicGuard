@@ -89,6 +89,22 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().alarmSound, .appleAlarm)
     }
 
+    func testBundledAlarmSoundsDeclareResources() {
+        XCTAssertEqual(GuardSettings.AlarmSound.appleAlarm.bundledResource?.name, "AppleAlarm")
+        XCTAssertEqual(GuardSettings.AlarmSound.appleAlarm.bundledResource?.extension, "mp3")
+        XCTAssertEqual(GuardSettings.AlarmSound.beaconPulse.bundledResource?.name, "BeaconPulse")
+        XCTAssertEqual(GuardSettings.AlarmSound.beaconPulse.bundledResource?.extension, "wav")
+        XCTAssertEqual(GuardSettings.AlarmSound.highAlert.bundledResource?.name, "HighAlert")
+        XCTAssertEqual(GuardSettings.AlarmSound.highAlert.bundledResource?.extension, "wav")
+    }
+
+    func testSystemAlarmSoundsDoNotDeclareBundledResources() {
+        XCTAssertNil(GuardSettings.AlarmSound.classic.bundledResource)
+        XCTAssertNil(GuardSettings.AlarmSound.basso.bundledResource)
+        XCTAssertNil(GuardSettings.AlarmSound.sosumi.bundledResource)
+        XCTAssertNil(GuardSettings.AlarmSound.ping.bundledResource)
+    }
+
     private func makeDefaults() -> UserDefaults {
         let suiteName = "PublicGuardTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

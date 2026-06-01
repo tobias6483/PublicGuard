@@ -25,7 +25,7 @@ open dist/PublicGuard.app
 
 The generated bundle is unsigned and intended for local manual testing.
 
-The local bundle includes the `PublicGuard.icns` app icon from `Sources/PublicGuard/Resources`.
+The local bundle includes the `PublicGuard.icns` app icon and bundled alarm sounds from `Sources/PublicGuard/Resources`.
 
 ## Test
 
@@ -48,7 +48,7 @@ swift test
 11. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged when that trigger is enabled.
 12. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
 13. Wait for the grace period.
-14. In loud mode, confirm the selected alarm sound starts, loops until disarm, and the screen lock action runs.
+14. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs.
 15. In silent mode, confirm log/lock happen without alarm sound.
 16. With notifications enabled, confirm macOS notification behavior in an app bundle build.
 17. With notifications disabled, confirm no macOS notification is sent.

@@ -26,7 +26,7 @@ The bundle is intentionally local and unsigned for now. It includes:
 - `CFBundleIconFile`: `PublicGuard`, backed by `Sources/PublicGuard/Resources/PublicGuard.icns`
 - `LSUIElement`: enabled, so PublicGuard appears as a menu bar app without a Dock icon
 - `LSMinimumSystemVersion`: macOS 14.0
-- SwiftPM resource bundles, including the default alarm sound
+- SwiftPM resource bundles, including bundled alarm sounds
 
 ## Future Release Work
 
