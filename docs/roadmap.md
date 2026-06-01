@@ -21,8 +21,8 @@
 
 ## Next
 
-- Improve lid-close behavior research
-- Manual hardware QA pass
+- Complete manual hardware QA and record results
+- Validate lid-close sleep/wake behavior against the research note
 - Tune bundled alarm sound loudness after hardware testing
 
 ## Later
