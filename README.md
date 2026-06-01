@@ -17,6 +17,7 @@ Implemented:
 - Charger disconnect trigger
 - Wi-Fi network change trigger
 - Sleep/wake trigger
+- Experimental Bluetooth proximity trigger for a learned nearby BLE device
 - Configurable grace period before response
 - Loud alarm and silent response modes
 - Configurable alarm sound with bundled local choices and Apple Alarm default
@@ -36,7 +37,6 @@ Implemented:
 Planned:
 
 - Better lid-close research and behavior
-- iPhone Bluetooth proximity trigger
 - Encrypted event logs
 - Shortcuts and Apple Watch support
 
@@ -111,6 +111,12 @@ The menu includes a `Recent Events` submenu with the newest local log entries fo
 Stopping an active alarm writes an `alarm_stopped` entry before any armed guard session is logged as disarmed.
 The menu also includes `Clear Event Log`, which resets the local log and writes a fresh `log_cleared` entry.
 
+## Bluetooth Proximity
+
+PublicGuard can learn a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Learn Nearby Device`. While armed, it starts the configured response if that learned device was seen and then disappears for about 30 seconds.
+
+This is local-only and stores the CoreBluetooth device identifier and display name in macOS user defaults. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory.
+
 ## Current Technical Notes
 
 macOS usually sleeps immediately when a MacBook lid closes. That means a process cannot reliably keep running and play an alarm while the lid is closed. The first MVP logs sleep events and reacts when the Mac wakes while armed. Better lid-close behavior is tracked as a roadmap item; see [docs/lid-close-research.md](docs/lid-close-research.md).
@@ -124,7 +130,7 @@ Triggers:
 - `PowerMonitor`
 - `NetworkMonitor`
 - `SleepWakeMonitor`
-- Future: `BluetoothProximityTrigger`
+- `BluetoothProximityMonitor`
 
 Actions:
 

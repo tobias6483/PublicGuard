@@ -53,6 +53,8 @@ cat > "$CONTENTS_DIR/Info.plist" <<'PLIST'
   <true/>
   <key>NSHumanReadableCopyright</key>
   <string>Copyright 2026 PublicGuard contributors</string>
+  <key>NSBluetoothAlwaysUsageDescription</key>
+  <string>PublicGuard uses Bluetooth locally to detect when a learned nearby device is no longer seen while the guard is armed.</string>
 </dict>
 </plist>
 PLIST

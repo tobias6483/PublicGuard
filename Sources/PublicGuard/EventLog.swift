@@ -64,6 +64,8 @@ enum GuardEvent {
     case authenticationFailed
     case chargerDisconnected
     case networkChanged(previous: String?, current: String?)
+    case bluetoothDeviceLearned(name: String)
+    case bluetoothDeviceOutOfRange(name: String)
     case systemWillSleep
     case systemDidWake
     case gracePeriodStarted(reason: String, seconds: Duration)
@@ -95,6 +97,10 @@ enum GuardEvent {
             "charger_disconnected"
         case let .networkChanged(previous, current):
             "network_changed previous=\"\(previous ?? "none")\" current=\"\(current ?? "none")\""
+        case let .bluetoothDeviceLearned(name):
+            "bluetooth_device_learned name=\"\(name)\""
+        case let .bluetoothDeviceOutOfRange(name):
+            "bluetooth_device_out_of_range name=\"\(name)\""
         case .systemWillSleep:
             "system_will_sleep"
         case .systemDidWake:
