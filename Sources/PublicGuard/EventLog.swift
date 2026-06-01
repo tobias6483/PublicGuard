@@ -79,8 +79,10 @@ enum GuardEvent {
         responseMode: GuardSettings.ResponseMode,
         alarmSound: GuardSettings.AlarmSound,
         alarmVolume: GuardSettings.AlarmVolume,
-        lockScreenEnabled: Bool
+        lockScreenEnabled: Bool,
+        launchAtLoginEnabled: Bool
     )
+    case launchAtLoginChangeFailed(error: String)
     case triggerIgnored(name: String)
     case logCleared
 
@@ -118,8 +120,10 @@ enum GuardEvent {
             "alarm_stopped"
         case let .silentResponseTriggered(reason):
             "silent_response_triggered reason=\"\(reason)\""
-        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled):
-            "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled)"
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled):
+            "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled)"
+        case let .launchAtLoginChangeFailed(error):
+            "launch_at_login_change_failed error=\"\(error)\""
         case let .triggerIgnored(name):
             "trigger_ignored name=\"\(name)\""
         case .logCleared:

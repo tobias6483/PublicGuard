@@ -34,6 +34,7 @@ PublicGuard should stay:
 - Validate Bluetooth proximity behavior with real devices
 - Research reliable macOS lid-close behavior
 - Tune bundled alarm sound loudness after hardware testing
+- Verify launch at login behavior from local app bundle builds
 - Improve release packaging documentation
 
 ## Pull Requests

@@ -27,6 +27,7 @@ Implemented:
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Lock screen enable/disable setting
+- Launch at login setting for app bundle builds
 - Manual response test from the menu bar
 - Looping local alarm sound
 - Touch ID/password protected alarm stop
@@ -137,6 +138,12 @@ Presets keep the selected alarm sound and learned Bluetooth device.
 
 `Settings > Idle Timeout` controls how long the Mac can go without local keyboard or pointer activity before PublicGuard responds while armed. It uses macOS' local HID idle timer and does not record keystrokes, pointer movement, app usage, or content.
 
+## Launch at Login
+
+`Settings > Launch at Login` can register the bundled PublicGuard app with macOS login items. This is local macOS behavior and does not add a helper service, cloud account, or network dependency.
+
+The setting is only active when running `dist/PublicGuard.app`; `swift run PublicGuard` does not have the app bundle identity macOS needs for login item registration.
+
 ## Current Technical Notes
 
 macOS usually sleeps immediately when a MacBook lid closes. That means a process cannot reliably keep running and play an alarm while the lid is closed. The first MVP logs sleep events and reacts when the Mac wakes while armed. Better lid-close behavior is tracked as a roadmap item; see [docs/lid-close-research.md](docs/lid-close-research.md).
@@ -160,6 +167,7 @@ Actions:
 - `NotificationAction`
 - `EventLog`
 - `SettingsStore`
+- `LoginItemController`
 - Future: `DelayAction`
 
 ## Contributing

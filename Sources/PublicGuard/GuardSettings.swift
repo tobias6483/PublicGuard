@@ -162,6 +162,7 @@ struct GuardSettings {
     var alarmSound: AlarmSound
     var alarmVolume: AlarmVolume = .normal
     var lockScreenEnabled: Bool
+    var launchAtLoginEnabled: Bool = false
     var bluetoothTargetIdentifier: String?
     var bluetoothTargetName: String?
 
@@ -184,6 +185,7 @@ struct SettingsStore {
         static let alarmSound = "alarmSound"
         static let alarmVolume = "alarmVolume"
         static let lockScreenEnabled = "lockScreenEnabled"
+        static let launchAtLoginEnabled = "launchAtLoginEnabled"
         static let bluetoothTargetIdentifier = "bluetoothTargetIdentifier"
         static let bluetoothTargetName = "bluetoothTargetName"
     }
@@ -215,6 +217,7 @@ struct SettingsStore {
         let storedAlarmVolume = defaults.string(forKey: Key.alarmVolume)
         let alarmVolume = storedAlarmVolume.flatMap(GuardSettings.AlarmVolume.init(rawValue:)) ?? .normal
         let lockScreenEnabled = defaults.object(forKey: Key.lockScreenEnabled) as? Bool ?? true
+        let launchAtLoginEnabled = defaults.object(forKey: Key.launchAtLoginEnabled) as? Bool ?? false
         let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
         let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
 
@@ -227,6 +230,7 @@ struct SettingsStore {
             alarmSound: alarmSound,
             alarmVolume: alarmVolume,
             lockScreenEnabled: lockScreenEnabled,
+            launchAtLoginEnabled: launchAtLoginEnabled,
             bluetoothTargetIdentifier: bluetoothTargetIdentifier,
             bluetoothTargetName: bluetoothTargetName
         )
@@ -241,6 +245,7 @@ struct SettingsStore {
         defaults.set(settings.alarmSound.rawValue, forKey: Key.alarmSound)
         defaults.set(settings.alarmVolume.rawValue, forKey: Key.alarmVolume)
         defaults.set(settings.lockScreenEnabled, forKey: Key.lockScreenEnabled)
+        defaults.set(settings.launchAtLoginEnabled, forKey: Key.launchAtLoginEnabled)
         setOptional(settings.bluetoothTargetIdentifier, forKey: Key.bluetoothTargetIdentifier)
         setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)
     }

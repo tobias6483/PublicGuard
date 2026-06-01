@@ -15,6 +15,7 @@ final class PublicGuardController {
     private let sleepWakeMonitor = SleepWakeMonitor()
     private let bluetoothMonitor = BluetoothProximityMonitor()
     private let idleMonitor = IdleActivityMonitor()
+    private let loginItemController = LoginItemController()
 
     private var settings: GuardSettings
     private var statusItem: NSStatusItem?
@@ -247,6 +248,12 @@ final class PublicGuardController {
         lockScreenItem.state = settings.lockScreenEnabled ? .on : .off
         submenu.addItem(lockScreenItem)
 
+        let launchAtLoginTitle = loginItemController.canManageLaunchAtLogin ? "Launch at Login" : "Launch at Login (App Bundle Only)"
+        let launchAtLoginItem = NSMenuItem(title: launchAtLoginTitle, action: #selector(toggleLaunchAtLogin), keyEquivalent: "", target: self)
+        launchAtLoginItem.state = settings.launchAtLoginEnabled ? .on : .off
+        launchAtLoginItem.isEnabled = loginItemController.canManageLaunchAtLogin
+        submenu.addItem(launchAtLoginItem)
+
         item.submenu = submenu
         return item
     }
@@ -419,6 +426,19 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func toggleLaunchAtLogin() {
+        let enabled = !settings.launchAtLoginEnabled
+
+        do {
+            try loginItemController.setLaunchAtLoginEnabled(enabled)
+            settings.launchAtLoginEnabled = enabled
+            persistSettings()
+        } catch {
+            eventLog.write(.launchAtLoginChangeFailed(error: String(describing: error)))
+            rebuildMenu()
+        }
+    }
+
     @objc private func setResponseMode(_ sender: NSMenuItem) {
         guard
             let rawValue = sender.representedObject as? String,
@@ -470,7 +490,8 @@ final class PublicGuardController {
             responseMode: settings.responseMode,
             alarmSound: settings.alarmSound,
             alarmVolume: settings.alarmVolume,
-            lockScreenEnabled: settings.lockScreenEnabled
+            lockScreenEnabled: settings.lockScreenEnabled,
+            launchAtLoginEnabled: settings.launchAtLoginEnabled
         ))
         rebuildMenu()
     }
