@@ -9,7 +9,7 @@
 - Sleep/wake trigger
 - Configurable grace period before response
 - Loud local alarm
-- Configurable alarm sound with bundled default
+- Configurable alarm sound with bundled local choices
 - Silent response mode
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
@@ -22,7 +22,8 @@
 ## Next
 
 - Improve lid-close behavior research
-- Add more bundled alarm sound assets
+- Manual hardware QA pass
+- Tune bundled alarm sound loudness after hardware testing
 
 ## Later
 

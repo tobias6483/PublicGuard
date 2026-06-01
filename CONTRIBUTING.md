@@ -36,6 +36,8 @@ PublicGuard should stay:
 
 ## Pull Requests
 
+The `main` branch is protected. Changes should go through a pull request, and the `Swift Build and Test` GitHub Actions check must pass before merging.
+
 Please keep pull requests focused and explain:
 
 - What changed
