@@ -35,6 +35,7 @@ PublicGuard should stay:
 - Run and document lid-close hardware QA
 - Tune bundled alarm sound loudness after hardware testing
 - Verify launch at login behavior from local app bundle builds
+- Improve local event log privacy and retention controls
 - Improve release packaging documentation
 
 ## Pull Requests

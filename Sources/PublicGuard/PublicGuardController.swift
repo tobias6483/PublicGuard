@@ -26,7 +26,7 @@ final class PublicGuardController {
     }
 
     func start() {
-        eventLog.write(.appStarted)
+        writeEvent(.appStarted)
         if settings.notificationsEnabled {
             notifications.requestAuthorization()
         }
@@ -86,7 +86,7 @@ final class PublicGuardController {
     }
 
     func stop() {
-        eventLog.write(.appStopped)
+        writeEvent(.appStopped)
         graceTask?.cancel()
         alarm.stop()
         powerMonitor.stop()
@@ -225,6 +225,19 @@ final class PublicGuardController {
         alarmVolume.submenu = alarmVolumeSubmenu
         submenu.addItem(alarmVolume)
 
+        let eventLogDetail = NSMenuItem(title: "Event Log Detail", action: nil, keyEquivalent: "")
+        let eventLogDetailSubmenu = NSMenu()
+
+        for detail in GuardSettings.EventLogDetail.allCases {
+            let detailItem = NSMenuItem(title: detail.title, action: #selector(setEventLogDetail(_:)), keyEquivalent: "", target: self)
+            detailItem.representedObject = detail.rawValue
+            detailItem.state = settings.eventLogDetail == detail ? .on : .off
+            eventLogDetailSubmenu.addItem(detailItem)
+        }
+
+        eventLogDetail.submenu = eventLogDetailSubmenu
+        submenu.addItem(eventLogDetail)
+
         let triggers = NSMenuItem(title: "Triggers", action: nil, keyEquivalent: "")
         let triggerSubmenu = NSMenu()
 
@@ -306,7 +319,7 @@ final class PublicGuardController {
     @objc private func arm() {
         state.arm()
         idleMonitor.resetBaseline()
-        eventLog.write(.armed)
+        writeEvent(.armed)
         NotificationCenter.default.post(name: .guardStateDidChange, object: nil)
         rebuildMenu()
     }
@@ -315,7 +328,7 @@ final class PublicGuardController {
         Task {
             let allowed = await authenticator.authenticate(reason: "Disarm PublicGuard")
             guard allowed else {
-                eventLog.write(.authenticationFailed)
+                writeEvent(.authenticationFailed)
                 return
             }
 
@@ -326,12 +339,12 @@ final class PublicGuardController {
             if wasAlarmActive {
                 alarm.stop()
                 state.markAlarmInactive()
-                eventLog.write(.alarmStopped)
+                writeEvent(.alarmStopped)
             }
 
             if wasArmed {
                 state.disarm()
-                eventLog.write(.disarmed)
+                writeEvent(.disarmed)
             }
 
             NotificationCenter.default.post(name: .guardStateDidChange, object: nil)
@@ -345,7 +358,7 @@ final class PublicGuardController {
 
     @objc private func clearEventLog() {
         eventLog.clear()
-        eventLog.write(.logCleared)
+        writeEvent(.logCleared)
     }
 
     @objc private func testResponse() {
@@ -434,7 +447,7 @@ final class PublicGuardController {
             settings.launchAtLoginEnabled = enabled
             persistSettings()
         } catch {
-            eventLog.write(.launchAtLoginChangeFailed(error: String(describing: error)))
+            writeEvent(.launchAtLoginChangeFailed(error: String(describing: error)))
             rebuildMenu()
         }
     }
@@ -478,20 +491,33 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func setEventLogDetail(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let detail = GuardSettings.EventLogDetail(rawValue: rawValue)
+        else {
+            return
+        }
+
+        settings.eventLogDetail = detail
+        persistSettings()
+    }
+
     @objc private func quit() {
         NSApp.terminate(nil)
     }
 
     private func persistSettings() {
         settingsStore.save(settings)
-        eventLog.write(.settingsChanged(
+        writeEvent(.settingsChanged(
             gracePeriodSeconds: settings.gracePeriodSeconds,
             idleTimeoutSeconds: settings.idleTimeoutSeconds,
             responseMode: settings.responseMode,
             alarmSound: settings.alarmSound,
             alarmVolume: settings.alarmVolume,
             lockScreenEnabled: settings.lockScreenEnabled,
-            launchAtLoginEnabled: settings.launchAtLoginEnabled
+            launchAtLoginEnabled: settings.launchAtLoginEnabled,
+            eventLogDetail: settings.eventLogDetail
         ))
         rebuildMenu()
     }
@@ -501,7 +527,7 @@ final class PublicGuardController {
         settings.bluetoothTargetName = device.name
         settings.enabledTriggers.insert(.bluetoothProximity)
         settingsStore.save(settings)
-        eventLog.write(.bluetoothDeviceLearned(name: device.name))
+        writeEvent(.bluetoothDeviceLearned(name: device.name))
         bluetoothMonitor.start(
             targetIdentifier: settings.bluetoothTargetIdentifier,
             targetName: settings.bluetoothTargetName
@@ -515,47 +541,47 @@ final class PublicGuardController {
         switch trigger {
         case .chargerDisconnected:
             guard settings.isTriggerEnabled(.chargerDisconnect) else {
-                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.chargerDisconnect.rawValue))
+                writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.chargerDisconnect.rawValue))
                 return
             }
-            eventLog.write(.chargerDisconnected)
+            writeEvent(.chargerDisconnected)
             triggerAlarmAfterGracePeriod(reason: "Power adapter disconnected")
         case let .networkChanged(previous, current):
             guard settings.isTriggerEnabled(.networkChange) else {
-                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.networkChange.rawValue))
+                writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.networkChange.rawValue))
                 return
             }
-            eventLog.write(.networkChanged(previous: previous, current: current))
+            writeEvent(.networkChanged(previous: previous, current: current))
             triggerAlarmAfterGracePeriod(reason: "Wi-Fi network changed")
         case let .bluetoothDeviceOutOfRange(name):
             guard settings.isTriggerEnabled(.bluetoothProximity) else {
-                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.bluetoothProximity.rawValue))
+                writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.bluetoothProximity.rawValue))
                 return
             }
-            eventLog.write(.bluetoothDeviceOutOfRange(name: name))
+            writeEvent(.bluetoothDeviceOutOfRange(name: name))
             triggerAlarmAfterGracePeriod(reason: "Bluetooth device out of range: \(name)")
         case let .idleTimeout(seconds):
             guard settings.isTriggerEnabled(.idleTimeout) else {
-                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.idleTimeout.rawValue))
+                writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.idleTimeout.rawValue))
                 return
             }
-            eventLog.write(.idleTimeout(seconds: seconds))
+            writeEvent(.idleTimeout(seconds: seconds))
             triggerAlarmAfterGracePeriod(reason: "Mac idle for \(Self.idleTimeoutTitle(seconds: seconds))")
         case .systemWillSleep:
-            eventLog.write(.systemWillSleep)
+            writeEvent(.systemWillSleep)
         case .systemDidWake:
             guard settings.isTriggerEnabled(.wakeFromSleep) else {
-                eventLog.write(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
+                writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
                 return
             }
-            eventLog.write(.systemDidWake)
+            writeEvent(.systemDidWake)
             triggerAlarmAfterGracePeriod(reason: "Mac woke while armed")
         }
     }
 
     private func triggerAlarmAfterGracePeriod(reason: String, bypassArmedCheck: Bool = false) {
         graceTask?.cancel()
-        eventLog.write(.gracePeriodStarted(reason: reason, seconds: settings.gracePeriodDuration))
+        writeEvent(.gracePeriodStarted(reason: reason, seconds: settings.gracePeriodDuration))
 
         graceTask = Task { [weak self] in
             guard let self else { return }
@@ -567,10 +593,10 @@ final class PublicGuardController {
 
                 if self.settings.responseMode == .loudAlarm {
                     self.state.markAlarmActive()
-                    self.eventLog.write(.alarmTriggered(reason: reason))
+                    self.writeEvent(.alarmTriggered(reason: reason))
                     self.alarm.start(sound: self.settings.alarmSound, volume: self.settings.alarmVolume)
                 } else {
-                    self.eventLog.write(.silentResponseTriggered(reason: reason))
+                    self.writeEvent(.silentResponseTriggered(reason: reason))
                 }
 
                 if self.settings.notificationsEnabled {
@@ -582,6 +608,10 @@ final class PublicGuardController {
                 self.rebuildMenu()
             }
         }
+    }
+
+    private func writeEvent(_ event: GuardEvent) {
+        eventLog.write(event, detail: settings.eventLogDetail)
     }
 }
 

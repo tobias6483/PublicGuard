@@ -127,6 +127,7 @@ Implementeret:
 - Notification enable/disable setting
 - Lock screen enable/disable setting
 - Launch at login setting for lokal app bundle builds
+- Event log detail setting med minimal privacy mode
 - Manual response test fra menu bar
 - Looping alarmlyd via bundled MP3/WAV eller gentagne macOS system sounds
 - Authenticated alarm stop med lokal `alarm_stopped` audit logging
@@ -149,7 +150,8 @@ Implementeret:
 - Unit tests for Café and Library preset behavior
 - Unit tests for idle timeout persistence and event logging
 - Unit tests for launch at login setting persistence and log output
-- `swift test` verifieret med 35 passing tests
+- Unit tests for minimal event log detail persistence and redacted log output
+- `swift test` verifieret med 41 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:

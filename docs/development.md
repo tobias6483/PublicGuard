@@ -52,40 +52,44 @@ Maintainers and project agents with write access should follow the detailed work
 7. Change `Settings > Response Mode` and confirm the checkmark moves.
 8. Change `Settings > Alarm Sound` and confirm the checkmark moves.
 9. Change `Settings > Alarm Volume` and confirm the checkmark moves.
-10. Change `Settings > Triggers` and confirm trigger checkmarks toggle.
-11. Toggle `Settings > Notifications` and confirm the checkmark moves.
-12. Toggle `Settings > Lock Screen` and confirm the checkmark moves.
-13. In `dist/PublicGuard.app`, toggle `Settings > Launch at Login` and confirm the checkmark moves.
-14. Confirm PublicGuard appears in macOS `System Settings > General > Login Items`.
-15. Toggle `Settings > Launch at Login` off and confirm it is removed from login items.
-16. Click `Arm`.
-17. Disconnect the power adapter.
-18. Confirm an event is written to the log.
-19. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged when that trigger is enabled.
-20. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
-21. Wait for the grace period.
-22. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled.
-23. In maximum alarm volume mode, confirm alarm playback is louder without changing the Mac's global system volume.
-24. With lock screen disabled, confirm alarm/log/notification behavior continues without locking the screen.
-25. In silent mode, confirm log and optional lock happen without alarm sound.
-26. With notifications enabled, confirm macOS notification behavior in an app bundle build.
-27. With notifications disabled, confirm no macOS notification is sent.
-28. Open `Recent Events` and confirm the newest local log entries are shown first.
-29. Choose `Clear Event Log` and confirm the log resets with a `log_cleared` entry.
-30. Re-open the app and choose `Disarm`.
-31. Confirm Touch ID/password is required.
-32. Confirm alarm stops after successful authentication.
-33. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
-34. Arm PublicGuard, leave the Mac idle past the selected idle timeout, and confirm `idle_timeout` is logged and the configured response starts.
-35. In the app bundle build, grant Bluetooth permission when prompted.
-36. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
-37. Confirm the event log records `bluetooth_device_learned`.
-38. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
-39. After roughly 30 seconds, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
+10. Change `Settings > Event Log Detail` and confirm the checkmark moves.
+11. Change `Settings > Triggers` and confirm trigger checkmarks toggle.
+12. Toggle `Settings > Notifications` and confirm the checkmark moves.
+13. Toggle `Settings > Lock Screen` and confirm the checkmark moves.
+14. In `dist/PublicGuard.app`, toggle `Settings > Launch at Login` and confirm the checkmark moves.
+15. Confirm PublicGuard appears in macOS `System Settings > General > Login Items`.
+16. Toggle `Settings > Launch at Login` off and confirm it is removed from login items.
+17. Click `Arm`.
+18. Disconnect the power adapter.
+19. Confirm an event is written to the log.
+20. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged when that trigger is enabled.
+21. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
+22. Wait for the grace period.
+23. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled.
+24. In maximum alarm volume mode, confirm alarm playback is louder without changing the Mac's global system volume.
+25. With lock screen disabled, confirm alarm/log/notification behavior continues without locking the screen.
+26. In silent mode, confirm log and optional lock happen without alarm sound.
+27. With notifications enabled, confirm macOS notification behavior in an app bundle build.
+28. With notifications disabled, confirm no macOS notification is sent.
+29. Open `Recent Events` and confirm the newest local log entries are shown first.
+30. Choose `Clear Event Log` and confirm the log resets with a `log_cleared` entry.
+31. Re-open the app and choose `Disarm`.
+32. Confirm Touch ID/password is required.
+33. Confirm alarm stops after successful authentication.
+34. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
+35. Set `Settings > Event Log Detail > Minimal`, trigger Wi-Fi or Bluetooth events, and confirm new log entries omit SSIDs, Bluetooth names, and detailed response reasons.
+36. Arm PublicGuard, leave the Mac idle past the selected idle timeout, and confirm `idle_timeout` is logged and the configured response starts.
+37. In the app bundle build, grant Bluetooth permission when prompted.
+38. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
+39. Confirm the event log records `bluetooth_device_learned`.
+40. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
+41. After roughly 30 seconds, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
 
 Bluetooth proximity is experimental. iPhones may not advertise a stable BLE identity in every state, so record which device and macOS/iOS versions were tested.
 
 Idle timeout uses macOS' local HID idle timer. Confirm it does not require accessibility permissions and does not log keyboard, pointer, app, or content details.
+
+Minimal event log detail affects new log entries only. Existing standard-detail log lines remain until the event log is cleared.
 
 ## Log Location
 

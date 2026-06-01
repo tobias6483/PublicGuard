@@ -20,6 +20,7 @@
 - Optional lock screen action
 - Optional launch at login setting for app bundle builds
 - Local-only event log
+- Minimal event log detail mode
 - Recent event preview in the menu bar
 - Authenticated alarm stop with local audit logging
 - Event log open and clear actions

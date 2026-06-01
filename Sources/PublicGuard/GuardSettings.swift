@@ -118,6 +118,20 @@ struct GuardSettings {
         }
     }
 
+    enum EventLogDetail: String, CaseIterable {
+        case standard
+        case minimal
+
+        var title: String {
+            switch self {
+            case .standard:
+                "Standard"
+            case .minimal:
+                "Minimal"
+            }
+        }
+    }
+
     enum SessionPreset: String, CaseIterable {
         case cafe
         case library
@@ -163,6 +177,7 @@ struct GuardSettings {
     var alarmVolume: AlarmVolume = .normal
     var lockScreenEnabled: Bool
     var launchAtLoginEnabled: Bool = false
+    var eventLogDetail: EventLogDetail = .standard
     var bluetoothTargetIdentifier: String?
     var bluetoothTargetName: String?
 
@@ -186,6 +201,7 @@ struct SettingsStore {
         static let alarmVolume = "alarmVolume"
         static let lockScreenEnabled = "lockScreenEnabled"
         static let launchAtLoginEnabled = "launchAtLoginEnabled"
+        static let eventLogDetail = "eventLogDetail"
         static let bluetoothTargetIdentifier = "bluetoothTargetIdentifier"
         static let bluetoothTargetName = "bluetoothTargetName"
     }
@@ -218,6 +234,8 @@ struct SettingsStore {
         let alarmVolume = storedAlarmVolume.flatMap(GuardSettings.AlarmVolume.init(rawValue:)) ?? .normal
         let lockScreenEnabled = defaults.object(forKey: Key.lockScreenEnabled) as? Bool ?? true
         let launchAtLoginEnabled = defaults.object(forKey: Key.launchAtLoginEnabled) as? Bool ?? false
+        let storedEventLogDetail = defaults.string(forKey: Key.eventLogDetail)
+        let eventLogDetail = storedEventLogDetail.flatMap(GuardSettings.EventLogDetail.init(rawValue:)) ?? .standard
         let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
         let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
 
@@ -231,6 +249,7 @@ struct SettingsStore {
             alarmVolume: alarmVolume,
             lockScreenEnabled: lockScreenEnabled,
             launchAtLoginEnabled: launchAtLoginEnabled,
+            eventLogDetail: eventLogDetail,
             bluetoothTargetIdentifier: bluetoothTargetIdentifier,
             bluetoothTargetName: bluetoothTargetName
         )
@@ -246,6 +265,7 @@ struct SettingsStore {
         defaults.set(settings.alarmVolume.rawValue, forKey: Key.alarmVolume)
         defaults.set(settings.lockScreenEnabled, forKey: Key.lockScreenEnabled)
         defaults.set(settings.launchAtLoginEnabled, forKey: Key.launchAtLoginEnabled)
+        defaults.set(settings.eventLogDetail.rawValue, forKey: Key.eventLogDetail)
         setOptional(settings.bluetoothTargetIdentifier, forKey: Key.bluetoothTargetIdentifier)
         setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)
     }
