@@ -113,6 +113,7 @@ Implementeret:
 - Touch ID/password-beskyttet disarm via LocalAuthentication
 - Lokal event-log i Application Support
 - Charger disconnect trigger via IOKit power polling
+- Wi-Fi network change trigger via CoreWLAN polling
 - Sleep/wake trigger via NSWorkspace notifications
 - Konfigurerbar grace period før respons
 - Loud alarm og silent response modes
@@ -123,8 +124,9 @@ Implementeret:
 - Lokal app bundle build via `scripts/build_app.sh`
 - `swift build` verifieret
 - Unit tests for guard state og event logging
+- Unit tests for network change event logging
 - Unit tests for settings persistence
-- `swift test` verifieret med 9 passing tests
+- `swift test` verifieret med 10 passing tests
 - Smoke-testet executable launch; app skriver `app_started` til lokal event-log
 
 Kendt MVP-begrænsning:
@@ -233,7 +235,7 @@ Library mode:
 ## Roadmap
 
 - iPhone Bluetooth proximity
-- Wi-Fi/location-based triggers
+- Location-based triggers
 - Notification preferences
 - Public session presets
 - Apple Watch support

@@ -15,6 +15,7 @@ let package = Package(
             name: "PublicGuard",
             linkerSettings: [
                 .linkedFramework("AppKit"),
+                .linkedFramework("CoreWLAN"),
                 .linkedFramework("IOKit"),
                 .linkedFramework("LocalAuthentication"),
                 .linkedFramework("UserNotifications")

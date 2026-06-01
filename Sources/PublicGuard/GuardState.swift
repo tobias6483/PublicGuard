@@ -22,6 +22,7 @@ final class GuardState {
 
 enum GuardTrigger {
     case chargerDisconnected
+    case networkChanged(previous: String?, current: String?)
     case systemWillSleep
     case systemDidWake
 }

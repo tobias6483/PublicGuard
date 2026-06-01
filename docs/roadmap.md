@@ -5,6 +5,7 @@
 - Menu bar Arm/Disarm
 - Touch ID/password protected disarm
 - Charger disconnect trigger
+- Wi-Fi network change trigger
 - Sleep/wake trigger
 - Configurable grace period before response
 - Loud local alarm
@@ -16,7 +17,6 @@
 ## Next
 
 - Improve lid-close behavior research
-- Add network change trigger
 - Add notification preferences
 - Add custom alarm sound support
 - Add app icon

@@ -40,12 +40,13 @@ swift test
 5. Click `Arm`.
 6. Disconnect the power adapter.
 7. Confirm an event is written to the log.
-8. Wait for the grace period.
-9. In loud mode, confirm alarm sound starts and the screen lock action runs.
-10. In silent mode, confirm notification/log/lock happen without alarm sound.
-11. Re-open the app and choose `Disarm`.
-12. Confirm Touch ID/password is required.
-13. Confirm alarm stops after successful authentication.
+8. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged.
+9. Wait for the grace period.
+10. In loud mode, confirm alarm sound starts and the screen lock action runs.
+11. In silent mode, confirm notification/log/lock happen without alarm sound.
+12. Re-open the app and choose `Disarm`.
+13. Confirm Touch ID/password is required.
+14. Confirm alarm stops after successful authentication.
 
 ## Log Location
 

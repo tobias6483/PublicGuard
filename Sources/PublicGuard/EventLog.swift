@@ -45,6 +45,7 @@ enum GuardEvent {
     case disarmed
     case authenticationFailed
     case chargerDisconnected
+    case networkChanged(previous: String?, current: String?)
     case systemWillSleep
     case systemDidWake
     case gracePeriodStarted(reason: String, seconds: Duration)
@@ -66,6 +67,8 @@ enum GuardEvent {
             "authentication_failed"
         case .chargerDisconnected:
             "charger_disconnected"
+        case let .networkChanged(previous, current):
+            "network_changed previous=\"\(previous ?? "none")\" current=\"\(current ?? "none")\""
         case .systemWillSleep:
             "system_will_sleep"
         case .systemDidWake:

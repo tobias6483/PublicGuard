@@ -11,6 +11,7 @@ final class PublicGuardController {
     private let notifications = NotificationAction()
     private let settingsStore = SettingsStore()
     private let powerMonitor = PowerMonitor()
+    private let networkMonitor = NetworkMonitor()
     private let sleepWakeMonitor = SleepWakeMonitor()
 
     private var settings: GuardSettings
@@ -32,6 +33,12 @@ final class PublicGuardController {
             }
         }
 
+        networkMonitor.onNetworkChanged = { [weak self] previous, current in
+            Task { @MainActor in
+                self?.handleTrigger(.networkChanged(previous: previous, current: current))
+            }
+        }
+
         sleepWakeMonitor.onWillSleep = { [weak self] in
             Task { @MainActor in
                 self?.handleTrigger(.systemWillSleep)
@@ -45,6 +52,7 @@ final class PublicGuardController {
         }
 
         powerMonitor.start()
+        networkMonitor.start()
         sleepWakeMonitor.start()
     }
 
@@ -53,6 +61,7 @@ final class PublicGuardController {
         graceTask?.cancel()
         alarm.stop()
         powerMonitor.stop()
+        networkMonitor.stop()
         sleepWakeMonitor.stop()
     }
 
@@ -209,6 +218,9 @@ final class PublicGuardController {
         case .chargerDisconnected:
             eventLog.write(.chargerDisconnected)
             triggerAlarmAfterGracePeriod(reason: "Power adapter disconnected")
+        case let .networkChanged(previous, current):
+            eventLog.write(.networkChanged(previous: previous, current: current))
+            triggerAlarmAfterGracePeriod(reason: "Wi-Fi network changed")
         case .systemWillSleep:
             eventLog.write(.systemWillSleep)
         case .systemDidWake:
