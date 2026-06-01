@@ -198,7 +198,7 @@ Når brugeren selv lukker låget, skal appen ikke nødvendigvis gå amok med det
 
 Eksempel:
 
-> Lid closed while armed -> 5 second grace period -> alarm
+> Lid closed while armed -> configured grace period -> configured response
 
 Så brugeren kan nå at disarme.
 
@@ -232,7 +232,8 @@ Library mode:
 
 - iPhone Bluetooth proximity
 - Wi-Fi/location-based triggers
-- Silent alert mode
+- Notification preferences
+- Public session presets
 - Apple Watch support
 - Shortcuts integration
 - Find My-style helper workflow
