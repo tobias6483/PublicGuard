@@ -245,6 +245,19 @@ final class PublicGuardController {
         eventLogDetail.submenu = eventLogDetailSubmenu
         submenu.addItem(eventLogDetail)
 
+        let eventLogStorage = NSMenuItem(title: "Event Log Storage", action: nil, keyEquivalent: "")
+        let eventLogStorageSubmenu = NSMenu()
+
+        for storage in GuardSettings.EventLogStorage.allCases {
+            let storageItem = NSMenuItem(title: storage.title, action: #selector(setEventLogStorage(_:)), keyEquivalent: "", target: self)
+            storageItem.representedObject = storage.rawValue
+            storageItem.state = settings.eventLogStorage == storage ? .on : .off
+            eventLogStorageSubmenu.addItem(storageItem)
+        }
+
+        eventLogStorage.submenu = eventLogStorageSubmenu
+        submenu.addItem(eventLogStorage)
+
         let triggers = NSMenuItem(title: "Triggers", action: nil, keyEquivalent: "")
         let triggerSubmenu = NSMenu()
 
@@ -281,7 +294,7 @@ final class PublicGuardController {
     private func recentEventsMenuItem() -> NSMenuItem {
         let item = NSMenuItem(title: "Recent Events", action: nil, keyEquivalent: "")
         let submenu = NSMenu()
-        let entries = eventLog.recentEntries()
+        let entries = eventLog.recentEntries(storage: settings.eventLogStorage)
 
         if entries.isEmpty {
             let emptyItem = NSMenuItem(title: "No events yet", action: nil, keyEquivalent: "")
@@ -360,11 +373,11 @@ final class PublicGuardController {
     }
 
     @objc private func openEventLog() {
-        NSWorkspace.shared.activateFileViewerSelecting([eventLog.url])
+        NSWorkspace.shared.activateFileViewerSelecting([eventLog.url(for: settings.eventLogStorage)])
     }
 
     @objc private func clearEventLog() {
-        eventLog.clear()
+        eventLog.clear(storage: settings.eventLogStorage)
         writeEvent(.logCleared)
     }
 
@@ -510,6 +523,18 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func setEventLogStorage(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let storage = GuardSettings.EventLogStorage(rawValue: rawValue)
+        else {
+            return
+        }
+
+        settings.eventLogStorage = storage
+        persistSettings()
+    }
+
     @objc private func quit() {
         NSApp.terminate(nil)
     }
@@ -524,7 +549,8 @@ final class PublicGuardController {
             alarmVolume: settings.alarmVolume,
             lockScreenEnabled: settings.lockScreenEnabled,
             launchAtLoginEnabled: settings.launchAtLoginEnabled,
-            eventLogDetail: settings.eventLogDetail
+            eventLogDetail: settings.eventLogDetail,
+            eventLogStorage: settings.eventLogStorage
         ))
         rebuildMenu()
     }
@@ -626,7 +652,7 @@ final class PublicGuardController {
     }
 
     private func writeEvent(_ event: GuardEvent) {
-        eventLog.write(event, detail: settings.eventLogDetail)
+        eventLog.write(event, detail: settings.eventLogDetail, storage: settings.eventLogStorage)
     }
 }
 

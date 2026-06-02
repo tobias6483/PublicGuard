@@ -27,6 +27,7 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | Event log: charger removed | Implemented | `charger_disconnected` log event. |
 | Event log: alarm triggered | Implemented | `alarm_triggered` or `silent_response_triggered` log events. |
 | Event log: alarm stopped | Implemented | `alarm_stopped` log event. |
+| Encrypted event logs | Implemented | Optional AES-GCM event log storage uses a local macOS Keychain-backed key. |
 
 ## Stronger Features
 
@@ -55,4 +56,3 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | Contributor onboarding | Implemented | `CONTRIBUTING.md` and development docs exist. |
 | Release automation | Partial | Local unsigned app bundle script exists; signed release pipeline is roadmap. |
 | Issue triage / maintainer automation | Roadmap | Useful future OSS workflow area. |
-

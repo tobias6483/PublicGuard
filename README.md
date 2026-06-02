@@ -30,6 +30,7 @@ Implemented:
 - Lock screen enable/disable setting
 - Launch at login setting for app bundle builds
 - Event log detail setting with a minimal privacy mode
+- Optional encrypted event log storage using a local Keychain-backed key
 - Manual response test from the menu bar
 - Looping local alarm sound
 - Touch ID/password protected alarm stop
@@ -43,7 +44,6 @@ Implemented:
 Planned:
 
 - Manual lid-close hardware QA and follow-up sleep/wake tuning
-- Encrypted event logs
 - Shortcuts and Apple Watch support
 
 See [docs/roadmap.md](docs/roadmap.md) for the current roadmap.
@@ -107,11 +107,19 @@ The local bundle is unsigned, but it gives PublicGuard a real app bundle identit
 
 ## Event Log
 
-The local event log is written to:
+By default, the local event log is written as plain text to:
 
 ```text
 ~/Library/Application Support/PublicGuard/events.log
 ```
+
+`Settings > Event Log Storage` can switch new log writes to `Encrypted`. Encrypted logs are stored at:
+
+```text
+~/Library/Application Support/PublicGuard/events.log.enc
+```
+
+Encrypted log storage uses AES-GCM with a local key stored in macOS Keychain. `Recent Events` decrypts entries inside PublicGuard for quick inspection. Opening the encrypted event log from Finder shows the encrypted file bytes, not readable text. Switching storage modes affects new log writes; it does not migrate or delete the other log file.
 
 You can also open it from the PublicGuard menu bar menu.
 The menu includes a `Recent Events` submenu with the newest local log entries for quick inspection.

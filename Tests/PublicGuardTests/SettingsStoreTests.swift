@@ -18,6 +18,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertTrue(settings.lockScreenEnabled)
         XCTAssertFalse(settings.launchAtLoginEnabled)
         XCTAssertEqual(settings.eventLogDetail, .standard)
+        XCTAssertEqual(settings.eventLogStorage, .plainText)
         XCTAssertNil(settings.bluetoothTargetIdentifier)
         XCTAssertNil(settings.bluetoothTargetName)
     }
@@ -36,6 +37,7 @@ final class SettingsStoreTests: XCTestCase {
             lockScreenEnabled: false,
             launchAtLoginEnabled: true,
             eventLogDetail: .minimal,
+            eventLogStorage: .encrypted,
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
             bluetoothTargetName: "Tobias iPhone"
         )
@@ -52,6 +54,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertFalse(store.load().lockScreenEnabled)
         XCTAssertTrue(store.load().launchAtLoginEnabled)
         XCTAssertEqual(store.load().eventLogDetail, .minimal)
+        XCTAssertEqual(store.load().eventLogStorage, .encrypted)
         XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
     }
@@ -158,6 +161,14 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().eventLogDetail, .standard)
+    }
+
+    func testInvalidEventLogStorageFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set("not-a-real-storage", forKey: "eventLogStorage")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().eventLogStorage, .plainText)
     }
 
     func testAlarmVolumeValuesMapToSoundVolumes() {
@@ -304,6 +315,23 @@ final class SettingsStoreTests: XCTestCase {
         ))
 
         XCTAssertEqual(store.load().eventLogDetail, .minimal)
+    }
+
+    func testEventLogStorageCanBeEncrypted() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            eventLogStorage: .encrypted
+        ))
+
+        XCTAssertEqual(store.load().eventLogStorage, .encrypted)
     }
 
     func testBundledAlarmSoundsDeclareResources() {
