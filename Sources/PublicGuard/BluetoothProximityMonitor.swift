@@ -56,10 +56,7 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
     }
 
     func start(targetIdentifier: String?, targetName: String?) {
-        target = Self.makeDevice(identifier: targetIdentifier, name: targetName)
-        lastSeenTargetAt = nil
-        hasSeenTarget = false
-        hasReportedCurrentLoss = false
+        configureTarget(identifier: targetIdentifier, name: targetName)
 
         if target == nil {
             timer?.invalidate()
@@ -71,6 +68,13 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         ensureCentral()
         startTimer()
         updateScanState()
+    }
+
+    func configureTarget(identifier: String?, name: String?) {
+        target = Self.makeDevice(identifier: identifier, name: name)
+        lastSeenTargetAt = nil
+        hasSeenTarget = false
+        hasReportedCurrentLoss = false
     }
 
     func updateLostAfterSeconds(_ seconds: Int) {
@@ -94,11 +98,35 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
     }
 
     func learnNearbyDevice() {
-        bestLearningCandidate = nil
-        learningEndsAt = Date().addingTimeInterval(learnDurationSeconds)
+        beginLearning(at: Date())
         ensureCentral()
         startTimer()
         updateScanState()
+    }
+
+    func beginLearning(at date: Date) {
+        bestLearningCandidate = nil
+        learningEndsAt = date.addingTimeInterval(learnDurationSeconds)
+    }
+
+    func recordLearningCandidate(_ device: LearnedBluetoothDevice, rssi: Int) {
+        guard learningEndsAt != nil else { return }
+
+        if bestLearningCandidate == nil || rssi > bestLearningCandidate!.rssi {
+            bestLearningCandidate = (device, rssi)
+        }
+    }
+
+    func finishLearningIfNeeded(at date: Date) -> LearnedBluetoothDevice? {
+        guard let learningEndsAt, date >= learningEndsAt else { return nil }
+
+        self.learningEndsAt = nil
+        defer {
+            bestLearningCandidate = nil
+            updateScanState()
+        }
+
+        return bestLearningCandidate?.device
     }
 
     func snapshot() -> BluetoothProximityMonitorSnapshot {
@@ -130,16 +158,26 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         let device = LearnedBluetoothDevice(identifier: peripheral.identifier, name: deviceName)
 
         if learningEndsAt != nil {
-            if bestLearningCandidate == nil || RSSI.intValue > bestLearningCandidate!.rssi {
-                bestLearningCandidate = (device, RSSI.intValue)
-            }
+            recordLearningCandidate(device, rssi: RSSI.intValue)
             return
         }
 
         guard peripheral.identifier == target?.identifier else { return }
-        lastSeenTargetAt = Date()
+        recordTargetAdvertisement(at: Date())
+    }
+
+    func recordTargetAdvertisement(at date: Date) {
+        lastSeenTargetAt = date
         hasSeenTarget = true
         hasReportedCurrentLoss = false
+    }
+
+    func reportOutOfRangeTargetIfNeeded(at date: Date) -> LearnedBluetoothDevice? {
+        guard let target, hasSeenTarget, !hasReportedCurrentLoss, let lastSeenTargetAt else { return nil }
+        guard date.timeIntervalSince(lastSeenTargetAt) >= lostAfterSeconds else { return nil }
+
+        hasReportedCurrentLoss = true
+        return target
     }
 
     private func ensureCentral() {
@@ -150,12 +188,13 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
     private func startTimer() {
         guard timer == nil else { return }
         timer = Timer.scheduledTimer(
-            timeInterval: 2,
+            timeInterval: 1,
             target: self,
             selector: #selector(poll),
             userInfo: nil,
             repeats: true
         )
+        timer?.tolerance = 0.2
     }
 
     private func updateScanState() {
@@ -192,20 +231,14 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
     }
 
     @objc private func poll() {
-        if let learningEndsAt, Date() >= learningEndsAt {
-            self.learningEndsAt = nil
-            if let candidate = bestLearningCandidate {
-                onLearningCandidateFound?(candidate.device)
-            }
-            bestLearningCandidate = nil
-            updateScanState()
+        let now = Date()
+        if let candidate = finishLearningIfNeeded(at: now) {
+            onLearningCandidateFound?(candidate)
         }
 
-        guard let target, hasSeenTarget, !hasReportedCurrentLoss, let lastSeenTargetAt else { return }
-        guard Date().timeIntervalSince(lastSeenTargetAt) >= lostAfterSeconds else { return }
-
-        hasReportedCurrentLoss = true
-        onDeviceOutOfRange?(target)
+        if let target = reportOutOfRangeTargetIfNeeded(at: now) {
+            onDeviceOutOfRange?(target)
+        }
     }
 
     private static func makeDevice(identifier: String?, name: String?) -> LearnedBluetoothDevice? {

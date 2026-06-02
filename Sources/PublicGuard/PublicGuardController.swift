@@ -297,6 +297,9 @@ final class PublicGuardController {
             let triggerItem = NSMenuItem(title: trigger.title, action: #selector(toggleTrigger(_:)), keyEquivalent: "", target: self)
             triggerItem.representedObject = trigger.rawValue
             triggerItem.state = settings.isTriggerEnabled(trigger) ? .on : .off
+            if trigger == .bluetoothProximity && !settings.hasLearnedBluetoothDevice {
+                triggerItem.isEnabled = false
+            }
             triggerSubmenu.addItem(triggerItem)
         }
 
@@ -566,9 +569,9 @@ final class PublicGuardController {
     @objc private func clearBluetoothDevice() {
         settings.bluetoothTargetIdentifier = nil
         settings.bluetoothTargetName = nil
-        settingsStore.save(settings)
+        settings.enabledTriggers.remove(.bluetoothProximity)
         bluetoothMonitor.start(targetIdentifier: nil, targetName: nil)
-        rebuildMenu()
+        persistSettings()
     }
 
     @objc private func setBluetoothProximityTimeout(_ sender: NSMenuItem) {
@@ -647,6 +650,10 @@ final class PublicGuardController {
         if settings.enabledTriggers.contains(trigger) {
             settings.enabledTriggers.remove(trigger)
         } else {
+            guard trigger != .bluetoothProximity || settings.hasLearnedBluetoothDevice else {
+                rebuildMenu()
+                return
+            }
             settings.enabledTriggers.insert(trigger)
         }
 

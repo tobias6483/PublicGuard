@@ -25,6 +25,14 @@ separate notes for iPhone and non-phone BLE accessory behavior when possible.
 7. Scan again with the intended target closest to the Mac, then choose `Use This Device`.
 8. Confirm `bluetooth_device_learned` is written to the active event log.
 9. Confirm the menu shows the learned device name and identifier prefix.
+10. Confirm `Settings > Triggers > Bluetooth Proximity` is enabled after learning.
+
+## Clear Flow
+
+1. Choose `Settings > Bluetooth Proximity > Clear Learned Device`.
+2. Confirm the menu shows no learned Bluetooth device.
+3. Confirm `Settings > Triggers > Bluetooth Proximity` is disabled or unavailable.
+4. Apply a preset before learning another device and confirm Bluetooth Proximity remains disabled.
 
 ## Out-Of-Range Flow
 
@@ -50,6 +58,7 @@ Record false positives, missed events, and approximate time to response for each
 
 - The learned device is recorded locally.
 - The app does not save a newly scanned candidate until the user confirms it.
+- Bluetooth Proximity is not enabled when no learned device exists.
 - PublicGuard only triggers after the learned device has been seen at least once in the current session.
 - The selected out-of-range timeout changes the approximate response timing.
 - The event log does not record Bluetooth advertisements from unrelated devices.

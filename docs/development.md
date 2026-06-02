@@ -129,16 +129,18 @@ Issue routing is automated by `.github/workflows/issue-triage.yml`. See
 59. Set a positive idle timeout, leave the Mac idle past the selected threshold, and confirm `idle_timeout` is logged and the configured response starts.
 60. Open `Recent Trigger Status` and confirm the idle row shows the current idle time and selected threshold.
 61. In the app bundle build, grant Bluetooth permission when prompted.
-62. Choose `Settings > Bluetooth Proximity > Scan and Confirm Nearby Device` near the target BLE device.
-63. Confirm PublicGuard shows a confirmation dialog with the candidate name and identifier prefix before saving.
-64. Cancel once and confirm no new learned device is saved.
-65. Scan again, confirm only after keeping the intended target closest to the Mac, and confirm the event log records `bluetooth_device_learned`.
-66. Open `Recent Trigger Status` and confirm the Bluetooth rows show the learned device, scan state, last-seen status, armed baseline, and timeout.
-67. Change `Settings > Bluetooth Proximity > Out-of-Range Timeout` and confirm the checkmark moves.
-68. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
-69. After the selected timeout, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
-70. Sleep and wake the Mac, then confirm `Recent Trigger Status` shows the last observed sleep and wake notifications, the matched sleep gap, and increased sleep/wake observation counts.
-71. Confirm the event log records `system_did_wake slept_seconds=...` when PublicGuard observed the preceding sleep, or `system_did_wake slept_seconds="unknown"` if the wake notification had no matched sleep observation.
+62. Before learning a device, confirm `Settings > Triggers > Bluetooth Proximity` is disabled or unavailable.
+63. Choose `Settings > Bluetooth Proximity > Scan and Confirm Nearby Device` near the target BLE device.
+64. Confirm PublicGuard shows a confirmation dialog with the candidate name and identifier prefix before saving.
+65. Cancel once and confirm no new learned device is saved.
+66. Scan again, confirm only after keeping the intended target closest to the Mac, and confirm the event log records `bluetooth_device_learned`.
+67. Open `Recent Trigger Status` and confirm the Bluetooth rows show the learned device, scan state, last-seen status, armed baseline, and timeout.
+68. Change `Settings > Bluetooth Proximity > Out-of-Range Timeout` and confirm the checkmark moves.
+69. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
+70. After the selected timeout, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
+71. Choose `Settings > Bluetooth Proximity > Clear Learned Device` and confirm Bluetooth Proximity is disabled until a new device is learned.
+72. Sleep and wake the Mac, then confirm `Recent Trigger Status` shows the last observed sleep and wake notifications, the matched sleep gap, and increased sleep/wake observation counts.
+73. Confirm the event log records `system_did_wake slept_seconds=...` when PublicGuard observed the preceding sleep, or `system_did_wake slept_seconds="unknown"` if the wake notification had no matched sleep observation.
 
 Bluetooth proximity is experimental. It is a passive BLE scan, not Bluetooth pairing or proof of ownership. iPhones may not advertise a stable BLE identity in every state, so record which device and macOS/iOS versions were tested.
 
