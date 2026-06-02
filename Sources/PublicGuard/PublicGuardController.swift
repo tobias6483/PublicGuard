@@ -196,6 +196,7 @@ final class PublicGuardController {
 
         triggerCooldown.submenu = triggerCooldownSubmenu
         submenu.addItem(triggerCooldown)
+        submenu.addItem(triggerGraceOverridesMenuItem())
 
         let idleTimeout = NSMenuItem(title: "Idle Timeout", action: nil, keyEquivalent: "")
         let idleTimeoutSubmenu = NSMenu()
@@ -442,6 +443,44 @@ final class PublicGuardController {
         return item
     }
 
+    private func triggerGraceOverridesMenuItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "Trigger Grace Overrides", action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+
+        for trigger in GuardSettings.TriggerKind.allCases {
+            let triggerItem = NSMenuItem(title: trigger.title, action: nil, keyEquivalent: "")
+            let triggerSubmenu = NSMenu()
+
+            let defaultItem = NSMenuItem(
+                title: "Use Default (\(Self.gracePeriodTitle(seconds: settings.gracePeriodSeconds)))",
+                action: #selector(setTriggerGraceOverride(_:)),
+                keyEquivalent: "",
+                target: self
+            )
+            defaultItem.representedObject = Self.triggerGraceOverrideRepresentation(trigger: trigger, seconds: nil)
+            defaultItem.state = settings.triggerGracePeriodOverrides[trigger] == nil ? .on : .off
+            triggerSubmenu.addItem(defaultItem)
+
+            for seconds in SettingsStore.validTriggerGraceOverrides {
+                let overrideItem = NSMenuItem(
+                    title: Self.gracePeriodTitle(seconds: seconds),
+                    action: #selector(setTriggerGraceOverride(_:)),
+                    keyEquivalent: "",
+                    target: self
+                )
+                overrideItem.representedObject = Self.triggerGraceOverrideRepresentation(trigger: trigger, seconds: seconds)
+                overrideItem.state = settings.triggerGracePeriodOverrides[trigger] == seconds ? .on : .off
+                triggerSubmenu.addItem(overrideItem)
+            }
+
+            triggerItem.submenu = triggerSubmenu
+            submenu.addItem(triggerItem)
+        }
+
+        item.submenu = submenu
+        return item
+    }
+
     @objc private func arm() {
         state.arm()
         idleMonitor.resetBaseline()
@@ -522,6 +561,23 @@ final class PublicGuardController {
     @objc private func setTriggerCooldown(_ sender: NSMenuItem) {
         guard let seconds = sender.representedObject as? Int else { return }
         settings.triggerCooldownSeconds = seconds
+        persistSettings()
+    }
+
+    @objc private func setTriggerGraceOverride(_ sender: NSMenuItem) {
+        guard
+            let representation = sender.representedObject as? String,
+            let parsed = Self.parseTriggerGraceOverrideRepresentation(representation)
+        else {
+            return
+        }
+
+        if let seconds = parsed.seconds {
+            settings.triggerGracePeriodOverrides[parsed.trigger] = seconds
+        } else {
+            settings.triggerGracePeriodOverrides.removeValue(forKey: parsed.trigger)
+        }
+
         persistSettings()
     }
 
@@ -685,7 +741,8 @@ final class PublicGuardController {
             eventLogStorage: settings.eventLogStorage,
             bluetoothProximityTimeoutSeconds: settings.bluetoothProximityTimeoutSeconds,
             ignoreWiFiDisconnects: settings.ignoreWiFiDisconnects,
-            triggerCooldownSeconds: settings.triggerCooldownSeconds
+            triggerCooldownSeconds: settings.triggerCooldownSeconds,
+            triggerGracePeriodOverrides: settings.triggerGracePeriodOverrides
         ))
         rebuildMenu()
     }
@@ -714,7 +771,7 @@ final class PublicGuardController {
             }
             guard acceptTrigger(.chargerDisconnect) else { return }
             writeEvent(.chargerDisconnected)
-            triggerAlarmAfterGracePeriod(reason: "Power adapter disconnected")
+            triggerAlarmAfterGracePeriod(reason: "Power adapter disconnected", trigger: .chargerDisconnect)
         case let .networkChanged(change):
             guard settings.isTriggerEnabled(.networkChange) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.networkChange.rawValue))
@@ -726,7 +783,7 @@ final class PublicGuardController {
             }
             guard acceptTrigger(.networkChange) else { return }
             writeEvent(.networkChanged(previous: change.previousSSID, current: change.currentSSID, kind: change.kind))
-            triggerAlarmAfterGracePeriod(reason: "Wi-Fi \(change.kind.title.lowercased())")
+            triggerAlarmAfterGracePeriod(reason: "Wi-Fi \(change.kind.title.lowercased())", trigger: .networkChange)
         case let .bluetoothDeviceOutOfRange(name):
             guard settings.isTriggerEnabled(.bluetoothProximity) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.bluetoothProximity.rawValue))
@@ -734,7 +791,7 @@ final class PublicGuardController {
             }
             guard acceptTrigger(.bluetoothProximity) else { return }
             writeEvent(.bluetoothDeviceOutOfRange(name: name))
-            triggerAlarmAfterGracePeriod(reason: "Bluetooth device out of range: \(name)")
+            triggerAlarmAfterGracePeriod(reason: "Bluetooth device out of range: \(name)", trigger: .bluetoothProximity)
         case let .idleTimeout(seconds):
             guard settings.isTriggerEnabled(.idleTimeout) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.idleTimeout.rawValue))
@@ -742,7 +799,7 @@ final class PublicGuardController {
             }
             guard acceptTrigger(.idleTimeout) else { return }
             writeEvent(.idleTimeout(seconds: seconds))
-            triggerAlarmAfterGracePeriod(reason: "Mac idle for \(Self.idleTimeoutTitle(seconds: seconds))")
+            triggerAlarmAfterGracePeriod(reason: "Mac idle for \(Self.idleTimeoutTitle(seconds: seconds))", trigger: .idleTimeout)
         case .systemWillSleep:
             writeEvent(.systemWillSleep)
             guard settings.isTriggerEnabled(.wakeFromSleep) else {
@@ -758,7 +815,7 @@ final class PublicGuardController {
                 return
             }
             guard acceptTrigger(.wakeFromSleep) else { return }
-            triggerAlarmAfterGracePeriod(reason: "Mac woke while armed")
+            triggerAlarmAfterGracePeriod(reason: "Mac woke while armed", trigger: .wakeFromSleep)
         }
     }
 
@@ -781,13 +838,14 @@ final class PublicGuardController {
         return true
     }
 
-    private func triggerAlarmAfterGracePeriod(reason: String, bypassArmedCheck: Bool = false) {
+    private func triggerAlarmAfterGracePeriod(reason: String, trigger: GuardSettings.TriggerKind? = nil, bypassArmedCheck: Bool = false) {
         graceTask?.cancel()
-        writeEvent(.gracePeriodStarted(reason: reason, seconds: settings.gracePeriodDuration))
+        let gracePeriod = trigger.map(settings.gracePeriodDuration(for:)) ?? settings.gracePeriodDuration
+        writeEvent(.gracePeriodStarted(reason: reason, seconds: gracePeriod))
 
         graceTask = Task { [weak self] in
             guard let self else { return }
-            try? await Task.sleep(for: settings.gracePeriodDuration)
+            try? await Task.sleep(for: gracePeriod)
             guard !Task.isCancelled else { return }
 
             await MainActor.run {
@@ -866,6 +924,33 @@ private extension PublicGuardController {
 
         let minutes = seconds / 60
         return minutes == 1 ? "1 minute" : "\(minutes) minutes"
+    }
+
+    static func gracePeriodTitle(seconds: Int) -> String {
+        seconds == 0 ? "No Delay" : "\(seconds) seconds"
+    }
+
+    static func triggerGraceOverrideRepresentation(trigger: GuardSettings.TriggerKind, seconds: Int?) -> String {
+        "\(trigger.rawValue):\(seconds ?? -1)"
+    }
+
+    static func parseTriggerGraceOverrideRepresentation(_ value: String) -> (trigger: GuardSettings.TriggerKind, seconds: Int?)? {
+        let components = value.split(separator: ":", maxSplits: 1).map(String.init)
+        guard
+            components.count == 2,
+            let trigger = GuardSettings.TriggerKind(rawValue: components[0]),
+            let rawSeconds = Int(components[1])
+        else {
+            return nil
+        }
+
+        if rawSeconds == -1 {
+            return (trigger, nil)
+        }
+        guard SettingsStore.validTriggerGraceOverrides.contains(rawSeconds) else {
+            return nil
+        }
+        return (trigger, rawSeconds)
     }
 
     static func idleDiagnosticsTitle(snapshot: IdleActivityMonitorSnapshot) -> String {

@@ -267,6 +267,7 @@ struct GuardSettings {
     var bluetoothProximityTimeoutSeconds: Int = 30
     var ignoreWiFiDisconnects: Bool = false
     var triggerCooldownSeconds: Int = 30
+    var triggerGracePeriodOverrides: [TriggerKind: Int] = [:]
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
@@ -278,6 +279,14 @@ struct GuardSettings {
 
     func isTriggerEnabled(_ trigger: TriggerKind) -> Bool {
         enabledTriggers.contains(trigger)
+    }
+
+    func gracePeriodSeconds(for trigger: TriggerKind) -> Int {
+        triggerGracePeriodOverrides[trigger] ?? gracePeriodSeconds
+    }
+
+    func gracePeriodDuration(for trigger: TriggerKind) -> Duration {
+        .seconds(gracePeriodSeconds(for: trigger))
     }
 }
 
@@ -299,6 +308,7 @@ struct SettingsStore {
         static let bluetoothProximityTimeoutSeconds = "bluetoothProximityTimeoutSeconds"
         static let ignoreWiFiDisconnects = "ignoreWiFiDisconnects"
         static let triggerCooldownSeconds = "triggerCooldownSeconds"
+        static let triggerGracePeriodOverrides = "triggerGracePeriodOverrides"
     }
 
     private let defaults: UserDefaults
@@ -340,6 +350,9 @@ struct SettingsStore {
         let ignoreWiFiDisconnects = defaults.object(forKey: Key.ignoreWiFiDisconnects) as? Bool ?? false
         let storedTriggerCooldown = defaults.object(forKey: Key.triggerCooldownSeconds) as? Int
         let triggerCooldown = storedTriggerCooldown.flatMap { Self.validTriggerCooldowns.contains($0) ? $0 : nil } ?? 30
+        let triggerGracePeriodOverrides = Self.sanitizedTriggerGracePeriodOverrides(
+            defaults.dictionary(forKey: Key.triggerGracePeriodOverrides) ?? [:]
+        )
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
@@ -357,7 +370,8 @@ struct SettingsStore {
             bluetoothTargetName: bluetoothTargetName,
             bluetoothProximityTimeoutSeconds: bluetoothProximityTimeout,
             ignoreWiFiDisconnects: ignoreWiFiDisconnects,
-            triggerCooldownSeconds: triggerCooldown
+            triggerCooldownSeconds: triggerCooldown,
+            triggerGracePeriodOverrides: triggerGracePeriodOverrides
         )
     }
 
@@ -378,12 +392,40 @@ struct SettingsStore {
         defaults.set(settings.bluetoothProximityTimeoutSeconds, forKey: Key.bluetoothProximityTimeoutSeconds)
         defaults.set(settings.ignoreWiFiDisconnects, forKey: Key.ignoreWiFiDisconnects)
         defaults.set(settings.triggerCooldownSeconds, forKey: Key.triggerCooldownSeconds)
+        defaults.set(
+            Dictionary(uniqueKeysWithValues: settings.triggerGracePeriodOverrides.map { ($0.key.rawValue, $0.value) }),
+            forKey: Key.triggerGracePeriodOverrides
+        )
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]
     static let validIdleTimeouts = [0, 60, 300, 600, 900, 1800, 3600]
     static let validBluetoothProximityTimeouts = [15, 30, 60, 120]
     static let validTriggerCooldowns = [0, 30, 60, 120]
+    static let validTriggerGraceOverrides = [0, 5, 10, 15, 30, 60, 120]
+
+    private static func sanitizedTriggerGracePeriodOverrides(_ values: [String: Any]) -> [GuardSettings.TriggerKind: Int] {
+        values.reduce(into: [:]) { result, item in
+            let seconds: Int?
+            if let value = item.value as? Int {
+                seconds = value
+            } else if let value = item.value as? NSNumber {
+                seconds = value.intValue
+            } else {
+                seconds = nil
+            }
+
+            guard
+                let trigger = GuardSettings.TriggerKind(rawValue: item.key),
+                let seconds,
+                validTriggerGraceOverrides.contains(seconds)
+            else {
+                return
+            }
+
+            result[trigger] = seconds
+        }
+    }
 
     private func setOptional(_ value: String?, forKey key: String) {
         if let value {
