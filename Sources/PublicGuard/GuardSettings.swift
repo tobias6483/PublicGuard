@@ -265,6 +265,7 @@ struct GuardSettings {
     var bluetoothTargetIdentifier: String?
     var bluetoothTargetName: String?
     var bluetoothProximityTimeoutSeconds: Int = 30
+    var ignoreWiFiDisconnects: Bool = false
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
@@ -291,6 +292,7 @@ struct SettingsStore {
         static let bluetoothTargetIdentifier = "bluetoothTargetIdentifier"
         static let bluetoothTargetName = "bluetoothTargetName"
         static let bluetoothProximityTimeoutSeconds = "bluetoothProximityTimeoutSeconds"
+        static let ignoreWiFiDisconnects = "ignoreWiFiDisconnects"
     }
 
     private let defaults: UserDefaults
@@ -329,6 +331,7 @@ struct SettingsStore {
         let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
         let storedBluetoothTimeout = defaults.object(forKey: Key.bluetoothProximityTimeoutSeconds) as? Int
         let bluetoothProximityTimeout = storedBluetoothTimeout.flatMap { Self.validBluetoothProximityTimeouts.contains($0) ? $0 : nil } ?? 30
+        let ignoreWiFiDisconnects = defaults.object(forKey: Key.ignoreWiFiDisconnects) as? Bool ?? false
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
@@ -344,7 +347,8 @@ struct SettingsStore {
             eventLogStorage: eventLogStorage,
             bluetoothTargetIdentifier: bluetoothTargetIdentifier,
             bluetoothTargetName: bluetoothTargetName,
-            bluetoothProximityTimeoutSeconds: bluetoothProximityTimeout
+            bluetoothProximityTimeoutSeconds: bluetoothProximityTimeout,
+            ignoreWiFiDisconnects: ignoreWiFiDisconnects
         )
     }
 
@@ -363,6 +367,7 @@ struct SettingsStore {
         setOptional(settings.bluetoothTargetIdentifier, forKey: Key.bluetoothTargetIdentifier)
         setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)
         defaults.set(settings.bluetoothProximityTimeoutSeconds, forKey: Key.bluetoothProximityTimeoutSeconds)
+        defaults.set(settings.ignoreWiFiDisconnects, forKey: Key.ignoreWiFiDisconnects)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]

@@ -36,7 +36,7 @@ final class EventLogTests: XCTestCase {
         let url = directory.appendingPathComponent("events.log")
         let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
 
-        log.write(.networkChanged(previous: "Cafe WiFi", current: "Library WiFi"), storage: .encrypted)
+        log.write(.networkChanged(previous: "Cafe WiFi", current: "Library WiFi", kind: .ssidChanged), storage: .encrypted)
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
 
@@ -123,9 +123,9 @@ final class EventLogTests: XCTestCase {
     }
 
     func testNetworkChangedMessageContainsSSIDValues() {
-        let message = GuardEvent.networkChanged(previous: "Cafe WiFi", current: nil).message
+        let message = GuardEvent.networkChanged(previous: "Cafe WiFi", current: nil, kind: .disconnected).message
 
-        XCTAssertEqual(message, "network_changed previous=\"Cafe WiFi\" current=\"none\"")
+        XCTAssertEqual(message, "network_changed kind=\"disconnected\" previous=\"Cafe WiFi\" current=\"none\"")
     }
 
     func testBluetoothDeviceLearnedMessageContainsValues() {
@@ -157,10 +157,11 @@ final class EventLogTests: XCTestCase {
             launchAtLoginEnabled: true,
             eventLogDetail: .standard,
             eventLogStorage: .encrypted,
-            bluetoothProximityTimeoutSeconds: 60
+            bluetoothProximityTimeoutSeconds: 60,
+            ignoreWiFiDisconnects: true
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\" bluetooth_proximity_timeout_seconds=60")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\" bluetooth_proximity_timeout_seconds=60 ignore_wifi_disconnects=true")
     }
 
     func testLaunchAtLoginChangeFailedMessageContainsError() {
@@ -170,7 +171,7 @@ final class EventLogTests: XCTestCase {
     }
 
     func testMinimalDetailOmitsNetworkValues() {
-        let message = GuardEvent.networkChanged(previous: "Cafe WiFi", current: "Library WiFi").message(detail: .minimal)
+        let message = GuardEvent.networkChanged(previous: "Cafe WiFi", current: "Library WiFi", kind: .ssidChanged).message(detail: .minimal)
 
         XCTAssertEqual(message, "network_changed")
     }
@@ -199,7 +200,7 @@ final class EventLogTests: XCTestCase {
         let url = directory.appendingPathComponent("events.log")
         let log = EventLog(url: url)
 
-        log.write(.networkChanged(previous: "Cafe WiFi", current: "Library WiFi"), detail: .minimal)
+        log.write(.networkChanged(previous: "Cafe WiFi", current: "Library WiFi", kind: .ssidChanged), detail: .minimal)
 
         let contents = try String(contentsOf: url, encoding: .utf8)
         XCTAssertTrue(contents.contains("network_changed"))

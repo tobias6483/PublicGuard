@@ -224,7 +224,7 @@ enum GuardEvent {
     case disarmed
     case authenticationFailed
     case chargerDisconnected
-    case networkChanged(previous: String?, current: String?)
+    case networkChanged(previous: String?, current: String?, kind: NetworkChangeKind)
     case bluetoothDeviceLearned(name: String)
     case bluetoothDeviceOutOfRange(name: String)
     case idleTimeout(seconds: Int)
@@ -244,7 +244,8 @@ enum GuardEvent {
         launchAtLoginEnabled: Bool,
         eventLogDetail: GuardSettings.EventLogDetail,
         eventLogStorage: GuardSettings.EventLogStorage,
-        bluetoothProximityTimeoutSeconds: Int
+        bluetoothProximityTimeoutSeconds: Int,
+        ignoreWiFiDisconnects: Bool
     )
     case launchAtLoginChangeFailed(error: String)
     case triggerIgnored(name: String)
@@ -268,10 +269,10 @@ enum GuardEvent {
             "authentication_failed"
         case .chargerDisconnected:
             "charger_disconnected"
-        case let .networkChanged(previous, current):
+        case let .networkChanged(previous, current, kind):
             switch detail {
             case .standard:
-                "network_changed previous=\"\(previous ?? "none")\" current=\"\(current ?? "none")\""
+                "network_changed kind=\"\(kind.rawValue)\" previous=\"\(previous ?? "none")\" current=\"\(current ?? "none")\""
             case .minimal:
                 "network_changed"
             }
@@ -318,12 +319,12 @@ enum GuardEvent {
             case .minimal:
                 "silent_response_triggered"
             }
-        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds):
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects):
             switch detail {
             case .standard:
-                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds)"
+                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects)"
             case .minimal:
-                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\""
+                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" ignore_wifi_disconnects=\(ignoreWiFiDisconnects)"
             }
         case let .launchAtLoginChangeFailed(error):
             switch detail {

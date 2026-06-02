@@ -22,6 +22,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertNil(settings.bluetoothTargetIdentifier)
         XCTAssertNil(settings.bluetoothTargetName)
         XCTAssertEqual(settings.bluetoothProximityTimeoutSeconds, 30)
+        XCTAssertFalse(settings.ignoreWiFiDisconnects)
     }
 
     func testSaveAndLoadRoundTripsSettings() {
@@ -41,7 +42,8 @@ final class SettingsStoreTests: XCTestCase {
             eventLogStorage: .encrypted,
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
             bluetoothTargetName: "Tobias iPhone",
-            bluetoothProximityTimeoutSeconds: 60
+            bluetoothProximityTimeoutSeconds: 60,
+            ignoreWiFiDisconnects: true
         )
 
         store.save(expected)
@@ -60,6 +62,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
         XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 60)
+        XCTAssertTrue(store.load().ignoreWiFiDisconnects)
     }
 
     func testBluetoothTargetCanBeCleared() {
@@ -360,6 +363,23 @@ final class SettingsStoreTests: XCTestCase {
         ))
 
         XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 120)
+    }
+
+    func testIgnoreWiFiDisconnectsCanBeEnabled() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            ignoreWiFiDisconnects: true
+        ))
+
+        XCTAssertTrue(store.load().ignoreWiFiDisconnects)
     }
 
     func testBundledAlarmSoundsDeclareResources() {
