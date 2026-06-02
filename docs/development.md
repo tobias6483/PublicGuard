@@ -47,6 +47,16 @@ scripts/build_app.sh
 scripts/validate_app_bundle.sh
 ```
 
+For a v0.1 release baseline, run the combined release check:
+
+```sh
+scripts/release_check.sh
+```
+
+It runs the Swift build and test suite, builds and validates the local app
+bundle, then creates an unsigned zipped artifact and SHA-256 checksum in
+`dist/artifacts`.
+
 ## GitHub Workflow
 
 PublicGuard is open source. External contributors can fork the repository, push a branch to their fork, and open a pull request against `main`.

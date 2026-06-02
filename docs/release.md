@@ -45,11 +45,31 @@ or artifact upload.
 
 `Settings > Launch at Login` uses macOS ServiceManagement and should be verified from this app bundle. It is not active when running the executable directly through SwiftPM.
 
+## Local Release Check
+
+Run the full local release check before opening a v0.1 release PR or tagging a
+release:
+
+```sh
+scripts/release_check.sh
+```
+
+The script runs `swift build`, `swift test`, builds and validates
+`dist/PublicGuard.app`, then creates an unsigned artifact dry run at:
+
+```text
+dist/artifacts/PublicGuard.app.zip
+dist/artifacts/PublicGuard.app.zip.sha256
+```
+
+Record the commit and command result in the release PR or release notes.
+
 ## GitHub App Artifact
 
 The `App Artifact` workflow builds the same unsigned bundle on GitHub Actions,
-validates the app bundle, zips it, writes a SHA-256 checksum, and uploads both
-files as a workflow artifact named `PublicGuard-unsigned-app`.
+runs the release check, validates the app bundle, zips it, writes a SHA-256
+checksum, and uploads both files as a workflow artifact named
+`PublicGuard-unsigned-app`.
 
 Run it manually from GitHub Actions, or push a version tag such as:
 
