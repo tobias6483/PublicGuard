@@ -16,6 +16,7 @@ remain untested until a manual pass is recorded below.
 | Automated release baseline | Pass | 2026-06-02 | `scripts/release_check.sh` passed on commit `ece37b08375ee9a8ff347c0a320c230856164c18`; 72 tests passed; `dist/PublicGuard.app` validated; local unsigned artifact and SHA-256 checksum created. |
 | GitHub artifact workflow | Pass | 2026-06-02 | `App Artifact` workflow run `26817849127` passed for tag `v0.1.0`; the `v0.1.0` GitHub pre-release also has uploaded unsigned assets with GitHub asset digests. |
 | Event log storage invariants | Pass | 2026-06-02 | `swift test` passed with 86 tests, including plain/encrypted storage separation, active-storage clear behavior, and active-storage prune behavior. Manual menu UX still needs real app verification below. |
+| Lock screen command fallback | Pass | 2026-06-03 | Local investigation on macOS 26.4.1 confirmed the legacy `CGSession` path is missing. `swift test` passed with 89 tests after adding fallback coverage for `pmset displaysleepnow`. Manual app-bundle lock behavior still needs real-device verification below. |
 
 ### Manual Hardware Scenarios
 
@@ -29,7 +30,7 @@ remain untested until a manual pass is recorded below.
 | Lid close/reopen | Not tested | - | Must preserve honest closed-lid limitation wording. |
 | Closed-display mode | Not tested | - | Optional; requires external display, keyboard, and pointer. |
 | Notifications | Not tested | - | Test from `dist/PublicGuard.app`, not `swift run`. |
-| Lock screen action | Not tested | - | Confirm setting enabled and disabled. |
+| Lock screen action | Not tested | - | Confirm setting enabled and disabled from `dist/PublicGuard.app`; automated tests cover command fallback only. |
 | Launch at login | Not tested | - | Test from `dist/PublicGuard.app`. |
 | Alarm sounds and volume | Not tested | - | Confirm bundled sounds loop and app volume setting works. |
 | Event log storage menu UX | Not tested | - | Automated storage invariants pass; still confirm menu switching, Finder open target, clear/prune commands, and Recent Events in `dist/PublicGuard.app`. |
@@ -53,6 +54,7 @@ Swift version: Apple Swift 6.2
 | Unsigned artifact dry run | Pass | Created `dist/artifacts/PublicGuard.app.zip` and checksum file. |
 | GitHub `App Artifact` workflow | Pass | Run `26817849127` passed for tag `v0.1.0`; the `v0.1.0` GitHub pre-release also has uploaded unsigned release assets. |
 | Event log storage invariants | Pass | Later local `swift test` run passed with 86 tests, including storage switching, active-storage clear, and active-storage prune coverage. |
+| Lock screen command fallback | Pass | Later local `swift test` run passed with 89 tests after confirming the legacy `CGSession` path is missing on macOS 26.4.1 and adding fallback coverage for `pmset displaysleepnow`. |
 | Real-device hardware QA | Not tested | Requires manual charger, Wi-Fi, Bluetooth, sleep/wake, notification, lock screen, launch-at-login, alarm, and event-log checks. |
 
 ### Evidence
@@ -71,6 +73,8 @@ Swift version: Apple Swift 6.2
 
 - Run manual hardware QA before claiming trigger or app-bundle behavior has
   been validated on real devices.
+- Run a real app-bundle lock screen check with `Settings > Lock Screen` enabled
+  and disabled before claiming lock behavior has been manually verified.
 
 ## Result Status Values
 

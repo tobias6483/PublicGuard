@@ -160,6 +160,15 @@ This is local-only and stores the confirmed CoreBluetooth device identifier and 
 
 `Settings > Alarm Volume` controls PublicGuard's own alarm playback volume. `Maximum` sets bundled and system alarm sounds to full app playback volume, but it does not change the Mac's global system volume.
 
+## Lock Screen Action
+
+`Settings > Lock Screen` controls whether PublicGuard also asks macOS to lock
+or sleep the display when a configured response starts. PublicGuard first uses
+the legacy `CGSession -suspend` command when available, then falls back to
+`pmset displaysleepnow` on newer macOS versions where that command is no longer
+present. The fallback path is covered by unit tests, but the release hardware QA
+still needs a real app-bundle pass with the setting enabled and disabled.
+
 ## Session Presets
 
 `Settings > Presets` can quickly apply local public-work profiles:
