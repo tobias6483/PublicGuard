@@ -6,6 +6,17 @@ factual and reproducible. If a scenario has not been run, leave it marked
 
 ## Current Summary
 
+Automated release verification has passed, but real-device hardware scenarios
+remain untested until a manual pass is recorded below.
+
+### Automated Baseline
+
+| Area | Status | Last tested | Notes |
+| --- | --- | --- | --- |
+| Automated release baseline | Pass | 2026-06-02 | `scripts/release_check.sh` passed on commit `baa71138e28b1ebe718dc1c41e8a41fc3c64677c`; 66 tests passed; `dist/PublicGuard.app` validated; local unsigned artifact and SHA-256 checksum created. |
+
+### Manual Hardware Scenarios
+
 | Area | Status | Last tested | Notes |
 | --- | --- | --- | --- |
 | Charger disconnect | Not tested | - | Needs real adapter test. |
@@ -20,6 +31,36 @@ factual and reproducible. If a scenario has not been run, leave it marked
 | Launch at login | Not tested | - | Test from `dist/PublicGuard.app`. |
 | Alarm sounds and volume | Not tested | - | Confirm bundled sounds loop and app volume setting works. |
 | Event log storage | Not tested | - | Confirm plain text, encrypted, clear, open, and Recent Events. |
+
+## 2026-06-02 - Automated Release Baseline
+
+Tester: Codex local automation
+PublicGuard commit: `baa71138e28b1ebe718dc1c41e8a41fc3c64677c`
+Build source: `scripts/release_check.sh`
+macOS version: 26.4.1, build 25E253
+Swift version: Apple Swift 6.2
+
+### Summary
+
+| Area | Result | Notes |
+| --- | --- | --- |
+| `swift build` | Pass | Debug build completed. |
+| `swift test` | Pass | 66 tests, 0 failures. |
+| `scripts/build_app.sh` | Pass | Built `dist/PublicGuard.app`. |
+| `scripts/validate_app_bundle.sh` | Pass | Validated executable, Info.plist, icon, resource bundle, and bundled alarm assets. |
+| Unsigned artifact dry run | Pass | Created `dist/artifacts/PublicGuard.app.zip` and checksum file. |
+| Real-device hardware QA | Not tested | Requires manual charger, Wi-Fi, Bluetooth, sleep/wake, notification, lock screen, launch-at-login, alarm, and event-log checks. |
+
+### Evidence
+
+- Command run: `scripts/release_check.sh`
+- Local dry-run checksum:
+  `cf91d44f8732a242fb97cf47f33ca572def4a965b5daaaf97b782a8a21bb26d6`
+
+### Follow-Up
+
+- Run manual hardware QA before claiming trigger or app-bundle behavior has
+  been validated on real devices.
 
 ## Result Status Values
 
