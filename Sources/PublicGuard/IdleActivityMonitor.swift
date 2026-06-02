@@ -1,6 +1,11 @@
 import Foundation
 import IOKit
 
+struct IdleActivityMonitorSnapshot: Equatable {
+    let currentIdleSeconds: TimeInterval
+    let thresholdSeconds: Int
+}
+
 @MainActor
 final class IdleActivityMonitor {
     var onIdleTimeout: (() -> Void)?
@@ -33,6 +38,13 @@ final class IdleActivityMonitor {
 
     func resetBaseline() {
         wasIdlePastThreshold = currentIdleSeconds() >= TimeInterval(thresholdSeconds)
+    }
+
+    func snapshot() -> IdleActivityMonitorSnapshot {
+        IdleActivityMonitorSnapshot(
+            currentIdleSeconds: currentIdleSeconds(),
+            thresholdSeconds: thresholdSeconds
+        )
     }
 
     private func poll() {
