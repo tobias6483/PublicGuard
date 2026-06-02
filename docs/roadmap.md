@@ -9,6 +9,7 @@
 - Sleep/wake trigger
 - Experimental Bluetooth proximity trigger for a learned BLE device
 - Idle timeout trigger
+- Configurable idle timeout with disabled and longer-session options
 - Visible menu bar icon and active preset/status summary
 - Configurable grace period before response
 - Loud local alarm

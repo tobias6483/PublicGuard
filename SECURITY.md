@@ -13,7 +13,7 @@ PublicGuard is security-adjacent software. Changes that affect permissions, auth
 - Keep alarm sound selection local; do not fetch or upload audio.
 - Do not silently change global system volume; alarm volume settings should affect PublicGuard playback only.
 - Keep Bluetooth proximity local-only; do not upload learned device identifiers, names, or scan history.
-- Keep idle timeout local-only; do not log keystrokes, pointer movement, app usage, or content.
+- Keep idle timeout local-only and user-controlled; do not log keystrokes, pointer movement, app usage, or content.
 - Keep launch at login user-controlled and local to macOS login item registration.
 - Keep sleep/wake instrumentation local and limited to timestamps, observation counts, and matched sleep duration.
 - Keep event log detail user-controlled; minimal mode should omit SSIDs, Bluetooth device names, detailed reasons, and most settings values from new log entries.

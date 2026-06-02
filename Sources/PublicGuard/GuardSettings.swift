@@ -381,7 +381,7 @@ struct SettingsStore {
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]
-    static let validIdleTimeouts = [60, 300, 600, 900]
+    static let validIdleTimeouts = [0, 60, 300, 600, 900, 1800, 3600]
     static let validBluetoothProximityTimeouts = [15, 30, 60, 120]
     static let validTriggerCooldowns = [0, 30, 60, 120]
 

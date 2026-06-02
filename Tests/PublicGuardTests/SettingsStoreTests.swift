@@ -108,6 +108,40 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().idleTimeoutSeconds, 300)
     }
 
+    func testDisabledIdleTimeoutIsValid() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            idleTimeoutSeconds: 0,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true
+        ))
+
+        XCTAssertEqual(store.load().idleTimeoutSeconds, 0)
+    }
+
+    func testLongIdleTimeoutIsValid() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            idleTimeoutSeconds: 3600,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true
+        ))
+
+        XCTAssertEqual(store.load().idleTimeoutSeconds, 3600)
+    }
+
     func testInvalidBluetoothProximityTimeoutFallsBackToDefault() {
         let defaults = makeDefaults()
         defaults.set(999, forKey: "bluetoothProximityTimeoutSeconds")

@@ -363,7 +363,7 @@ final class PublicGuardController {
 
         let idleSnapshot = idleMonitor.snapshot()
         submenu.addItem(Self.disabledMenuItem(
-            title: "Idle: \(Self.durationTitle(seconds: idleSnapshot.currentIdleSeconds)) / \(Self.idleTimeoutTitle(seconds: idleSnapshot.thresholdSeconds))"
+            title: Self.idleDiagnosticsTitle(snapshot: idleSnapshot)
         ))
 
         let sleepWakeSnapshot = sleepWakeMonitor.snapshot()
@@ -528,6 +528,11 @@ final class PublicGuardController {
     @objc private func setIdleTimeout(_ sender: NSMenuItem) {
         guard let seconds = sender.representedObject as? Int else { return }
         settings.idleTimeoutSeconds = seconds
+        if seconds == 0 {
+            settings.enabledTriggers.remove(.idleTimeout)
+        } else {
+            settings.enabledTriggers.insert(.idleTimeout)
+        }
         idleMonitor.updateThreshold(seconds: seconds)
         persistSettings()
     }
@@ -851,12 +856,24 @@ private extension PublicGuardController {
     }
 
     static func idleTimeoutTitle(seconds: Int) -> String {
+        if seconds == 0 {
+            return "Disabled"
+        }
+
         if seconds < 60 {
             return "\(seconds) seconds"
         }
 
         let minutes = seconds / 60
         return minutes == 1 ? "1 minute" : "\(minutes) minutes"
+    }
+
+    static func idleDiagnosticsTitle(snapshot: IdleActivityMonitorSnapshot) -> String {
+        guard snapshot.thresholdSeconds > 0 else {
+            return "Idle: disabled (current \(durationTitle(seconds: snapshot.currentIdleSeconds)))"
+        }
+
+        return "Idle: \(durationTitle(seconds: snapshot.currentIdleSeconds)) / \(idleTimeoutTitle(seconds: snapshot.thresholdSeconds))"
     }
 
     static func bluetoothTimeoutTitle(seconds: Int) -> String {
