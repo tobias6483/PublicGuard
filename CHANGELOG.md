@@ -58,3 +58,4 @@
 - Added a local release check script for v0.1 verification and unsigned artifact dry runs.
 - Synced release and contributor docs with the local release check workflow and artifact names.
 - Recorded the v0.1 automated release baseline while keeping manual hardware QA marked as not tested.
+- Updated GitHub Actions checkout and artifact upload steps to Node.js 24-compatible major versions.
