@@ -24,7 +24,7 @@ Implemented:
 - Loud alarm and silent response modes
 - Configurable alarm sound with bundled local choices and Apple Alarm default
 - Configurable alarm playback volume
-- Café and Library session presets
+- Café, Library, School, and Office session presets
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
 - Lock screen enable/disable setting
@@ -47,6 +47,7 @@ Planned:
 - Shortcuts and Apple Watch support
 
 See [docs/roadmap.md](docs/roadmap.md) for the current roadmap.
+See [docs/requirements.md](docs/requirements.md) for the current feature coverage against the product brief.
 
 ## Why
 
@@ -135,6 +136,8 @@ This is local-only and stores the CoreBluetooth device identifier and display na
 
 - `Café`: 5 second grace period, 5 minute idle timeout, loud response, maximum app playback volume, notifications, lock screen, and all triggers enabled.
 - `Library`: 15 second grace period, 15 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and all triggers enabled.
+- `School`: 10 second grace period, 10 minute idle timeout, loud response, normal app playback volume, notifications, lock screen, and all triggers enabled.
+- `Office`: 30 second grace period, 10 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and charger, lid/wake, Bluetooth proximity, and idle triggers enabled. Wi-Fi change is disabled in this preset to reduce false alarms on roaming office networks.
 
 Presets keep the selected alarm sound and learned Bluetooth device.
 

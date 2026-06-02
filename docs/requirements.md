@@ -1,0 +1,58 @@
+# Product Requirement Coverage
+
+This document tracks PublicGuard against the current product brief: an open-source macOS security and privacy utility for developers, students, creators, and maintainers working in public spaces.
+
+## Positioning
+
+| Requirement | Status | Notes |
+| --- | --- | --- |
+| Open-source macOS security/privacy utility | Implemented | Native Swift/AppKit menu bar app with MIT license, contribution docs, security policy, and local-first positioning. |
+| Audience: developers, students, founders, designers, OSS maintainers | Implemented | README positions the app around people who build in public. |
+| Protect local development environments, code, tokens, and devices | Implemented | README explains the security motivation without adding cloud tracking. |
+| Local-first, no account, no cloud, no analytics | Implemented | Privacy principles are documented; app behavior is local. |
+
+## MVP Features
+
+| Requirement | Status | Notes |
+| --- | --- | --- |
+| macOS menu bar app | Implemented | `PublicGuardController` owns the status item and menu. |
+| Arm / Disarm | Implemented | Menu bar flow with armed state. |
+| Loud alarm | Implemented | `AlarmPlayer` loops bundled or system sounds. |
+| Alarm if lid closes while armed | Implemented with OS limits | `NSWorkspace.willSleepNotification` starts the configured response while armed when macOS gives the app time before suspension. |
+| Alarm if charger is removed | Implemented | `PowerMonitor` detects power adapter disconnects while armed. |
+| Alarm if Mac wakes from sleep while armed | Implemented | `NSWorkspace.didWakeNotification` starts the configured response after wake. |
+| Touch ID/password protected disarm | Implemented | `DeviceAuthenticator` protects disarm and alarm stop. |
+| Event log: armed time | Implemented | `armed` log event. |
+| Event log: lid/sleep event | Implemented | `system_will_sleep` and `system_did_wake` log events. |
+| Event log: charger removed | Implemented | `charger_disconnected` log event. |
+| Event log: alarm triggered | Implemented | `alarm_triggered` or `silent_response_triggered` log events. |
+| Event log: alarm stopped | Implemented | `alarm_stopped` log event. |
+
+## Stronger Features
+
+| Requirement | Status | Notes |
+| --- | --- | --- |
+| iPhone / phone proximity trigger | Experimental | BLE learning and out-of-range trigger exist, but iPhone stability requires device QA. |
+| Charger disconnect action: alarm, lock, notification | Implemented | Response pipeline supports alarm/silent, optional lock, and optional notification. |
+| Motion signal | Covered by proxies | Modern MacBook motion sensors are not assumed; PublicGuard uses sleep/wake, charger, Bluetooth, Wi-Fi, and idle signals. |
+| Network/location change trigger | Implemented | Wi-Fi SSID changes are monitored locally. |
+| Silent mode | Implemented | Silent response logs, notifies if enabled, and locks if enabled without alarm audio. |
+| Camera snapshot | Roadmap | Must be explicit opt-in with privacy review, permission copy, and local storage controls before implementation. |
+| Panic/grace delay | Implemented | Configurable 0, 5, 10, 15, or 30 second grace period. |
+| Public session mode: café | Implemented | Aggressive loud mode with all triggers and maximum app playback volume. |
+| Public session mode: library | Implemented | Silent mode with all triggers and longer grace/idle timing. |
+| Public session mode: school | Implemented | Loud mode with moderate grace/idle timing and all triggers. |
+| Public session mode: office | Implemented | Silent mode with Wi-Fi change disabled to reduce false alarms on roaming office networks. |
+
+## OSS Project Readiness
+
+| Requirement | Status | Notes |
+| --- | --- | --- |
+| GitHub Actions | Implemented | `Swift Build and Test` is required on protected `main`. |
+| Tests | Implemented | Unit coverage exists for settings, presets, state, and logs. |
+| Docs | Implemented | README, development notes, release notes, roadmap, QA docs, and this matrix. |
+| Security policy | Implemented | `SECURITY.md` covers sensitive areas and reporting. |
+| Contributor onboarding | Implemented | `CONTRIBUTING.md` and development docs exist. |
+| Release automation | Partial | Local unsigned app bundle script exists; signed release pipeline is roadmap. |
+| Issue triage / maintainer automation | Roadmap | Useful future OSS workflow area. |
+

@@ -135,6 +135,8 @@ struct GuardSettings {
     enum SessionPreset: String, CaseIterable {
         case cafe
         case library
+        case school
+        case office
 
         var title: String {
             switch self {
@@ -142,33 +144,29 @@ struct GuardSettings {
                 "Café"
             case .library:
                 "Library"
+            case .school:
+                "School"
+            case .office:
+                "Office"
             }
         }
 
         func applied(to settings: GuardSettings) -> GuardSettings {
             var updated = settings
-            updated.enabledTriggers = Set(TriggerKind.allCases)
+            updated.enabledTriggers = enabledTriggers
             updated.notificationsEnabled = true
             updated.lockScreenEnabled = true
 
-            switch self {
-            case .cafe:
-                updated.gracePeriodSeconds = 5
-                updated.idleTimeoutSeconds = 300
-                updated.responseMode = .loudAlarm
-                updated.alarmVolume = .maximum
-            case .library:
-                updated.gracePeriodSeconds = 15
-                updated.idleTimeoutSeconds = 900
-                updated.responseMode = .silent
-                updated.alarmVolume = .normal
-            }
+            updated.gracePeriodSeconds = gracePeriodSeconds
+            updated.idleTimeoutSeconds = idleTimeoutSeconds
+            updated.responseMode = responseMode
+            updated.alarmVolume = alarmVolume
 
             return updated
         }
 
         func matches(_ settings: GuardSettings) -> Bool {
-            settings.enabledTriggers == Set(TriggerKind.allCases)
+            settings.enabledTriggers == enabledTriggers
                 && settings.notificationsEnabled
                 && settings.lockScreenEnabled
                 && settings.gracePeriodSeconds == gracePeriodSeconds
@@ -183,6 +181,10 @@ struct GuardSettings {
                 5
             case .library:
                 15
+            case .school:
+                10
+            case .office:
+                30
             }
         }
 
@@ -192,6 +194,10 @@ struct GuardSettings {
                 300
             case .library:
                 900
+            case .school:
+                600
+            case .office:
+                600
             }
         }
 
@@ -200,6 +206,10 @@ struct GuardSettings {
             case .cafe:
                 .loudAlarm
             case .library:
+                .silent
+            case .school:
+                .loudAlarm
+            case .office:
                 .silent
             }
         }
@@ -210,6 +220,19 @@ struct GuardSettings {
                 .maximum
             case .library:
                 .normal
+            case .school:
+                .normal
+            case .office:
+                .normal
+            }
+        }
+
+        private var enabledTriggers: Set<TriggerKind> {
+            switch self {
+            case .cafe, .library, .school:
+                Set(TriggerKind.allCases)
+            case .office:
+                [.chargerDisconnect, .wakeFromSleep, .bluetoothProximity, .idleTimeout]
             }
         }
     }
