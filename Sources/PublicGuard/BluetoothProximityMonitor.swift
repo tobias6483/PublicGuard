@@ -10,7 +10,7 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
     var onDeviceLearned: ((LearnedBluetoothDevice) -> Void)?
     var onDeviceOutOfRange: ((LearnedBluetoothDevice) -> Void)?
 
-    private let lostAfterSeconds: TimeInterval
+    private var lostAfterSeconds: TimeInterval
     private let learnDurationSeconds: TimeInterval
     private var central: CBCentralManager?
     private var target: LearnedBluetoothDevice?
@@ -42,6 +42,10 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         ensureCentral()
         startTimer()
         updateScanState()
+    }
+
+    func updateLostAfterSeconds(_ seconds: Int) {
+        lostAfterSeconds = TimeInterval(seconds)
     }
 
     func stop() {

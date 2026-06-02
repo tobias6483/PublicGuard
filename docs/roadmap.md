@@ -34,7 +34,7 @@
 
 - Complete manual hardware QA and record results
 - Run the lid-close QA checklist on Apple silicon MacBook hardware
-- Validate Bluetooth proximity behavior with iPhone and common BLE accessories
+- Validate Bluetooth proximity behavior with iPhone and common BLE accessories using `docs/bluetooth-proximity-qa.md`
 - Validate immediate lid-close/sleep response and wake fallback behavior against the research note
 - Tune bundled alarm sound files after hardware testing
 - Design opt-in privacy review for any future camera snapshot action

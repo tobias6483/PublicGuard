@@ -243,7 +243,8 @@ enum GuardEvent {
         lockScreenEnabled: Bool,
         launchAtLoginEnabled: Bool,
         eventLogDetail: GuardSettings.EventLogDetail,
-        eventLogStorage: GuardSettings.EventLogStorage
+        eventLogStorage: GuardSettings.EventLogStorage,
+        bluetoothProximityTimeoutSeconds: Int
     )
     case launchAtLoginChangeFailed(error: String)
     case triggerIgnored(name: String)
@@ -317,10 +318,10 @@ enum GuardEvent {
             case .minimal:
                 "silent_response_triggered"
             }
-        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage):
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds):
             switch detail {
             case .standard:
-                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\""
+                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds)"
             case .minimal:
                 "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\""
             }

@@ -21,6 +21,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.eventLogStorage, .plainText)
         XCTAssertNil(settings.bluetoothTargetIdentifier)
         XCTAssertNil(settings.bluetoothTargetName)
+        XCTAssertEqual(settings.bluetoothProximityTimeoutSeconds, 30)
     }
 
     func testSaveAndLoadRoundTripsSettings() {
@@ -39,7 +40,8 @@ final class SettingsStoreTests: XCTestCase {
             eventLogDetail: .minimal,
             eventLogStorage: .encrypted,
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
-            bluetoothTargetName: "Tobias iPhone"
+            bluetoothTargetName: "Tobias iPhone",
+            bluetoothProximityTimeoutSeconds: 60
         )
 
         store.save(expected)
@@ -57,6 +59,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().eventLogStorage, .encrypted)
         XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
+        XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 60)
     }
 
     func testBluetoothTargetCanBeCleared() {
@@ -97,6 +100,14 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().idleTimeoutSeconds, 300)
+    }
+
+    func testInvalidBluetoothProximityTimeoutFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set(999, forKey: "bluetoothProximityTimeoutSeconds")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 30)
     }
 
     func testZeroGracePeriodIsValid() {
@@ -332,6 +343,23 @@ final class SettingsStoreTests: XCTestCase {
         ))
 
         XCTAssertEqual(store.load().eventLogStorage, .encrypted)
+    }
+
+    func testBluetoothProximityTimeoutCanBeChanged() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            bluetoothProximityTimeoutSeconds: 120
+        ))
+
+        XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 120)
     }
 
     func testBundledAlarmSoundsDeclareResources() {

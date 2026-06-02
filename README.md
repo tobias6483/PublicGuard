@@ -131,9 +131,11 @@ The menu also includes `Clear Event Log`, which resets the local log and writes 
 
 ## Bluetooth Proximity
 
-PublicGuard can learn a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Learn Nearby Device`. While armed, it starts the configured response if that learned device was seen and then disappears for about 30 seconds.
+PublicGuard can learn a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Learn Nearby Device`. While armed, it starts the configured response if that learned device was seen and then disappears for the configured out-of-range timeout.
 
-This is local-only and stores the CoreBluetooth device identifier and display name in macOS user defaults. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory.
+`Settings > Bluetooth Proximity > Out-of-Range Timeout` can be set to 15 seconds, 30 seconds, 1 minute, or 2 minutes. Shorter timeouts react faster but may be more sensitive to normal Bluetooth advertising gaps.
+
+This is local-only and stores the CoreBluetooth device identifier and display name in macOS user defaults. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory. See [docs/bluetooth-proximity-qa.md](docs/bluetooth-proximity-qa.md).
 
 ## Alarm Volume
 
