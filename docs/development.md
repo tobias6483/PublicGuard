@@ -20,6 +20,7 @@ SwiftPM runs the executable without a full app bundle identity. PublicGuard skip
 
 ```sh
 scripts/build_app.sh
+scripts/validate_app_bundle.sh
 open dist/PublicGuard.app
 ```
 
@@ -27,12 +28,23 @@ The generated bundle is unsigned and intended for local manual testing.
 
 The local bundle includes the `PublicGuard.icns` app icon, bundled alarm sounds from `Sources/PublicGuard/Resources`, and a Bluetooth usage description for proximity testing.
 
+`scripts/validate_app_bundle.sh` checks the generated bundle's executable,
+Info.plist metadata, icon, SwiftPM resource bundle, and bundled alarm assets.
+
 Launch at login registration uses macOS ServiceManagement and should be tested from `dist/PublicGuard.app`. It is disabled in `swift run PublicGuard`, because that executable does not have the app bundle identity macOS uses for login items.
 
 ## Test
 
 ```sh
 swift test
+```
+
+If app resources, app bundle metadata, packaging, release behavior, or bundled
+assets changed, also run:
+
+```sh
+scripts/build_app.sh
+scripts/validate_app_bundle.sh
 ```
 
 ## GitHub Workflow

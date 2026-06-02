@@ -54,5 +54,5 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | Docs | Implemented | README, development notes, release notes, roadmap, QA docs, and this matrix. |
 | Security policy | Implemented | `SECURITY.md` covers sensitive areas and reporting. |
 | Contributor onboarding | Implemented | `CONTRIBUTING.md` and development docs exist. |
-| Release automation | Partial | Local unsigned app bundle script and GitHub Actions unsigned zipped app artifact exist; signing and notarization are roadmap. |
+| Release automation | Partial | Local unsigned app bundle script, bundle validation, GitHub Actions unsigned zipped app artifact, and SHA-256 checksum exist; signing and notarization are roadmap. |
 | Issue triage / maintainer automation | Roadmap | Useful future OSS workflow area. |

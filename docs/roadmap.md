@@ -27,7 +27,8 @@
 - Authenticated alarm stop with local audit logging
 - Event log open and clear actions
 - Local unsigned app bundle script
-- GitHub Actions unsigned zipped app artifact
+- Bundle validation script
+- GitHub Actions unsigned zipped app artifact with SHA-256 checksum
 - App icon for local app bundles
 
 ## Next

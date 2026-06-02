@@ -21,14 +21,20 @@ jobs:
       - name: Build app bundle
         run: scripts/build_app.sh
 
+      - name: Validate app bundle
+        run: scripts/validate_app_bundle.sh
+
       - name: Zip app bundle
         run: |
           mkdir -p dist/artifacts
           ditto -c -k --keepParent dist/PublicGuard.app dist/artifacts/PublicGuard.app.zip
+          shasum -a 256 dist/artifacts/PublicGuard.app.zip > dist/artifacts/PublicGuard.app.zip.sha256
 
       - name: Upload unsigned app artifact
         uses: actions/upload-artifact@v4
         with:
           name: PublicGuard-unsigned-app
-          path: dist/artifacts/PublicGuard.app.zip
+          path: |
+            dist/artifacts/PublicGuard.app.zip
+            dist/artifacts/PublicGuard.app.zip.sha256
           if-no-files-found: error
