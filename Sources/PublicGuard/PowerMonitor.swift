@@ -1,6 +1,10 @@
 import Foundation
 import IOKit.ps
 
+struct PowerMonitorSnapshot: Equatable {
+    let isAdapterConnected: Bool
+}
+
 @MainActor
 final class PowerMonitor {
     var onPowerAdapterDisconnected: (() -> Void)?
@@ -20,6 +24,10 @@ final class PowerMonitor {
     func stop() {
         timer?.invalidate()
         timer = nil
+    }
+
+    func snapshot() -> PowerMonitorSnapshot {
+        PowerMonitorSnapshot(isAdapterConnected: isPowerAdapterConnected())
     }
 
     private func poll() {

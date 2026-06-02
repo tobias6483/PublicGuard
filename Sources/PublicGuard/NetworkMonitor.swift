@@ -1,6 +1,10 @@
 import CoreWLAN
 import Foundation
 
+struct NetworkMonitorSnapshot: Equatable {
+    let currentSSID: String?
+}
+
 @MainActor
 final class NetworkMonitor {
     var onNetworkChanged: ((_ previous: String?, _ current: String?) -> Void)?
@@ -20,6 +24,10 @@ final class NetworkMonitor {
     func stop() {
         timer?.invalidate()
         timer = nil
+    }
+
+    func snapshot() -> NetworkMonitorSnapshot {
+        NetworkMonitorSnapshot(currentSSID: currentSSID())
     }
 
     private func poll() {

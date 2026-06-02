@@ -133,6 +133,7 @@ final class PublicGuardController {
         menu.addItem(.separator())
         menu.addItem(settingsMenuItem())
         menu.addItem(NSMenuItem(title: "Test Response", action: #selector(testResponse), keyEquivalent: "t", target: self))
+        menu.addItem(triggerDiagnosticsMenuItem())
         menu.addItem(recentEventsMenuItem())
         menu.addItem(NSMenuItem(title: "Open Event Log", action: #selector(openEventLog), keyEquivalent: "l", target: self))
         menu.addItem(NSMenuItem(title: "Clear Event Log", action: #selector(clearEventLog), keyEquivalent: "", target: self))
@@ -287,6 +288,57 @@ final class PublicGuardController {
         launchAtLoginItem.state = settings.launchAtLoginEnabled ? .on : .off
         launchAtLoginItem.isEnabled = loginItemController.canManageLaunchAtLogin
         submenu.addItem(launchAtLoginItem)
+
+        item.submenu = submenu
+        return item
+    }
+
+    private func triggerDiagnosticsMenuItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "Recent Trigger Status", action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+
+        let powerSnapshot = powerMonitor.snapshot()
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Power: adapter \(powerSnapshot.isAdapterConnected ? "connected" : "disconnected")"
+        ))
+
+        let networkSnapshot = networkMonitor.snapshot()
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Wi-Fi: \(networkSnapshot.currentSSID ?? "Unknown / disconnected")"
+        ))
+
+        let bluetoothSnapshot = bluetoothMonitor.snapshot()
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Bluetooth device: \(Self.bluetoothDeviceTitle(bluetoothSnapshot.learnedDevice))"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Bluetooth last seen: \(Self.relativeDateTitle(bluetoothSnapshot.lastSeenTargetAt))"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Bluetooth timeout: \(Self.bluetoothTimeoutTitle(seconds: Int(bluetoothSnapshot.lostAfterSeconds)))"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Bluetooth scan: \(Self.bluetoothScanStateTitle(bluetoothSnapshot.scanState))"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Bluetooth armed baseline: \(bluetoothSnapshot.hasSeenTarget ? "seen target" : "not seen yet")"
+        ))
+        if bluetoothSnapshot.hasReportedCurrentLoss {
+            submenu.addItem(Self.disabledMenuItem(title: "Bluetooth loss: already reported"))
+        }
+
+        let idleSnapshot = idleMonitor.snapshot()
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Idle: \(Self.durationTitle(seconds: idleSnapshot.currentIdleSeconds)) / \(Self.idleTimeoutTitle(seconds: idleSnapshot.thresholdSeconds))"
+        ))
+
+        let sleepWakeSnapshot = sleepWakeMonitor.snapshot()
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Sleep: \(Self.relativeDateTitle(sleepWakeSnapshot.lastWillSleepAt))"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Wake: \(Self.relativeDateTitle(sleepWakeSnapshot.lastDidWakeAt))"
+        ))
 
         item.submenu = submenu
         return item
@@ -731,6 +783,58 @@ private extension PublicGuardController {
         let minutes = seconds / 60
         return minutes == 1 ? "1 minute" : "\(minutes) minutes"
     }
+
+    static func bluetoothDeviceTitle(_ device: LearnedBluetoothDevice?) -> String {
+        guard let device else { return "None learned" }
+
+        return "\(device.name) (\(device.identifier.uuidString.prefix(8)))"
+    }
+
+    static func bluetoothScanStateTitle(_ state: BluetoothProximityMonitorSnapshot.ScanState) -> String {
+        switch state {
+        case .idle, .monitoring, .unavailable:
+            return state.title
+        case let .learning(until):
+            return "\(state.title) until \(timeFormatter.string(from: until))"
+        }
+    }
+
+    static func relativeDateTitle(_ date: Date?) -> String {
+        guard let date else { return "Never observed" }
+
+        return "\(durationTitle(seconds: Date().timeIntervalSince(date))) ago at \(timeFormatter.string(from: date))"
+    }
+
+    static func durationTitle(seconds: TimeInterval) -> String {
+        let roundedSeconds = max(0, Int(seconds.rounded()))
+
+        if roundedSeconds < 60 {
+            return "\(roundedSeconds) seconds"
+        }
+
+        let minutes = roundedSeconds / 60
+        let secondsRemainder = roundedSeconds % 60
+        if minutes < 60 {
+            return secondsRemainder == 0 ? "\(minutes) minutes" : "\(minutes)m \(secondsRemainder)s"
+        }
+
+        let hours = minutes / 60
+        let minutesRemainder = minutes % 60
+        return minutesRemainder == 0 ? "\(hours) hours" : "\(hours)h \(minutesRemainder)m"
+    }
+
+    static func disabledMenuItem(title: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.isEnabled = false
+        return item
+    }
+
+    static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .medium
+        return formatter
+    }()
 }
 
 private extension NSMenuItem {

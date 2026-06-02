@@ -6,6 +6,35 @@ struct LearnedBluetoothDevice: Equatable {
     let name: String
 }
 
+struct BluetoothProximityMonitorSnapshot: Equatable {
+    enum ScanState: Equatable {
+        case unavailable(String)
+        case idle
+        case learning(until: Date)
+        case monitoring
+
+        var title: String {
+            switch self {
+            case let .unavailable(reason):
+                "Unavailable: \(reason)"
+            case .idle:
+                "Idle"
+            case .learning:
+                "Learning"
+            case .monitoring:
+                "Monitoring"
+            }
+        }
+    }
+
+    let learnedDevice: LearnedBluetoothDevice?
+    let lastSeenTargetAt: Date?
+    let lostAfterSeconds: TimeInterval
+    let hasSeenTarget: Bool
+    let hasReportedCurrentLoss: Bool
+    let scanState: ScanState
+}
+
 final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
     var onDeviceLearned: ((LearnedBluetoothDevice) -> Void)?
     var onDeviceOutOfRange: ((LearnedBluetoothDevice) -> Void)?
@@ -64,6 +93,17 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         ensureCentral()
         startTimer()
         updateScanState()
+    }
+
+    func snapshot() -> BluetoothProximityMonitorSnapshot {
+        BluetoothProximityMonitorSnapshot(
+            learnedDevice: target,
+            lastSeenTargetAt: lastSeenTargetAt,
+            lostAfterSeconds: lostAfterSeconds,
+            hasSeenTarget: hasSeenTarget,
+            hasReportedCurrentLoss: hasReportedCurrentLoss,
+            scanState: currentScanState()
+        )
     }
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -125,6 +165,26 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         }
     }
 
+    private func currentScanState() -> BluetoothProximityMonitorSnapshot.ScanState {
+        guard let central else {
+            return target == nil && learningEndsAt == nil ? .idle : .unavailable("Bluetooth not initialized")
+        }
+
+        guard central.state == .poweredOn else {
+            return .unavailable(Self.centralStateTitle(central.state))
+        }
+
+        if let learningEndsAt {
+            return .learning(until: learningEndsAt)
+        }
+
+        if target != nil {
+            return .monitoring
+        }
+
+        return .idle
+    }
+
     @objc private func poll() {
         if let learningEndsAt, Date() >= learningEndsAt {
             self.learningEndsAt = nil
@@ -155,5 +215,24 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         }
 
         return LearnedBluetoothDevice(identifier: uuid, name: name ?? "Bluetooth Device")
+    }
+
+    private static func centralStateTitle(_ state: CBManagerState) -> String {
+        switch state {
+        case .unknown:
+            "unknown"
+        case .resetting:
+            "resetting"
+        case .unsupported:
+            "unsupported"
+        case .unauthorized:
+            "unauthorized"
+        case .poweredOff:
+            "powered off"
+        case .poweredOn:
+            "powered on"
+        @unknown default:
+            "unknown state"
+        }
     }
 }
