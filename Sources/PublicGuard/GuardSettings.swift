@@ -266,9 +266,14 @@ struct GuardSettings {
     var bluetoothTargetName: String?
     var bluetoothProximityTimeoutSeconds: Int = 30
     var ignoreWiFiDisconnects: Bool = false
+    var triggerCooldownSeconds: Int = 30
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
+    }
+
+    var triggerCooldownDuration: Duration {
+        .seconds(triggerCooldownSeconds)
     }
 
     func isTriggerEnabled(_ trigger: TriggerKind) -> Bool {
@@ -293,6 +298,7 @@ struct SettingsStore {
         static let bluetoothTargetName = "bluetoothTargetName"
         static let bluetoothProximityTimeoutSeconds = "bluetoothProximityTimeoutSeconds"
         static let ignoreWiFiDisconnects = "ignoreWiFiDisconnects"
+        static let triggerCooldownSeconds = "triggerCooldownSeconds"
     }
 
     private let defaults: UserDefaults
@@ -332,6 +338,8 @@ struct SettingsStore {
         let storedBluetoothTimeout = defaults.object(forKey: Key.bluetoothProximityTimeoutSeconds) as? Int
         let bluetoothProximityTimeout = storedBluetoothTimeout.flatMap { Self.validBluetoothProximityTimeouts.contains($0) ? $0 : nil } ?? 30
         let ignoreWiFiDisconnects = defaults.object(forKey: Key.ignoreWiFiDisconnects) as? Bool ?? false
+        let storedTriggerCooldown = defaults.object(forKey: Key.triggerCooldownSeconds) as? Int
+        let triggerCooldown = storedTriggerCooldown.flatMap { Self.validTriggerCooldowns.contains($0) ? $0 : nil } ?? 30
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
@@ -348,7 +356,8 @@ struct SettingsStore {
             bluetoothTargetIdentifier: bluetoothTargetIdentifier,
             bluetoothTargetName: bluetoothTargetName,
             bluetoothProximityTimeoutSeconds: bluetoothProximityTimeout,
-            ignoreWiFiDisconnects: ignoreWiFiDisconnects
+            ignoreWiFiDisconnects: ignoreWiFiDisconnects,
+            triggerCooldownSeconds: triggerCooldown
         )
     }
 
@@ -368,11 +377,13 @@ struct SettingsStore {
         setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)
         defaults.set(settings.bluetoothProximityTimeoutSeconds, forKey: Key.bluetoothProximityTimeoutSeconds)
         defaults.set(settings.ignoreWiFiDisconnects, forKey: Key.ignoreWiFiDisconnects)
+        defaults.set(settings.triggerCooldownSeconds, forKey: Key.triggerCooldownSeconds)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]
     static let validIdleTimeouts = [60, 300, 600, 900]
     static let validBluetoothProximityTimeouts = [15, 30, 60, 120]
+    static let validTriggerCooldowns = [0, 30, 60, 120]
 
     private func setOptional(_ value: String?, forKey key: String) {
         if let value {

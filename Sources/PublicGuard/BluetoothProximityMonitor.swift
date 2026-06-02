@@ -77,6 +77,12 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         lostAfterSeconds = TimeInterval(seconds)
     }
 
+    func resetArmedBaseline() {
+        lastSeenTargetAt = nil
+        hasSeenTarget = false
+        hasReportedCurrentLoss = false
+    }
+
     func stop() {
         timer?.invalidate()
         timer = nil
