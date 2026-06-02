@@ -13,7 +13,8 @@ remain untested until a manual pass is recorded below.
 
 | Area | Status | Last tested | Notes |
 | --- | --- | --- | --- |
-| Automated release baseline | Pass | 2026-06-02 | `scripts/release_check.sh` passed on commit `baa71138e28b1ebe718dc1c41e8a41fc3c64677c`; 66 tests passed; `dist/PublicGuard.app` validated; local unsigned artifact and SHA-256 checksum created. |
+| Automated release baseline | Pass | 2026-06-02 | `scripts/release_check.sh` passed on commit `ece37b08375ee9a8ff347c0a320c230856164c18`; 72 tests passed; `dist/PublicGuard.app` validated; local unsigned artifact and SHA-256 checksum created. |
+| GitHub artifact workflow | Pass | 2026-06-02 | `App Artifact` workflow run `26817849127` passed for tag `v0.1.0`; the `v0.1.0` GitHub pre-release also has uploaded unsigned assets with GitHub asset digests. |
 
 ### Manual Hardware Scenarios
 
@@ -35,7 +36,7 @@ remain untested until a manual pass is recorded below.
 ## 2026-06-02 - Automated Release Baseline
 
 Tester: Codex local automation
-PublicGuard commit: `baa71138e28b1ebe718dc1c41e8a41fc3c64677c`
+PublicGuard commit: `ece37b08375ee9a8ff347c0a320c230856164c18`
 Build source: `scripts/release_check.sh`
 macOS version: 26.4.1, build 25E253
 Swift version: Apple Swift 6.2
@@ -45,17 +46,24 @@ Swift version: Apple Swift 6.2
 | Area | Result | Notes |
 | --- | --- | --- |
 | `swift build` | Pass | Debug build completed. |
-| `swift test` | Pass | 66 tests, 0 failures. |
+| `swift test` | Pass | 72 tests, 0 failures. |
 | `scripts/build_app.sh` | Pass | Built `dist/PublicGuard.app`. |
 | `scripts/validate_app_bundle.sh` | Pass | Validated executable, Info.plist, icon, resource bundle, and bundled alarm assets. |
 | Unsigned artifact dry run | Pass | Created `dist/artifacts/PublicGuard.app.zip` and checksum file. |
+| GitHub `App Artifact` workflow | Pass | Run `26817849127` passed for tag `v0.1.0`; the `v0.1.0` GitHub pre-release also has uploaded unsigned release assets. |
 | Real-device hardware QA | Not tested | Requires manual charger, Wi-Fi, Bluetooth, sleep/wake, notification, lock screen, launch-at-login, alarm, and event-log checks. |
 
 ### Evidence
 
 - Command run: `scripts/release_check.sh`
 - Local dry-run checksum:
-  `cf91d44f8732a242fb97cf47f33ca572def4a965b5daaaf97b782a8a21bb26d6`
+  `508a03c4f8557756787432d6f4bf26a763b2712f84545f7681bd08917ac64104`
+- GitHub workflow run: `26817849127`
+- GitHub pre-release:
+  <https://github.com/tobias6483/PublicGuard/releases/tag/v0.1.0>
+- GitHub release asset digests:
+  - `PublicGuard.app.zip`: `sha256:63c39c4296647082734abaf957a94ec618d6f87b46ad7cd5c37c07744a58bc01`
+  - `PublicGuard.app.zip.sha256`: `sha256:37103f6df2fa3a9c709a1daf4f454234619baa43e5e1b0b4e9893597cdc576d9`
 
 ### Follow-Up
 
