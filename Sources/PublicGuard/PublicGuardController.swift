@@ -57,9 +57,9 @@ final class PublicGuardController {
             }
         }
 
-        bluetoothMonitor.onDeviceLearned = { [weak self] device in
+        bluetoothMonitor.onLearningCandidateFound = { [weak self] device in
             Task { @MainActor in
-                self?.storeLearnedBluetoothDevice(device)
+                self?.confirmLearnedBluetoothDevice(device)
             }
         }
 
@@ -420,7 +420,13 @@ final class PublicGuardController {
         let targetItem = NSMenuItem(title: targetTitle, action: nil, keyEquivalent: "")
         targetItem.isEnabled = false
         submenu.addItem(targetItem)
-        submenu.addItem(NSMenuItem(title: "Learn Nearby Device", action: #selector(learnBluetoothDevice), keyEquivalent: "", target: self))
+        if let identifier = settings.bluetoothTargetIdentifier {
+            let identifierItem = NSMenuItem(title: "Identifier: \(identifier.prefix(8))", action: nil, keyEquivalent: "")
+            identifierItem.isEnabled = false
+            submenu.addItem(identifierItem)
+        }
+
+        submenu.addItem(NSMenuItem(title: "Scan and Confirm Nearby Device", action: #selector(learnBluetoothDevice), keyEquivalent: "", target: self))
 
         let timeoutItem = NSMenuItem(title: "Out-of-Range Timeout", action: nil, keyEquivalent: "")
         let timeoutSubmenu = NSMenu()
@@ -534,6 +540,7 @@ final class PublicGuardController {
 
     @objc private func learnBluetoothDevice() {
         bluetoothMonitor.learnNearbyDevice()
+        rebuildMenu()
     }
 
     @objc private func clearBluetoothDevice() {
@@ -758,6 +765,29 @@ final class PublicGuardController {
             targetName: settings.bluetoothTargetName
         )
         rebuildMenu()
+    }
+
+    private func confirmLearnedBluetoothDevice(_ device: LearnedBluetoothDevice) {
+        let alert = NSAlert()
+        alert.messageText = "Use this Bluetooth device?"
+        alert.informativeText = """
+        PublicGuard found "\(device.name)" with identifier \(device.identifier.uuidString.prefix(8)).
+
+        This is not Bluetooth pairing. PublicGuard passively watches for this BLE identifier, so only confirm after keeping your phone or accessory closest to the Mac during the scan.
+        """
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Use This Device")
+        alert.addButton(withTitle: "Cancel")
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            storeLearnedBluetoothDevice(device)
+        } else {
+            bluetoothMonitor.start(
+                targetIdentifier: settings.bluetoothTargetIdentifier,
+                targetName: settings.bluetoothTargetName
+            )
+            rebuildMenu()
+        }
     }
 
     private func handleTrigger(_ trigger: GuardTrigger) {

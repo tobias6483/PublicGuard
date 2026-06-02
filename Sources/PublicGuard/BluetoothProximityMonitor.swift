@@ -36,7 +36,7 @@ struct BluetoothProximityMonitorSnapshot: Equatable {
 }
 
 final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
-    var onDeviceLearned: ((LearnedBluetoothDevice) -> Void)?
+    var onLearningCandidateFound: ((LearnedBluetoothDevice) -> Void)?
     var onDeviceOutOfRange: ((LearnedBluetoothDevice) -> Void)?
 
     private var lostAfterSeconds: TimeInterval
@@ -195,11 +195,7 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         if let learningEndsAt, Date() >= learningEndsAt {
             self.learningEndsAt = nil
             if let candidate = bestLearningCandidate {
-                target = candidate.device
-                lastSeenTargetAt = Date()
-                hasSeenTarget = true
-                hasReportedCurrentLoss = false
-                onDeviceLearned?(candidate.device)
+                onLearningCandidateFound?(candidate.device)
             }
             bestLearningCandidate = nil
             updateScanState()

@@ -19,9 +19,12 @@ separate notes for iPhone and non-phone BLE accessory behavior when possible.
 1. Open `dist/PublicGuard.app`.
 2. Grant Bluetooth permission when prompted.
 3. Keep the target device near the Mac.
-4. Choose `Settings > Bluetooth Proximity > Learn Nearby Device`.
-5. Confirm `bluetooth_device_learned` is written to the active event log.
-6. Confirm the menu shows the learned device name.
+4. Choose `Settings > Bluetooth Proximity > Scan and Confirm Nearby Device`.
+5. Confirm PublicGuard shows a candidate name and identifier prefix before saving.
+6. Cancel once and confirm the previous learned device remains unchanged.
+7. Scan again with the intended target closest to the Mac, then choose `Use This Device`.
+8. Confirm `bluetooth_device_learned` is written to the active event log.
+9. Confirm the menu shows the learned device name and identifier prefix.
 
 ## Out-Of-Range Flow
 
@@ -46,10 +49,11 @@ Record false positives, missed events, and approximate time to response for each
 ## Pass Criteria
 
 - The learned device is recorded locally.
+- The app does not save a newly scanned candidate until the user confirms it.
 - PublicGuard only triggers after the learned device has been seen at least once in the current session.
 - The selected out-of-range timeout changes the approximate response timing.
 - The event log does not record Bluetooth advertisements from unrelated devices.
 
 ## Known Limits
 
-iPhones and some accessories may not advertise a stable BLE identity in every state. If a phone is unreliable, test a common BLE accessory as a comparison point and keep the feature marked experimental until behavior is validated across devices.
+This is not Bluetooth pairing. PublicGuard watches for the confirmed CoreBluetooth identifier that macOS exposes to this app. iPhones and some accessories may not advertise a stable BLE identity in every state. If a phone is unreliable, test a common BLE accessory as a comparison point and keep the feature marked experimental until behavior is validated across devices.
