@@ -245,7 +245,8 @@ enum GuardEvent {
         eventLogDetail: GuardSettings.EventLogDetail,
         eventLogStorage: GuardSettings.EventLogStorage,
         bluetoothProximityTimeoutSeconds: Int,
-        ignoreWiFiDisconnects: Bool
+        ignoreWiFiDisconnects: Bool,
+        triggerCooldownSeconds: Int
     )
     case launchAtLoginChangeFailed(error: String)
     case triggerIgnored(name: String)
@@ -319,12 +320,12 @@ enum GuardEvent {
             case .minimal:
                 "silent_response_triggered"
             }
-        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects):
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects, triggerCooldownSeconds):
             switch detail {
             case .standard:
-                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects)"
+                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
             case .minimal:
-                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" ignore_wifi_disconnects=\(ignoreWiFiDisconnects)"
+                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
             }
         case let .launchAtLoginChangeFailed(error):
             switch detail {

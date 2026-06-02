@@ -23,6 +23,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertNil(settings.bluetoothTargetName)
         XCTAssertEqual(settings.bluetoothProximityTimeoutSeconds, 30)
         XCTAssertFalse(settings.ignoreWiFiDisconnects)
+        XCTAssertEqual(settings.triggerCooldownSeconds, 30)
     }
 
     func testSaveAndLoadRoundTripsSettings() {
@@ -43,7 +44,8 @@ final class SettingsStoreTests: XCTestCase {
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
             bluetoothTargetName: "Tobias iPhone",
             bluetoothProximityTimeoutSeconds: 60,
-            ignoreWiFiDisconnects: true
+            ignoreWiFiDisconnects: true,
+            triggerCooldownSeconds: 120
         )
 
         store.save(expected)
@@ -63,6 +65,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
         XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 60)
         XCTAssertTrue(store.load().ignoreWiFiDisconnects)
+        XCTAssertEqual(store.load().triggerCooldownSeconds, 120)
     }
 
     func testBluetoothTargetCanBeCleared() {
@@ -111,6 +114,14 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 30)
+    }
+
+    func testInvalidTriggerCooldownFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set(999, forKey: "triggerCooldownSeconds")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().triggerCooldownSeconds, 30)
     }
 
     func testZeroGracePeriodIsValid() {
@@ -380,6 +391,23 @@ final class SettingsStoreTests: XCTestCase {
         ))
 
         XCTAssertTrue(store.load().ignoreWiFiDisconnects)
+    }
+
+    func testTriggerCooldownCanBeChanged() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            triggerCooldownSeconds: 0
+        ))
+
+        XCTAssertEqual(store.load().triggerCooldownSeconds, 0)
     }
 
     func testBundledAlarmSoundsDeclareResources() {

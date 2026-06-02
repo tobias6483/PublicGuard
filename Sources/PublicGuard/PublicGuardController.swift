@@ -20,6 +20,7 @@ final class PublicGuardController {
     private var settings: GuardSettings
     private var statusItem: NSStatusItem?
     private var graceTask: Task<Void, Never>?
+    private var lastAcceptedTriggerAt: Date?
 
     init() {
         settings = settingsStore.load()
@@ -182,6 +183,20 @@ final class PublicGuardController {
         gracePeriod.submenu = graceSubmenu
         submenu.addItem(gracePeriod)
 
+        let triggerCooldown = NSMenuItem(title: "Trigger Cooldown", action: nil, keyEquivalent: "")
+        let triggerCooldownSubmenu = NSMenu()
+
+        for seconds in SettingsStore.validTriggerCooldowns {
+            let title = seconds == 0 ? "No Cooldown" : Self.cooldownTitle(seconds: seconds)
+            let cooldownItem = NSMenuItem(title: title, action: #selector(setTriggerCooldown(_:)), keyEquivalent: "", target: self)
+            cooldownItem.representedObject = seconds
+            cooldownItem.state = settings.triggerCooldownSeconds == seconds ? .on : .off
+            triggerCooldownSubmenu.addItem(cooldownItem)
+        }
+
+        triggerCooldown.submenu = triggerCooldownSubmenu
+        submenu.addItem(triggerCooldown)
+
         let idleTimeout = NSMenuItem(title: "Idle Timeout", action: nil, keyEquivalent: "")
         let idleTimeoutSubmenu = NSMenu()
 
@@ -322,6 +337,10 @@ final class PublicGuardController {
             title: "Wi-Fi disconnect policy: \(settings.ignoreWiFiDisconnects ? "ignored" : "triggers")"
         ))
 
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Trigger cooldown: \(Self.cooldownDiagnosticsTitle(lastAcceptedAt: lastAcceptedTriggerAt, cooldownSeconds: settings.triggerCooldownSeconds))"
+        ))
+
         let bluetoothSnapshot = bluetoothMonitor.snapshot()
         submenu.addItem(Self.disabledMenuItem(
             title: "Bluetooth device: \(Self.bluetoothDeviceTitle(bluetoothSnapshot.learnedDevice))"
@@ -420,6 +439,8 @@ final class PublicGuardController {
     @objc private func arm() {
         state.arm()
         idleMonitor.resetBaseline()
+        bluetoothMonitor.resetArmedBaseline()
+        lastAcceptedTriggerAt = nil
         writeEvent(.armed)
         NotificationCenter.default.post(name: .guardStateDidChange, object: nil)
         rebuildMenu()
@@ -489,6 +510,12 @@ final class PublicGuardController {
     @objc private func setGracePeriod(_ sender: NSMenuItem) {
         guard let seconds = sender.representedObject as? Int else { return }
         settings.gracePeriodSeconds = seconds
+        persistSettings()
+    }
+
+    @objc private func setTriggerCooldown(_ sender: NSMenuItem) {
+        guard let seconds = sender.representedObject as? Int else { return }
+        settings.triggerCooldownSeconds = seconds
         persistSettings()
     }
 
@@ -646,7 +673,8 @@ final class PublicGuardController {
             eventLogDetail: settings.eventLogDetail,
             eventLogStorage: settings.eventLogStorage,
             bluetoothProximityTimeoutSeconds: settings.bluetoothProximityTimeoutSeconds,
-            ignoreWiFiDisconnects: settings.ignoreWiFiDisconnects
+            ignoreWiFiDisconnects: settings.ignoreWiFiDisconnects,
+            triggerCooldownSeconds: settings.triggerCooldownSeconds
         ))
         rebuildMenu()
     }
@@ -673,6 +701,7 @@ final class PublicGuardController {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.chargerDisconnect.rawValue))
                 return
             }
+            guard acceptTrigger(.chargerDisconnect) else { return }
             writeEvent(.chargerDisconnected)
             triggerAlarmAfterGracePeriod(reason: "Power adapter disconnected")
         case let .networkChanged(change):
@@ -684,6 +713,7 @@ final class PublicGuardController {
                 writeEvent(.triggerIgnored(name: "\(GuardSettings.TriggerKind.networkChange.rawValue).disconnect"))
                 return
             }
+            guard acceptTrigger(.networkChange) else { return }
             writeEvent(.networkChanged(previous: change.previousSSID, current: change.currentSSID, kind: change.kind))
             triggerAlarmAfterGracePeriod(reason: "Wi-Fi \(change.kind.title.lowercased())")
         case let .bluetoothDeviceOutOfRange(name):
@@ -691,6 +721,7 @@ final class PublicGuardController {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.bluetoothProximity.rawValue))
                 return
             }
+            guard acceptTrigger(.bluetoothProximity) else { return }
             writeEvent(.bluetoothDeviceOutOfRange(name: name))
             triggerAlarmAfterGracePeriod(reason: "Bluetooth device out of range: \(name)")
         case let .idleTimeout(seconds):
@@ -698,6 +729,7 @@ final class PublicGuardController {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.idleTimeout.rawValue))
                 return
             }
+            guard acceptTrigger(.idleTimeout) else { return }
             writeEvent(.idleTimeout(seconds: seconds))
             triggerAlarmAfterGracePeriod(reason: "Mac idle for \(Self.idleTimeoutTitle(seconds: seconds))")
         case .systemWillSleep:
@@ -706,15 +738,36 @@ final class PublicGuardController {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
                 return
             }
+            guard acceptTrigger(.wakeFromSleep) else { return }
             triggerConfiguredResponse(reason: "Mac is going to sleep while armed")
         case .systemDidWake:
             guard settings.isTriggerEnabled(.wakeFromSleep) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
                 return
             }
+            guard acceptTrigger(.wakeFromSleep) else { return }
             writeEvent(.systemDidWake)
             triggerAlarmAfterGracePeriod(reason: "Mac woke while armed")
         }
+    }
+
+    private func acceptTrigger(_ kind: GuardSettings.TriggerKind) -> Bool {
+        guard settings.triggerCooldownSeconds > 0 else {
+            lastAcceptedTriggerAt = Date()
+            return true
+        }
+
+        let now = Date()
+        if let lastAcceptedTriggerAt,
+           now.timeIntervalSince(lastAcceptedTriggerAt) < TimeInterval(settings.triggerCooldownSeconds)
+        {
+            writeEvent(.triggerIgnored(name: "\(kind.rawValue).cooldown"))
+            rebuildMenu()
+            return false
+        }
+
+        lastAcceptedTriggerAt = now
+        return true
     }
 
     private func triggerAlarmAfterGracePeriod(reason: String, bypassArmedCheck: Bool = false) {
@@ -807,6 +860,28 @@ private extension PublicGuardController {
 
         let minutes = seconds / 60
         return minutes == 1 ? "1 minute" : "\(minutes) minutes"
+    }
+
+    static func cooldownTitle(seconds: Int) -> String {
+        if seconds < 60 {
+            return "\(seconds) seconds"
+        }
+
+        let minutes = seconds / 60
+        return minutes == 1 ? "1 minute" : "\(minutes) minutes"
+    }
+
+    static func cooldownDiagnosticsTitle(lastAcceptedAt: Date?, cooldownSeconds: Int) -> String {
+        guard cooldownSeconds > 0 else { return "disabled" }
+        guard let lastAcceptedAt else { return "\(cooldownTitle(seconds: cooldownSeconds)), ready" }
+
+        let elapsed = Date().timeIntervalSince(lastAcceptedAt)
+        let remaining = TimeInterval(cooldownSeconds) - elapsed
+        if remaining <= 0 {
+            return "\(cooldownTitle(seconds: cooldownSeconds)), ready"
+        }
+
+        return "\(cooldownTitle(seconds: cooldownSeconds)), \(durationTitle(seconds: remaining)) remaining"
     }
 
     static func bluetoothDeviceTitle(_ device: LearnedBluetoothDevice?) -> String {
