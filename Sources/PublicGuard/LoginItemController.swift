@@ -6,6 +6,10 @@ struct LoginItemController {
         Bundle.main.bundleURL.pathExtension == "app"
     }
 
+    var isLaunchAtLoginEnabled: Bool {
+        SMAppService.mainApp.status == .enabled
+    }
+
     func setLaunchAtLoginEnabled(_ enabled: Bool) throws {
         guard canManageLaunchAtLogin else {
             throw LoginItemError.requiresAppBundle
