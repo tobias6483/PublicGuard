@@ -61,3 +61,4 @@
 - Updated GitHub Actions checkout and artifact upload steps to Node.js 24-compatible major versions.
 - Added event log retention controls with 7 day, 30 day, forever, and manual prune options.
 - Hardened event log formatting by escaping quoted values before writing user-controlled names and reasons.
+- Prevented response mode and preset changes from silencing an already active alarm without authenticated stop/disarm.

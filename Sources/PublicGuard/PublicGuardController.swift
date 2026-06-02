@@ -633,9 +633,6 @@ final class PublicGuardController {
         if settings.notificationsEnabled {
             notifications.requestAuthorization()
         }
-        if settings.responseMode == .silent {
-            alarm.stop()
-        }
         persistSettings()
     }
 
@@ -696,9 +693,6 @@ final class PublicGuardController {
         }
 
         settings.responseMode = mode
-        if mode == .silent {
-            alarm.stop()
-        }
         persistSettings()
     }
 
