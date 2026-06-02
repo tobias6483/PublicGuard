@@ -40,6 +40,7 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | Silent mode | Implemented | Silent response logs, notifies if enabled, and locks if enabled without alarm audio. |
 | Camera snapshot | Privacy review designed, not implemented | Out of scope for v0.1. `docs/camera-snapshot-privacy-review.md` defines the opt-in, local-only, retention, logging, testing, and permission-copy gate required before implementation. |
 | Panic/grace delay | Implemented | Configurable 0, 5, 10, 15, or 30 second grace period. |
+| Per-trigger grace tuning | Implemented | Individual triggers can use the default grace period or override it up to 2 minutes. |
 | Public session mode: café | Implemented | Aggressive loud mode with all triggers and maximum app playback volume. |
 | Public session mode: library | Implemented | Silent mode with all triggers and longer grace/idle timing. |
 | Public session mode: school | Implemented | Loud mode with moderate grace/idle timing and all triggers. |

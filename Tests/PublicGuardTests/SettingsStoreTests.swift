@@ -24,6 +24,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.bluetoothProximityTimeoutSeconds, 30)
         XCTAssertFalse(settings.ignoreWiFiDisconnects)
         XCTAssertEqual(settings.triggerCooldownSeconds, 30)
+        XCTAssertEqual(settings.triggerGracePeriodOverrides, [:])
     }
 
     func testSaveAndLoadRoundTripsSettings() {
@@ -45,7 +46,8 @@ final class SettingsStoreTests: XCTestCase {
             bluetoothTargetName: "Tobias iPhone",
             bluetoothProximityTimeoutSeconds: 60,
             ignoreWiFiDisconnects: true,
-            triggerCooldownSeconds: 120
+            triggerCooldownSeconds: 120,
+            triggerGracePeriodOverrides: [.networkChange: 30, .bluetoothProximity: 60]
         )
 
         store.save(expected)
@@ -66,6 +68,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 60)
         XCTAssertTrue(store.load().ignoreWiFiDisconnects)
         XCTAssertEqual(store.load().triggerCooldownSeconds, 120)
+        XCTAssertEqual(store.load().triggerGracePeriodOverrides, [.networkChange: 30, .bluetoothProximity: 60])
     }
 
     func testBluetoothTargetCanBeCleared() {
@@ -156,6 +159,33 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().triggerCooldownSeconds, 30)
+    }
+
+    func testInvalidTriggerGraceOverridesAreDropped() {
+        let defaults = makeDefaults()
+        defaults.set([
+            "networkChange": 60,
+            "notATrigger": 30,
+            "idleTimeout": 999
+        ], forKey: "triggerGracePeriodOverrides")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().triggerGracePeriodOverrides, [.networkChange: 60])
+    }
+
+    func testTriggerGracePeriodUsesOverrideWhenPresent() {
+        let settings = GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            triggerGracePeriodOverrides: [.networkChange: 60]
+        )
+
+        XCTAssertEqual(settings.gracePeriodSeconds(for: .networkChange), 60)
+        XCTAssertEqual(settings.gracePeriodSeconds(for: .chargerDisconnect), 5)
     }
 
     func testZeroGracePeriodIsValid() {

@@ -21,6 +21,7 @@ Implemented:
 - Idle timeout trigger
 - Visible menu bar icon and active preset/status summary
 - Configurable grace period before response
+- Per-trigger grace period overrides for tuning noisy signals
 - Loud alarm and silent response modes
 - Configurable alarm sound with bundled local choices and Apple Alarm default
 - Configurable alarm playback volume
@@ -159,6 +160,10 @@ Presets keep the selected alarm sound and learned Bluetooth device.
 ## Idle Timeout
 
 `Settings > Idle Timeout` controls how long the Mac can go without local keyboard or pointer activity before PublicGuard responds while armed. It can be disabled, or set from 1 minute up to 1 hour for quieter sessions. It uses macOS' local HID idle timer and does not record keystrokes, pointer movement, app usage, or content.
+
+## Trigger Tuning
+
+`Settings > Trigger Grace Overrides` can override the global grace period per trigger. This is useful when a noisy signal, such as Wi-Fi or Bluetooth proximity, should wait longer before starting the configured response while charger or sleep/wake behavior stays fast.
 
 ## Launch at Login
 

@@ -12,6 +12,7 @@
 - Configurable idle timeout with disabled and longer-session options
 - Visible menu bar icon and active preset/status summary
 - Configurable grace period before response
+- Per-trigger grace period overrides for trigger tuning
 - Loud local alarm
 - Configurable alarm sound with bundled local choices
 - Configurable alarm playback volume

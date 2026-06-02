@@ -246,7 +246,8 @@ enum GuardEvent {
         eventLogStorage: GuardSettings.EventLogStorage,
         bluetoothProximityTimeoutSeconds: Int,
         ignoreWiFiDisconnects: Bool,
-        triggerCooldownSeconds: Int
+        triggerCooldownSeconds: Int,
+        triggerGracePeriodOverrides: [GuardSettings.TriggerKind: Int]
     )
     case launchAtLoginChangeFailed(error: String)
     case triggerIgnored(name: String)
@@ -324,10 +325,10 @@ enum GuardEvent {
             case .minimal:
                 "silent_response_triggered"
             }
-        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects, triggerCooldownSeconds):
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects, triggerCooldownSeconds, triggerGracePeriodOverrides):
             switch detail {
             case .standard:
-                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
+                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds) trigger_grace_overrides=\"\(Self.triggerGraceOverridesMessage(triggerGracePeriodOverrides))\""
             case .minimal:
                 "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
             }
@@ -348,5 +349,14 @@ enum GuardEvent {
         case .logCleared:
             "log_cleared"
         }
+    }
+
+    private static func triggerGraceOverridesMessage(_ overrides: [GuardSettings.TriggerKind: Int]) -> String {
+        guard !overrides.isEmpty else { return "none" }
+
+        return overrides
+            .sorted { $0.key.rawValue < $1.key.rawValue }
+            .map { "\($0.key.rawValue)=\($0.value)" }
+            .joined(separator: ",")
     }
 }

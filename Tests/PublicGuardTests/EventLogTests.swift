@@ -171,10 +171,11 @@ final class EventLogTests: XCTestCase {
             eventLogStorage: .encrypted,
             bluetoothProximityTimeoutSeconds: 60,
             ignoreWiFiDisconnects: true,
-            triggerCooldownSeconds: 120
+            triggerCooldownSeconds: 120,
+            triggerGracePeriodOverrides: [.networkChange: 60]
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\" bluetooth_proximity_timeout_seconds=60 ignore_wifi_disconnects=true trigger_cooldown_seconds=120")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\" bluetooth_proximity_timeout_seconds=60 ignore_wifi_disconnects=true trigger_cooldown_seconds=120 trigger_grace_overrides=\"networkChange=60\"")
     }
 
     func testLaunchAtLoginChangeFailedMessageContainsError() {
