@@ -14,7 +14,7 @@
 - Loud local alarm
 - Configurable alarm sound with bundled local choices
 - Configurable alarm playback volume
-- Café and Library session presets
+- Café, Library, School, and Office session presets
 - Silent response mode
 - Per-trigger enable/disable settings
 - Notification enable/disable setting
@@ -35,11 +35,13 @@
 - Validate Bluetooth proximity behavior with iPhone and common BLE accessories
 - Validate immediate lid-close/sleep response and wake fallback behavior against the research note
 - Tune bundled alarm sound files after hardware testing
+- Design opt-in privacy review for any future camera snapshot action
 
 ## Later
 
 - Apple Watch support
 - Shortcuts integration
 - Encrypted event logs
+- Opt-in camera snapshot action with explicit local-only storage controls
 - Signed app release pipeline
 - Homebrew cask exploration

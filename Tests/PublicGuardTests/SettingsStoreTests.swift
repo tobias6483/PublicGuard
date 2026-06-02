@@ -199,11 +199,47 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
     }
 
+    func testSchoolPresetAppliesCampusSettings() {
+        let settings = customSettings().applyingPreset(.school)
+
+        XCTAssertEqual(settings.gracePeriodSeconds, 10)
+        XCTAssertEqual(settings.idleTimeoutSeconds, 600)
+        XCTAssertEqual(settings.responseMode, .loudAlarm)
+        XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
+        XCTAssertTrue(settings.notificationsEnabled)
+        XCTAssertEqual(settings.alarmSound, .ping)
+        XCTAssertEqual(settings.alarmVolume, .normal)
+        XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertTrue(settings.launchAtLoginEnabled)
+        XCTAssertEqual(settings.eventLogDetail, .minimal)
+        XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
+        XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
+    }
+
+    func testOfficePresetDisablesNetworkChangeForRoamingNetworks() {
+        let settings = customSettings().applyingPreset(.office)
+
+        XCTAssertEqual(settings.gracePeriodSeconds, 30)
+        XCTAssertEqual(settings.idleTimeoutSeconds, 600)
+        XCTAssertEqual(settings.responseMode, .silent)
+        XCTAssertEqual(settings.enabledTriggers, [.chargerDisconnect, .wakeFromSleep, .bluetoothProximity, .idleTimeout])
+        XCTAssertTrue(settings.notificationsEnabled)
+        XCTAssertEqual(settings.alarmSound, .ping)
+        XCTAssertEqual(settings.alarmVolume, .normal)
+        XCTAssertTrue(settings.lockScreenEnabled)
+        XCTAssertTrue(settings.launchAtLoginEnabled)
+        XCTAssertEqual(settings.eventLogDetail, .minimal)
+        XCTAssertEqual(settings.bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
+        XCTAssertEqual(settings.bluetoothTargetName, "Tobias iPhone")
+    }
+
     func testPresetMatchesOnlyWhenPresetControlledSettingsMatch() {
         var settings = customSettings().applyingPreset(.cafe)
 
         XCTAssertTrue(GuardSettings.SessionPreset.cafe.matches(settings))
         XCTAssertFalse(GuardSettings.SessionPreset.library.matches(settings))
+        XCTAssertFalse(GuardSettings.SessionPreset.school.matches(settings))
+        XCTAssertFalse(GuardSettings.SessionPreset.office.matches(settings))
 
         settings.alarmSound = .basso
         settings.bluetoothTargetName = nil
@@ -211,6 +247,13 @@ final class SettingsStoreTests: XCTestCase {
 
         settings.enabledTriggers.remove(.idleTimeout)
         XCTAssertFalse(GuardSettings.SessionPreset.cafe.matches(settings))
+    }
+
+    func testOfficePresetMatchesWithNetworkChangeDisabled() {
+        let settings = customSettings().applyingPreset(.office)
+
+        XCTAssertTrue(GuardSettings.SessionPreset.office.matches(settings))
+        XCTAssertFalse(settings.enabledTriggers.contains(.networkChange))
     }
 
     func testLockScreenCanBeDisabled() {
