@@ -1,5 +1,10 @@
 # Release Notes
 
+Use [v0.1-release-checklist.md](v0.1-release-checklist.md) before tagging or
+publishing the first beta release. It defines the local verification commands,
+manual hardware QA gate, README media prep, artifact dry run, and release notes
+template.
+
 ## Local App Bundle
 
 Build a local unsigned app bundle:
