@@ -146,6 +146,18 @@ final class EventLogTests: XCTestCase {
         XCTAssertEqual(message, "idle_timeout seconds=300")
     }
 
+    func testSystemDidWakeMessageContainsSleepGap() {
+        let message = GuardEvent.systemDidWake(sleptSeconds: 42).message
+
+        XCTAssertEqual(message, "system_did_wake slept_seconds=42")
+    }
+
+    func testSystemDidWakeUnknownSleepGapMessage() {
+        let message = GuardEvent.systemDidWake(sleptSeconds: nil).message
+
+        XCTAssertEqual(message, "system_did_wake slept_seconds=\"unknown\"")
+    }
+
     func testSettingsChangedMessageContainsValues() {
         let message = GuardEvent.settingsChanged(
             gracePeriodSeconds: 10,

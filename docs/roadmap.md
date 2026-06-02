@@ -24,6 +24,7 @@
 - Minimal event log detail mode
 - Optional encrypted event log storage
 - Recent event preview in the menu bar
+- Recent trigger diagnostics with sleep/wake observation counters
 - Authenticated alarm stop with local audit logging
 - Event log open and clear actions
 - Local unsigned app bundle script
@@ -35,7 +36,7 @@
 ## Next
 
 - Complete manual hardware QA and record results
-- Run the lid-close QA checklist on Apple silicon MacBook hardware
+- Run the lid-close QA checklist on Apple silicon MacBook hardware and record the observed sleep/wake counts plus sleep gap
 - Validate Bluetooth proximity behavior with iPhone and common BLE accessories using `docs/bluetooth-proximity-qa.md`
 - Validate immediate lid-close/sleep response and wake fallback behavior against the research note
 - Tune bundled alarm sound files after hardware testing

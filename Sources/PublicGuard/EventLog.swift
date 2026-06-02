@@ -229,7 +229,7 @@ enum GuardEvent {
     case bluetoothDeviceOutOfRange(name: String)
     case idleTimeout(seconds: Int)
     case systemWillSleep
-    case systemDidWake
+    case systemDidWake(sleptSeconds: Int?)
     case gracePeriodStarted(reason: String, seconds: Duration)
     case alarmTriggered(reason: String)
     case alarmStopped
@@ -295,8 +295,12 @@ enum GuardEvent {
             "idle_timeout seconds=\(seconds)"
         case .systemWillSleep:
             "system_will_sleep"
-        case .systemDidWake:
-            "system_did_wake"
+        case let .systemDidWake(sleptSeconds):
+            if let sleptSeconds {
+                "system_did_wake slept_seconds=\(sleptSeconds)"
+            } else {
+                "system_did_wake slept_seconds=\"unknown\""
+            }
         case let .gracePeriodStarted(reason, seconds):
             switch detail {
             case .standard:

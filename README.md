@@ -39,12 +39,13 @@ Implemented:
 - Optional lock screen action
 - Local-only event log
 - Recent event preview from the menu bar
+- Recent trigger diagnostics for power, Wi-Fi, Bluetooth, idle, sleep/wake, and cooldown state
 - Event log open and clear actions
 - GitHub Actions unsigned app artifact workflow with bundle validation and SHA-256 checksum
 
 Planned:
 
-- Manual lid-close hardware QA and follow-up sleep/wake tuning
+- Manual lid-close hardware QA using the sleep/wake observation counters and sleep gap diagnostics
 - Camera snapshot remains out of scope until the privacy review gate in [docs/camera-snapshot-privacy-review.md](docs/camera-snapshot-privacy-review.md) is satisfied
 - Shortcuts and Apple Watch support
 
@@ -167,7 +168,7 @@ The setting is only active when running `dist/PublicGuard.app`; `swift run Publi
 
 ## Current Technical Notes
 
-When PublicGuard is armed and macOS reports that the system is about to sleep, PublicGuard immediately starts the configured response before suspension when the OS gives the app time to run. It also reacts after wake while armed. macOS can still suspend regular app execution quickly when a MacBook lid closes, so alarm playback is not guaranteed to continue while the lid remains closed and the machine is actually asleep. Better lid-close behavior depends on hardware QA; see [docs/lid-close-research.md](docs/lid-close-research.md) and [docs/lid-close-qa.md](docs/lid-close-qa.md).
+When PublicGuard is armed and macOS reports that the system is about to sleep, PublicGuard immediately starts the configured response before suspension when the OS gives the app time to run. It also reacts after wake while armed. Wake log entries include the matched sleep gap when PublicGuard observed both notifications, and `Recent Trigger Status` shows sleep/wake counts for QA. macOS can still suspend regular app execution quickly when a MacBook lid closes, so alarm playback is not guaranteed to continue while the lid remains closed and the machine is actually asleep. Better lid-close behavior depends on hardware QA; see [docs/lid-close-research.md](docs/lid-close-research.md) and [docs/lid-close-qa.md](docs/lid-close-qa.md).
 
 ## Architecture
 

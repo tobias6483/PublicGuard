@@ -25,6 +25,8 @@ Record these details with every run:
 - PublicGuard build source: `swift run PublicGuard` or `dist/PublicGuard.app`.
 - PublicGuard settings: response mode, grace period, alarm volume, notifications,
   lock screen, and enabled triggers.
+- `Recent Trigger Status` sleep/wake rows before the test: last sleep, last wake,
+  sleep gap, and observation counts.
 
 Use the app bundle for the main pass:
 
@@ -48,9 +50,12 @@ Expected result:
 
 - `armed`
 - `system_will_sleep`
-- `system_did_wake`
+- `system_did_wake slept_seconds=...`
 - `grace_period_started ... reason="Mac woke while armed"`
 - Loud or silent response entries, depending on settings.
+
+Also confirm `Recent Trigger Status` increments the sleep/wake observation counts
+and shows a sleep gap matching the rough sleep duration.
 
 ## Lid Close/Reopen
 
@@ -64,8 +69,11 @@ Expected result:
 Expected result:
 
 - `system_will_sleep` may be logged before the Mac sleeps.
-- `system_did_wake` should be logged after reopening if macOS delivers the wake
-  event to PublicGuard.
+- `system_did_wake slept_seconds=...` should be logged after reopening if macOS
+  delivers the wake event to PublicGuard and PublicGuard observed the preceding
+  sleep notification.
+- `system_did_wake slept_seconds="unknown"` means PublicGuard saw wake without a
+  matched sleep notification in the current process lifetime.
 - PublicGuard should start the configured response after wake while armed.
 
 Important non-goal:
@@ -95,6 +103,8 @@ Expected result:
 Pass:
 
 - PublicGuard logs sleep/wake events reliably enough to document.
+- `Recent Trigger Status` reflects the observed sleep/wake counts and matched
+  sleep gap.
 - PublicGuard reacts after wake while armed.
 - README language remains honest about closed-lid sleep limitations.
 

@@ -51,9 +51,9 @@ final class PublicGuardController {
             }
         }
 
-        sleepWakeMonitor.onDidWake = { [weak self] in
+        sleepWakeMonitor.onDidWake = { [weak self] sleptSeconds in
             Task { @MainActor in
-                self?.handleTrigger(.systemDidWake)
+                self?.handleTrigger(.systemDidWake(sleptSeconds: sleptSeconds.map { Int($0.rounded()) }))
             }
         }
 
@@ -372,6 +372,12 @@ final class PublicGuardController {
         ))
         submenu.addItem(Self.disabledMenuItem(
             title: "Wake: \(Self.relativeDateTitle(sleepWakeSnapshot.lastDidWakeAt))"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Sleep gap: \(Self.sleepGapTitle(seconds: sleepWakeSnapshot.lastSleepDurationSeconds))"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Sleep observations: \(sleepWakeSnapshot.observedSleepCount) sleep / \(sleepWakeSnapshot.observedWakeCount) wake"
         ))
 
         item.submenu = submenu
@@ -740,13 +746,13 @@ final class PublicGuardController {
             }
             guard acceptTrigger(.wakeFromSleep) else { return }
             triggerConfiguredResponse(reason: "Mac is going to sleep while armed")
-        case .systemDidWake:
+        case let .systemDidWake(sleptSeconds):
+            writeEvent(.systemDidWake(sleptSeconds: sleptSeconds))
             guard settings.isTriggerEnabled(.wakeFromSleep) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.wakeFromSleep.rawValue))
                 return
             }
             guard acceptTrigger(.wakeFromSleep) else { return }
-            writeEvent(.systemDidWake)
             triggerAlarmAfterGracePeriod(reason: "Mac woke while armed")
         }
     }
@@ -903,6 +909,12 @@ private extension PublicGuardController {
         guard let date else { return "Never observed" }
 
         return "\(durationTitle(seconds: Date().timeIntervalSince(date))) ago at \(timeFormatter.string(from: date))"
+    }
+
+    static func sleepGapTitle(seconds: TimeInterval?) -> String {
+        guard let seconds else { return "No matched sleep/wake yet" }
+
+        return durationTitle(seconds: seconds)
     }
 
     static func durationTitle(seconds: TimeInterval) -> String {
