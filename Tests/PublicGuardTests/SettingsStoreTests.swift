@@ -8,7 +8,7 @@ final class SettingsStoreTests: XCTestCase {
 
         let settings = store.load()
 
-        XCTAssertEqual(settings.gracePeriodSeconds, 5)
+        XCTAssertEqual(settings.gracePeriodSeconds, 0)
         XCTAssertEqual(settings.idleTimeoutSeconds, 300)
         XCTAssertEqual(settings.responseMode, .loudAlarm)
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
@@ -103,7 +103,7 @@ final class SettingsStoreTests: XCTestCase {
         defaults.set(999, forKey: "gracePeriodSeconds")
         let store = SettingsStore(defaults: defaults)
 
-        XCTAssertEqual(store.load().gracePeriodSeconds, 5)
+        XCTAssertEqual(store.load().gracePeriodSeconds, 0)
     }
 
     func testInvalidIdleTimeoutFallsBackToDefault() {
@@ -207,6 +207,25 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(store.load().gracePeriodSeconds, 0)
     }
 
+    func testOneSecondGracePeriodIsValid() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 1,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            triggerGracePeriodOverrides: [.networkChange: 1]
+        ))
+
+        let settings = store.load()
+        XCTAssertEqual(settings.gracePeriodSeconds, 1)
+        XCTAssertEqual(settings.triggerGracePeriodOverrides, [.networkChange: 1])
+    }
+
     func testEmptyStoredTriggerListFallsBackToAllTriggers() {
         let defaults = makeDefaults()
         defaults.set([String](), forKey: "enabledTriggers")
@@ -296,7 +315,7 @@ final class SettingsStoreTests: XCTestCase {
     func testCafePresetAppliesFastLoudPublicSettings() {
         let settings = customSettings().applyingPreset(.cafe)
 
-        XCTAssertEqual(settings.gracePeriodSeconds, 5)
+        XCTAssertEqual(settings.gracePeriodSeconds, 0)
         XCTAssertEqual(settings.idleTimeoutSeconds, 300)
         XCTAssertEqual(settings.responseMode, .loudAlarm)
         XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))

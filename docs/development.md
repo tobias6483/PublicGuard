@@ -71,7 +71,7 @@ Issue routing is automated by `.github/workflows/issue-triage.yml`. See
 1. Launch PublicGuard.
 2. Confirm it appears in the menu bar with the PublicGuard icon and label.
 3. Open `Recent Trigger Status` and confirm it shows current power, Wi-Fi, Bluetooth, idle, sleep, wake, sleep gap, observation count, and cooldown diagnostics.
-4. Apply `Settings > Presets > Café` and confirm the Café preset checkmark, `Settings (Café)` title, grace period, loud mode, maximum alarm volume, notifications, lock screen, and trigger checkmarks update.
+4. Apply `Settings > Presets > Café` and confirm the Café preset checkmark, `Settings (Café)` title, no-delay grace period, loud mode, maximum alarm volume, notifications, lock screen, and trigger checkmarks update.
 5. Apply `Settings > Presets > Library` and confirm the Library preset checkmark, `Settings (Library)` title, 15 second grace period, silent mode, normal alarm volume, notifications, lock screen, and trigger checkmarks update.
 6. Apply `Settings > Presets > School` and confirm the School preset checkmark, `Settings (School)` title, 10 second grace period, loud mode, normal alarm volume, notifications, lock screen, and trigger checkmarks update.
 7. Apply `Settings > Presets > Office` and confirm the Office preset checkmark, `Settings (Office)` title, 30 second grace period, silent mode, normal alarm volume, notifications, lock screen, and Wi-Fi Change unchecked.
@@ -104,7 +104,7 @@ Issue routing is automated by `.github/workflows/issue-triage.yml`. See
 34. With `Settings > Trigger Cooldown` set to 30 seconds or more, trigger a second enabled condition during the cooldown and confirm it is logged as `trigger_ignored name="<trigger>.cooldown"`.
 35. Open `Recent Trigger Status` and confirm the trigger cooldown row shows the remaining cooldown or ready state.
 36. Set `Settings > Trigger Grace Overrides > Wi-Fi Change` to `30 seconds`, change Wi-Fi networks, and confirm the `grace_period_started` entry uses `seconds=30`.
-37. Change Wi-Fi networks and confirm `network_changed kind="ssidChanged"` is logged when that trigger is enabled.
+37. Change Wi-Fi networks, for example from a normal network to a mobile hotspot, and confirm `network_changed kind="ssidChanged"` is logged when that trigger is enabled.
 38. Disconnect Wi-Fi and confirm `network_changed kind="disconnected"` is logged when `Settings > Ignore Wi-Fi Disconnects` is off.
 39. Turn `Settings > Ignore Wi-Fi Disconnects` on, disconnect Wi-Fi again, and confirm the event is logged as `trigger_ignored name="networkChange.disconnect"`.
 40. Open `Recent Trigger Status` and confirm the Wi-Fi row reflects the current SSID or `Unknown / disconnected`.
