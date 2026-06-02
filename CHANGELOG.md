@@ -51,3 +51,4 @@
 - Added disabled, 30 minute, and 1 hour idle-timeout options for quieter sessions.
 - Added per-trigger grace period overrides for tuning noisy triggers without changing the global grace period.
 - Added a hardware QA results template for recording real-device release checks without overstating untested behavior.
+- Added a v0.1 release checklist covering manual QA gates, README media prep, artifact dry runs, and release notes.
