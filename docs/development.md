@@ -110,9 +110,9 @@ Issue routing is automated by `.github/workflows/issue-triage.yml`. See
 40. Open `Recent Trigger Status` and confirm the Wi-Fi row reflects the current SSID or `Unknown / disconnected`.
 41. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
 42. Wait for the grace period.
-43. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled.
+43. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled from `dist/PublicGuard.app`.
 44. In maximum alarm volume mode, confirm alarm playback is louder without changing the Mac's global system volume.
-45. With lock screen disabled, confirm alarm/log/notification behavior continues without locking the screen.
+45. With lock screen disabled, confirm alarm/log/notification behavior continues without locking or sleeping the display.
 46. In silent mode, confirm log and optional lock happen without alarm sound.
 47. With notifications enabled, confirm macOS notification behavior in an app bundle build.
 48. With notifications disabled, confirm no macOS notification is sent.

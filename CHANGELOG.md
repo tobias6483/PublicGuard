@@ -66,3 +66,6 @@
 - Hardened trigger latency by using CoreWLAN Wi-Fi events with fast polling fallback, shorter charger disconnect debounce, a no-delay Café preset, and 1 second grace-period options.
 - Hardened Bluetooth proximity invariants so the trigger is enabled only after a device is learned, clearing the learned device disables it, and out-of-range/learning state transitions are unit-tested.
 - Hardened event log storage tests so plain/encrypted switching, active-storage clearing, and active-storage pruning stay isolated.
+- Fixed the lock screen action on macOS versions where the legacy `CGSession`
+  path is unavailable by falling back to `pmset displaysleepnow`, with command
+  fallback covered by unit tests.
