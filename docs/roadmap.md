@@ -51,6 +51,7 @@
 
 - Apple Watch support
 - Shortcuts integration
+- Verified iPhone companion or pairing flow for cryptographic phone ownership checks, such as challenge/response, if PublicGuard needs stronger assurance than passive CoreBluetooth proximity
 - Opt-in camera snapshot action only after `docs/camera-snapshot-privacy-review.md` is satisfied
 - Signed app release pipeline
 - Notarized release pipeline

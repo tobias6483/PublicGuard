@@ -54,3 +54,4 @@
 - Added a v0.1 release checklist covering manual QA gates, README media prep, artifact dry runs, and release notes.
 - Added a v0.1 release notes draft with explicit hardware QA placeholders and unsigned-build limitations.
 - Added explicit Bluetooth proximity candidate confirmation before saving a learned device.
+- Documented that cryptographic phone verification requires a future verified companion or pairing flow, not passive CoreBluetooth proximity alone.

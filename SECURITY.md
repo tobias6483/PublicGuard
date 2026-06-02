@@ -14,6 +14,7 @@ PublicGuard is security-adjacent software. Changes that affect permissions, auth
 - Do not silently change global system volume; alarm volume settings should affect PublicGuard playback only.
 - Keep Bluetooth proximity local-only; do not upload learned device identifiers, names, or scan history.
 - Bluetooth proximity learning must require visible user confirmation before saving a scanned candidate. Do not present passive BLE scanning as Bluetooth pairing or proof of ownership.
+- Cryptographic proof that a nearby device is the user's phone requires a future verified companion or pairing flow, such as an iPhone app challenge/response. CoreBluetooth proximity alone can only match a previously confirmed BLE identifier exposed to this Mac.
 - Keep idle timeout local-only and user-controlled; do not log keystrokes, pointer movement, app usage, or content.
 - Keep launch at login user-controlled and local to macOS login item registration.
 - Keep sleep/wake instrumentation local and limited to timestamps, observation counts, and matched sleep duration.
