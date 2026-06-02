@@ -39,6 +39,7 @@
 
 - Complete manual hardware QA and record results in `docs/hardware-qa-results.md`
 - Prepare v0.1 release using `docs/v0.1-release-checklist.md`
+- Update `docs/v0.1-release-notes.md` with actual hardware QA results before tagging
 - Run the lid-close QA checklist on Apple silicon MacBook hardware and record the observed sleep/wake counts plus sleep gap
 - Validate Bluetooth proximity behavior with iPhone and common BLE accessories using `docs/bluetooth-proximity-qa.md`
 - Validate immediate lid-close/sleep response and wake fallback behavior against the research note
