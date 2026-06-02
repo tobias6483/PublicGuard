@@ -40,3 +40,4 @@
 - Added School and Office session presets plus a product requirement coverage matrix.
 - Added optional encrypted event log storage backed by a local macOS Keychain key.
 - Added a GitHub Actions workflow for unsigned zipped app artifacts.
+- Added a configurable Bluetooth proximity out-of-range timeout and QA checklist.

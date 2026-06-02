@@ -156,10 +156,11 @@ final class EventLogTests: XCTestCase {
             lockScreenEnabled: false,
             launchAtLoginEnabled: true,
             eventLogDetail: .standard,
-            eventLogStorage: .encrypted
+            eventLogStorage: .encrypted,
+            bluetoothProximityTimeoutSeconds: 60
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\"")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\" bluetooth_proximity_timeout_seconds=60")
     }
 
     func testLaunchAtLoginChangeFailedMessageContainsError() {

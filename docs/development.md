@@ -88,8 +88,9 @@ Maintainers and project agents with write access should follow the detailed work
 43. In the app bundle build, grant Bluetooth permission when prompted.
 44. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
 45. Confirm the event log records `bluetooth_device_learned`.
-46. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
-47. After roughly 30 seconds, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
+46. Change `Settings > Bluetooth Proximity > Out-of-Range Timeout` and confirm the checkmark moves.
+47. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
+48. After the selected timeout, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
 
 Bluetooth proximity is experimental. iPhones may not advertise a stable BLE identity in every state, so record which device and macOS/iOS versions were tested.
 

@@ -78,6 +78,7 @@ final class PublicGuardController {
         powerMonitor.start()
         networkMonitor.start()
         sleepWakeMonitor.start()
+        bluetoothMonitor.updateLostAfterSeconds(settings.bluetoothProximityTimeoutSeconds)
         bluetoothMonitor.start(
             targetIdentifier: settings.bluetoothTargetIdentifier,
             targetName: settings.bluetoothTargetName
@@ -328,6 +329,19 @@ final class PublicGuardController {
         submenu.addItem(targetItem)
         submenu.addItem(NSMenuItem(title: "Learn Nearby Device", action: #selector(learnBluetoothDevice), keyEquivalent: "", target: self))
 
+        let timeoutItem = NSMenuItem(title: "Out-of-Range Timeout", action: nil, keyEquivalent: "")
+        let timeoutSubmenu = NSMenu()
+
+        for seconds in SettingsStore.validBluetoothProximityTimeouts {
+            let item = NSMenuItem(title: Self.bluetoothTimeoutTitle(seconds: seconds), action: #selector(setBluetoothProximityTimeout(_:)), keyEquivalent: "", target: self)
+            item.representedObject = seconds
+            item.state = settings.bluetoothProximityTimeoutSeconds == seconds ? .on : .off
+            timeoutSubmenu.addItem(item)
+        }
+
+        timeoutItem.submenu = timeoutSubmenu
+        submenu.addItem(timeoutItem)
+
         let clearItem = NSMenuItem(title: "Clear Learned Device", action: #selector(clearBluetoothDevice), keyEquivalent: "", target: self)
         clearItem.isEnabled = settings.bluetoothTargetIdentifier != nil
         submenu.addItem(clearItem)
@@ -395,6 +409,14 @@ final class PublicGuardController {
         settingsStore.save(settings)
         bluetoothMonitor.start(targetIdentifier: nil, targetName: nil)
         rebuildMenu()
+    }
+
+    @objc private func setBluetoothProximityTimeout(_ sender: NSMenuItem) {
+        guard let seconds = sender.representedObject as? Int else { return }
+
+        settings.bluetoothProximityTimeoutSeconds = seconds
+        bluetoothMonitor.updateLostAfterSeconds(seconds)
+        persistSettings()
     }
 
     @objc private func setGracePeriod(_ sender: NSMenuItem) {
@@ -550,7 +572,8 @@ final class PublicGuardController {
             lockScreenEnabled: settings.lockScreenEnabled,
             launchAtLoginEnabled: settings.launchAtLoginEnabled,
             eventLogDetail: settings.eventLogDetail,
-            eventLogStorage: settings.eventLogStorage
+            eventLogStorage: settings.eventLogStorage,
+            bluetoothProximityTimeoutSeconds: settings.bluetoothProximityTimeoutSeconds
         ))
         rebuildMenu()
     }
@@ -692,6 +715,15 @@ private extension PublicGuardController {
     }
 
     static func idleTimeoutTitle(seconds: Int) -> String {
+        if seconds < 60 {
+            return "\(seconds) seconds"
+        }
+
+        let minutes = seconds / 60
+        return minutes == 1 ? "1 minute" : "\(minutes) minutes"
+    }
+
+    static func bluetoothTimeoutTitle(seconds: Int) -> String {
         if seconds < 60 {
             return "\(seconds) seconds"
         }

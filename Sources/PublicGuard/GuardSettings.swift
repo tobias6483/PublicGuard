@@ -264,6 +264,7 @@ struct GuardSettings {
     var eventLogStorage: EventLogStorage = .plainText
     var bluetoothTargetIdentifier: String?
     var bluetoothTargetName: String?
+    var bluetoothProximityTimeoutSeconds: Int = 30
 
     var gracePeriodDuration: Duration {
         .seconds(gracePeriodSeconds)
@@ -289,6 +290,7 @@ struct SettingsStore {
         static let eventLogStorage = "eventLogStorage"
         static let bluetoothTargetIdentifier = "bluetoothTargetIdentifier"
         static let bluetoothTargetName = "bluetoothTargetName"
+        static let bluetoothProximityTimeoutSeconds = "bluetoothProximityTimeoutSeconds"
     }
 
     private let defaults: UserDefaults
@@ -325,6 +327,8 @@ struct SettingsStore {
         let eventLogStorage = storedEventLogStorage.flatMap(GuardSettings.EventLogStorage.init(rawValue:)) ?? .plainText
         let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
         let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
+        let storedBluetoothTimeout = defaults.object(forKey: Key.bluetoothProximityTimeoutSeconds) as? Int
+        let bluetoothProximityTimeout = storedBluetoothTimeout.flatMap { Self.validBluetoothProximityTimeouts.contains($0) ? $0 : nil } ?? 30
 
         return GuardSettings(
             gracePeriodSeconds: gracePeriod,
@@ -339,7 +343,8 @@ struct SettingsStore {
             eventLogDetail: eventLogDetail,
             eventLogStorage: eventLogStorage,
             bluetoothTargetIdentifier: bluetoothTargetIdentifier,
-            bluetoothTargetName: bluetoothTargetName
+            bluetoothTargetName: bluetoothTargetName,
+            bluetoothProximityTimeoutSeconds: bluetoothProximityTimeout
         )
     }
 
@@ -357,10 +362,12 @@ struct SettingsStore {
         defaults.set(settings.eventLogStorage.rawValue, forKey: Key.eventLogStorage)
         setOptional(settings.bluetoothTargetIdentifier, forKey: Key.bluetoothTargetIdentifier)
         setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)
+        defaults.set(settings.bluetoothProximityTimeoutSeconds, forKey: Key.bluetoothProximityTimeoutSeconds)
     }
 
     static let validGracePeriods = [0, 5, 10, 15, 30]
     static let validIdleTimeouts = [60, 300, 600, 900]
+    static let validBluetoothProximityTimeouts = [15, 30, 60, 120]
 
     private func setOptional(_ value: String?, forKey key: String) {
         if let value {
