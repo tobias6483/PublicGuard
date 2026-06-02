@@ -150,11 +150,11 @@ The menu also includes `Clear Event Log`, which resets the local log and writes 
 
 ## Bluetooth Proximity
 
-PublicGuard can scan for a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Scan and Confirm Nearby Device`. It shows a confirmation dialog with the candidate name and CoreBluetooth identifier prefix before saving anything. While armed, it starts the configured response if that confirmed device was seen and then disappears for the configured out-of-range timeout.
+PublicGuard can scan for a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Scan and Confirm Nearby Device`. It shows a confirmation dialog with the candidate name and CoreBluetooth identifier prefix before saving anything. Bluetooth Proximity becomes an enabled trigger only after a device is confirmed. While armed, it starts the configured response if that confirmed device was seen and then disappears for the configured out-of-range timeout.
 
 `Settings > Bluetooth Proximity > Out-of-Range Timeout` can be set to 15 seconds, 30 seconds, 1 minute, or 2 minutes. Shorter timeouts react faster but may be more sensitive to normal Bluetooth advertising gaps.
 
-This is local-only and stores the confirmed CoreBluetooth device identifier and display name in macOS user defaults. It is not Bluetooth pairing and does not prove device ownership; keep the intended phone or accessory closest to the Mac during scanning and confirm the displayed name/identifier before saving. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory. See [docs/bluetooth-proximity-qa.md](docs/bluetooth-proximity-qa.md).
+This is local-only and stores the confirmed CoreBluetooth device identifier and display name in macOS user defaults. Clearing the learned device also disables the Bluetooth Proximity trigger until another device is confirmed. It is not Bluetooth pairing and does not prove device ownership; keep the intended phone or accessory closest to the Mac during scanning and confirm the displayed name/identifier before saving. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory. See [docs/bluetooth-proximity-qa.md](docs/bluetooth-proximity-qa.md).
 
 ## Alarm Volume
 
@@ -164,12 +164,12 @@ This is local-only and stores the confirmed CoreBluetooth device identifier and 
 
 `Settings > Presets` can quickly apply local public-work profiles:
 
-- `Café`: no response delay, 5 minute idle timeout, loud response, maximum app playback volume, notifications, lock screen, and all triggers enabled.
-- `Library`: 15 second grace period, 15 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and all triggers enabled.
-- `School`: 10 second grace period, 10 minute idle timeout, loud response, normal app playback volume, notifications, lock screen, and all triggers enabled.
+- `Café`: no response delay, 5 minute idle timeout, loud response, maximum app playback volume, notifications, lock screen, and all configured triggers enabled.
+- `Library`: 15 second grace period, 15 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and all configured triggers enabled.
+- `School`: 10 second grace period, 10 minute idle timeout, loud response, normal app playback volume, notifications, lock screen, and all configured triggers enabled.
 - `Office`: 30 second grace period, 10 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and charger, lid/wake, Bluetooth proximity, and idle triggers enabled. Wi-Fi change is disabled in this preset to reduce false alarms on roaming office networks.
 
-Presets keep the selected alarm sound and learned Bluetooth device.
+Presets keep the selected alarm sound and learned Bluetooth device. Bluetooth Proximity is included by presets only when a learned device exists.
 
 ## Idle Timeout
 

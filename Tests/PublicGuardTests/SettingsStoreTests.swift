@@ -11,7 +11,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.gracePeriodSeconds, 0)
         XCTAssertEqual(settings.idleTimeoutSeconds, 300)
         XCTAssertEqual(settings.responseMode, .loudAlarm)
-        XCTAssertEqual(settings.enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
+        XCTAssertEqual(settings.enabledTriggers, allTriggersExceptBluetooth)
         XCTAssertTrue(settings.notificationsEnabled)
         XCTAssertEqual(settings.alarmSound, .appleAlarm)
         XCTAssertEqual(settings.alarmVolume, .normal)
@@ -96,6 +96,7 @@ final class SettingsStoreTests: XCTestCase {
 
         XCTAssertNil(store.load().bluetoothTargetIdentifier)
         XCTAssertNil(store.load().bluetoothTargetName)
+        XCTAssertFalse(store.load().enabledTriggers.contains(.bluetoothProximity))
     }
 
     func testInvalidGracePeriodFallsBackToDefault() {
@@ -231,7 +232,24 @@ final class SettingsStoreTests: XCTestCase {
         defaults.set([String](), forKey: "enabledTriggers")
         let store = SettingsStore(defaults: defaults)
 
+        XCTAssertEqual(store.load().enabledTriggers, allTriggersExceptBluetooth)
+    }
+
+    func testBluetoothTriggerIsValidWhenTargetIsLearned() {
+        let defaults = makeDefaults()
+        defaults.set("C07F4E70-7A07-4032-8C77-8EB75490D620", forKey: "bluetoothTargetIdentifier")
+        defaults.set("Tobias iPhone", forKey: "bluetoothTargetName")
+        let store = SettingsStore(defaults: defaults)
+
         XCTAssertEqual(store.load().enabledTriggers, Set(GuardSettings.TriggerKind.allCases))
+    }
+
+    func testStoredBluetoothTriggerIsDroppedWithoutTarget() {
+        let defaults = makeDefaults()
+        defaults.set(GuardSettings.TriggerKind.allCases.map(\.rawValue), forKey: "enabledTriggers")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().enabledTriggers, allTriggersExceptBluetooth)
     }
 
     func testNotificationsCanBeDisabled() {
@@ -403,6 +421,17 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertFalse(settings.enabledTriggers.contains(.networkChange))
     }
 
+    func testPresetDoesNotEnableBluetoothWithoutLearnedTarget() {
+        var base = customSettings()
+        base.bluetoothTargetIdentifier = nil
+        base.bluetoothTargetName = nil
+
+        let settings = base.applyingPreset(.cafe)
+
+        XCTAssertEqual(settings.enabledTriggers, allTriggersExceptBluetooth)
+        XCTAssertTrue(GuardSettings.SessionPreset.cafe.matches(settings))
+    }
+
     func testLockScreenCanBeDisabled() {
         let defaults = makeDefaults()
         let store = SettingsStore(defaults: defaults)
@@ -549,6 +578,10 @@ private extension GuardSettings {
     func applyingPreset(_ preset: GuardSettings.SessionPreset) -> GuardSettings {
         preset.applied(to: self)
     }
+}
+
+private var allTriggersExceptBluetooth: Set<GuardSettings.TriggerKind> {
+    Set(GuardSettings.TriggerKind.allCases).subtracting([.bluetoothProximity])
 }
 
 private func customSettings() -> GuardSettings {

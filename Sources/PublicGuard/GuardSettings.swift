@@ -196,6 +196,9 @@ struct GuardSettings {
         func applied(to settings: GuardSettings) -> GuardSettings {
             var updated = settings
             updated.enabledTriggers = enabledTriggers
+            if settings.bluetoothTargetIdentifier == nil {
+                updated.enabledTriggers.remove(.bluetoothProximity)
+            }
             updated.notificationsEnabled = true
             updated.lockScreenEnabled = true
 
@@ -208,7 +211,12 @@ struct GuardSettings {
         }
 
         func matches(_ settings: GuardSettings) -> Bool {
-            settings.enabledTriggers == enabledTriggers
+            var expectedTriggers = enabledTriggers
+            if settings.bluetoothTargetIdentifier == nil {
+                expectedTriggers.remove(.bluetoothProximity)
+            }
+
+            return settings.enabledTriggers == expectedTriggers
                 && settings.notificationsEnabled
                 && settings.lockScreenEnabled
                 && settings.gracePeriodSeconds == gracePeriodSeconds
@@ -310,6 +318,10 @@ struct GuardSettings {
         enabledTriggers.contains(trigger)
     }
 
+    var hasLearnedBluetoothDevice: Bool {
+        bluetoothTargetIdentifier != nil
+    }
+
     func gracePeriodSeconds(for trigger: TriggerKind) -> Int {
         triggerGracePeriodOverrides[trigger] ?? gracePeriodSeconds
     }
@@ -356,12 +368,17 @@ struct SettingsStore {
         let storedMode = defaults.string(forKey: Key.responseMode)
         let mode = storedMode.flatMap(GuardSettings.ResponseMode.init(rawValue:)) ?? .loudAlarm
 
+        let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
+        let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
         let storedTriggerValues = defaults.stringArray(forKey: Key.enabledTriggers)
         let triggers = storedTriggerValues.map { values in
             Set(values.compactMap(GuardSettings.TriggerKind.init(rawValue:)))
-        } ?? Set(GuardSettings.TriggerKind.allCases)
+        } ?? Self.defaultEnabledTriggers(bluetoothTargetIdentifier: bluetoothTargetIdentifier)
 
-        let enabledTriggers = triggers.isEmpty ? Set(GuardSettings.TriggerKind.allCases) : triggers
+        let enabledTriggers = Self.sanitizedEnabledTriggers(
+            triggers,
+            bluetoothTargetIdentifier: bluetoothTargetIdentifier
+        )
         let notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
         let storedAlarmSound = defaults.string(forKey: Key.alarmSound)
         let alarmSound = storedAlarmSound.flatMap(GuardSettings.AlarmSound.init(rawValue:)) ?? .appleAlarm
@@ -375,8 +392,6 @@ struct SettingsStore {
         let eventLogStorage = storedEventLogStorage.flatMap(GuardSettings.EventLogStorage.init(rawValue:)) ?? .plainText
         let storedEventLogRetention = defaults.string(forKey: Key.eventLogRetention)
         let eventLogRetention = storedEventLogRetention.flatMap(GuardSettings.EventLogRetention.init(rawValue:)) ?? .forever
-        let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
-        let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
         let storedBluetoothTimeout = defaults.object(forKey: Key.bluetoothProximityTimeoutSeconds) as? Int
         let bluetoothProximityTimeout = storedBluetoothTimeout.flatMap { Self.validBluetoothProximityTimeouts.contains($0) ? $0 : nil } ?? 30
         let ignoreWiFiDisconnects = defaults.object(forKey: Key.ignoreWiFiDisconnects) as? Bool ?? false
@@ -437,6 +452,25 @@ struct SettingsStore {
     static let validBluetoothProximityTimeouts = [15, 30, 60, 120]
     static let validTriggerCooldowns = [0, 30, 60, 120]
     static let validTriggerGraceOverrides = [0, 1, 5, 10, 15, 30, 60, 120]
+
+    private static func defaultEnabledTriggers(bluetoothTargetIdentifier: String?) -> Set<GuardSettings.TriggerKind> {
+        var triggers = Set(GuardSettings.TriggerKind.allCases)
+        if bluetoothTargetIdentifier == nil {
+            triggers.remove(.bluetoothProximity)
+        }
+        return triggers
+    }
+
+    private static func sanitizedEnabledTriggers(
+        _ triggers: Set<GuardSettings.TriggerKind>,
+        bluetoothTargetIdentifier: String?
+    ) -> Set<GuardSettings.TriggerKind> {
+        var result = triggers.isEmpty ? defaultEnabledTriggers(bluetoothTargetIdentifier: bluetoothTargetIdentifier) : triggers
+        if bluetoothTargetIdentifier == nil {
+            result.remove(.bluetoothProximity)
+        }
+        return result
+    }
 
     private static func sanitizedTriggerGracePeriodOverrides(_ values: [String: Any]) -> [GuardSettings.TriggerKind: Int] {
         values.reduce(into: [:]) { result, item in
