@@ -138,11 +138,11 @@ The menu also includes `Clear Event Log`, which resets the local log and writes 
 
 ## Bluetooth Proximity
 
-PublicGuard can learn a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Learn Nearby Device`. While armed, it starts the configured response if that learned device was seen and then disappears for the configured out-of-range timeout.
+PublicGuard can scan for a nearby Bluetooth Low Energy device from `Settings > Bluetooth Proximity > Scan and Confirm Nearby Device`. It shows a confirmation dialog with the candidate name and CoreBluetooth identifier prefix before saving anything. While armed, it starts the configured response if that confirmed device was seen and then disappears for the configured out-of-range timeout.
 
 `Settings > Bluetooth Proximity > Out-of-Range Timeout` can be set to 15 seconds, 30 seconds, 1 minute, or 2 minutes. Shorter timeouts react faster but may be more sensitive to normal Bluetooth advertising gaps.
 
-This is local-only and stores the CoreBluetooth device identifier and display name in macOS user defaults. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory. See [docs/bluetooth-proximity-qa.md](docs/bluetooth-proximity-qa.md).
+This is local-only and stores the confirmed CoreBluetooth device identifier and display name in macOS user defaults. It is not Bluetooth pairing and does not prove device ownership; keep the intended phone or accessory closest to the Mac during scanning and confirm the displayed name/identifier before saving. The event log records learn/out-of-range events by display name. It requires Bluetooth permission in the app bundle build. iPhones do not always advertise as stable BLE peripherals, so this should be treated as experimental until manually tested with the target phone or accessory. See [docs/bluetooth-proximity-qa.md](docs/bluetooth-proximity-qa.md).
 
 ## Alarm Volume
 
