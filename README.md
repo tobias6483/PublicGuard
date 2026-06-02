@@ -80,7 +80,7 @@ PublicGuard is not a tracking product. It is a local-first protection utility th
 
 ## Repository Status
 
-PublicGuard is in early MVP development. The current goal is to prove the core local protection loop before adding more advanced triggers.
+PublicGuard is in MVP beta development. The current goal is to harden and manually validate the local protection loop before a v0.1 release.
 
 ## Build
 

@@ -203,6 +203,16 @@ final class EventLogTests: XCTestCase {
         XCTAssertEqual(message, "network_changed kind=\"disconnected\" previous=\"Cafe WiFi\" current=\"none\"")
     }
 
+    func testNetworkChangedMessageEscapesSSIDValues() {
+        let message = GuardEvent.networkChanged(
+            previous: "Cafe \"Main\"\nFloor",
+            current: "Library\\Quiet\tRoom",
+            kind: .ssidChanged
+        ).message
+
+        XCTAssertEqual(message, "network_changed kind=\"ssidChanged\" previous=\"Cafe \\\"Main\\\"\\nFloor\" current=\"Library\\\\Quiet\\tRoom\"")
+    }
+
     func testBluetoothDeviceLearnedMessageContainsValues() {
         let message = GuardEvent.bluetoothDeviceLearned(name: "Tobias iPhone").message
 
@@ -213,6 +223,14 @@ final class EventLogTests: XCTestCase {
         let message = GuardEvent.bluetoothDeviceOutOfRange(name: "Tobias iPhone").message
 
         XCTAssertEqual(message, "bluetooth_device_out_of_range name=\"Tobias iPhone\"")
+    }
+
+    func testBluetoothDeviceNameEscapesLogControlCharacters() {
+        let learned = GuardEvent.bluetoothDeviceLearned(name: "Phone \"BLE\"\rName").message
+        let outOfRange = GuardEvent.bluetoothDeviceOutOfRange(name: "Phone \"BLE\"\rName").message
+
+        XCTAssertEqual(learned, "bluetooth_device_learned name=\"Phone \\\"BLE\\\"\\rName\"")
+        XCTAssertEqual(outOfRange, "bluetooth_device_out_of_range name=\"Phone \\\"BLE\\\"\\rName\"")
     }
 
     func testIdleTimeoutMessageContainsSeconds() {
@@ -258,6 +276,31 @@ final class EventLogTests: XCTestCase {
         let message = GuardEvent.launchAtLoginChangeFailed(error: "requiresAppBundle").message
 
         XCTAssertEqual(message, "launch_at_login_change_failed error=\"requiresAppBundle\"")
+    }
+
+    func testResponseReasonsAndErrorsEscapeLogControlCharacters() {
+        let reason = "Wi-Fi \"ssid\"\nchanged"
+
+        XCTAssertEqual(
+            GuardEvent.gracePeriodStarted(reason: reason, seconds: .seconds(5)).message,
+            "grace_period_started seconds=5 reason=\"Wi-Fi \\\"ssid\\\"\\nchanged\""
+        )
+        XCTAssertEqual(
+            GuardEvent.alarmTriggered(reason: reason).message,
+            "alarm_triggered reason=\"Wi-Fi \\\"ssid\\\"\\nchanged\""
+        )
+        XCTAssertEqual(
+            GuardEvent.silentResponseTriggered(reason: reason).message,
+            "silent_response_triggered reason=\"Wi-Fi \\\"ssid\\\"\\nchanged\""
+        )
+        XCTAssertEqual(
+            GuardEvent.launchAtLoginChangeFailed(error: "error \"bundle\"\nmissing").message,
+            "launch_at_login_change_failed error=\"error \\\"bundle\\\"\\nmissing\""
+        )
+        XCTAssertEqual(
+            GuardEvent.triggerIgnored(name: "networkChange\ncooldown").message,
+            "trigger_ignored name=\"networkChange\\ncooldown\""
+        )
     }
 
     func testMinimalDetailOmitsNetworkValues() {

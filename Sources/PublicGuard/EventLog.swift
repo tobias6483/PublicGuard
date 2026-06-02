@@ -338,21 +338,21 @@ enum GuardEvent {
         case let .networkChanged(previous, current, kind):
             switch detail {
             case .standard:
-                "network_changed kind=\"\(kind.rawValue)\" previous=\"\(previous ?? "none")\" current=\"\(current ?? "none")\""
+                "network_changed kind=\(Self.quoted(kind.rawValue)) previous=\(Self.quoted(previous ?? "none")) current=\(Self.quoted(current ?? "none"))"
             case .minimal:
                 "network_changed"
             }
         case let .bluetoothDeviceLearned(name):
             switch detail {
             case .standard:
-                "bluetooth_device_learned name=\"\(name)\""
+                "bluetooth_device_learned name=\(Self.quoted(name))"
             case .minimal:
                 "bluetooth_device_learned"
             }
         case let .bluetoothDeviceOutOfRange(name):
             switch detail {
             case .standard:
-                "bluetooth_device_out_of_range name=\"\(name)\""
+                "bluetooth_device_out_of_range name=\(Self.quoted(name))"
             case .minimal:
                 "bluetooth_device_out_of_range"
             }
@@ -369,14 +369,14 @@ enum GuardEvent {
         case let .gracePeriodStarted(reason, seconds):
             switch detail {
             case .standard:
-                "grace_period_started seconds=\(seconds.components.seconds) reason=\"\(reason)\""
+                "grace_period_started seconds=\(seconds.components.seconds) reason=\(Self.quoted(reason))"
             case .minimal:
                 "grace_period_started seconds=\(seconds.components.seconds)"
             }
         case let .alarmTriggered(reason):
             switch detail {
             case .standard:
-                "alarm_triggered reason=\"\(reason)\""
+                "alarm_triggered reason=\(Self.quoted(reason))"
             case .minimal:
                 "alarm_triggered"
             }
@@ -385,28 +385,28 @@ enum GuardEvent {
         case let .silentResponseTriggered(reason):
             switch detail {
             case .standard:
-                "silent_response_triggered reason=\"\(reason)\""
+                "silent_response_triggered reason=\(Self.quoted(reason))"
             case .minimal:
                 "silent_response_triggered"
             }
         case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, eventLogRetention, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects, triggerCooldownSeconds, triggerGracePeriodOverrides):
             switch detail {
             case .standard:
-                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" event_log_retention=\"\(eventLogRetention.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds) trigger_grace_overrides=\"\(Self.triggerGraceOverridesMessage(triggerGracePeriodOverrides))\""
+                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\(Self.quoted(responseMode.rawValue)) alarm_sound=\(Self.quoted(alarmSound.rawValue)) alarm_volume=\(Self.quoted(alarmVolume.rawValue)) lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\(Self.quoted(eventLogDetail.rawValue)) event_log_storage=\(Self.quoted(eventLogStorage.rawValue)) event_log_retention=\(Self.quoted(eventLogRetention.rawValue)) bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds) trigger_grace_overrides=\(Self.quoted(Self.triggerGraceOverridesMessage(triggerGracePeriodOverrides)))"
             case .minimal:
-                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" event_log_retention=\"\(eventLogRetention.rawValue)\" ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
+                "settings_changed event_log_detail=\(Self.quoted(eventLogDetail.rawValue)) event_log_storage=\(Self.quoted(eventLogStorage.rawValue)) event_log_retention=\(Self.quoted(eventLogRetention.rawValue)) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
             }
         case let .launchAtLoginChangeFailed(error):
             switch detail {
             case .standard:
-                "launch_at_login_change_failed error=\"\(error)\""
+                "launch_at_login_change_failed error=\(Self.quoted(error))"
             case .minimal:
                 "launch_at_login_change_failed"
             }
         case let .triggerIgnored(name):
             switch detail {
             case .standard:
-                "trigger_ignored name=\"\(name)\""
+                "trigger_ignored name=\(Self.quoted(name))"
             case .minimal:
                 "trigger_ignored"
             }
@@ -424,5 +424,26 @@ enum GuardEvent {
             .sorted { $0.key.rawValue < $1.key.rawValue }
             .map { "\($0.key.rawValue)=\($0.value)" }
             .joined(separator: ",")
+    }
+
+    private static func quoted(_ value: String) -> String {
+        let escaped = value.reduce(into: "") { result, character in
+            switch character {
+            case "\\":
+                result += "\\\\"
+            case "\"":
+                result += "\\\""
+            case "\n":
+                result += "\\n"
+            case "\r":
+                result += "\\r"
+            case "\t":
+                result += "\\t"
+            default:
+                result.append(character)
+            }
+        }
+
+        return "\"\(escaped)\""
     }
 }
