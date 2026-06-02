@@ -44,3 +44,7 @@
 - Added app bundle validation and SHA-256 checksums for unsigned app artifacts.
 - Added GitHub Actions issue triage labels for maintainer routing.
 - Added a camera snapshot privacy review gate and privacy review issue template.
+- Added recent trigger diagnostics for power, Wi-Fi, Bluetooth, idle, sleep/wake, and trigger cooldown state.
+- Tuned false-positive controls with charger disconnect debounce, Wi-Fi disconnect policy, and Wi-Fi change classification.
+- Added trigger cooldown controls and Bluetooth armed-baseline handling.
+- Added sleep/wake observation counts, matched sleep-gap diagnostics, and wake log entries with `slept_seconds`.

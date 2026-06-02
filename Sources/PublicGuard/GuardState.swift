@@ -30,5 +30,5 @@ enum GuardTrigger {
     case bluetoothDeviceOutOfRange(name: String)
     case idleTimeout(seconds: Int)
     case systemWillSleep
-    case systemDidWake
+    case systemDidWake(sleptSeconds: Int?)
 }

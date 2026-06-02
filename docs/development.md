@@ -60,7 +60,7 @@ Issue routing is automated by `.github/workflows/issue-triage.yml`. See
 
 1. Launch PublicGuard.
 2. Confirm it appears in the menu bar with the PublicGuard icon and label.
-3. Open `Recent Trigger Status` and confirm it shows current power, Wi-Fi, Bluetooth, idle, sleep, and wake diagnostics.
+3. Open `Recent Trigger Status` and confirm it shows current power, Wi-Fi, Bluetooth, idle, sleep, wake, sleep gap, observation count, and cooldown diagnostics.
 4. Apply `Settings > Presets > Café` and confirm the Café preset checkmark, `Settings (Café)` title, grace period, loud mode, maximum alarm volume, notifications, lock screen, and trigger checkmarks update.
 5. Apply `Settings > Presets > Library` and confirm the Library preset checkmark, `Settings (Library)` title, 15 second grace period, silent mode, normal alarm volume, notifications, lock screen, and trigger checkmarks update.
 6. Apply `Settings > Presets > School` and confirm the School preset checkmark, `Settings (School)` title, 10 second grace period, loud mode, normal alarm volume, notifications, lock screen, and trigger checkmarks update.
@@ -118,7 +118,8 @@ Issue routing is automated by `.github/workflows/issue-triage.yml`. See
 58. Change `Settings > Bluetooth Proximity > Out-of-Range Timeout` and confirm the checkmark moves.
 59. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
 60. After the selected timeout, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
-61. Sleep and wake the Mac, then confirm `Recent Trigger Status` shows the last observed sleep and wake notifications.
+61. Sleep and wake the Mac, then confirm `Recent Trigger Status` shows the last observed sleep and wake notifications, the matched sleep gap, and increased sleep/wake observation counts.
+62. Confirm the event log records `system_did_wake slept_seconds=...` when PublicGuard observed the preceding sleep, or `system_did_wake slept_seconds="unknown"` if the wake notification had no matched sleep observation.
 
 Bluetooth proximity is experimental. iPhones may not advertise a stable BLE identity in every state, so record which device and macOS/iOS versions were tested.
 
@@ -140,7 +141,7 @@ Encrypted event log storage affects new log writes only. Existing plain-text `ev
 When a MacBook lid closes, macOS usually suspends regular app execution. PublicGuard treats sleep/wake as the practical MVP signal:
 
 - `willSleep` is logged while armed and starts the configured response immediately when macOS gives PublicGuard time to run before suspension.
-- `didWake` triggers the grace period and configured response while armed.
+- `didWake` is logged while armed with the matched sleep gap when available, then triggers the grace period and configured response if the lid/wake trigger is enabled and not in cooldown.
 
 Future versions should research whether power assertions, IOKit notifications, or helper processes can improve lid-close handling without harming battery life or privacy.
 

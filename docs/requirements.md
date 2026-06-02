@@ -23,7 +23,7 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | Alarm if Mac wakes from sleep while armed | Implemented | `NSWorkspace.didWakeNotification` starts the configured response after wake. |
 | Touch ID/password protected disarm | Implemented | `DeviceAuthenticator` protects disarm and alarm stop. |
 | Event log: armed time | Implemented | `armed` log event. |
-| Event log: lid/sleep event | Implemented | `system_will_sleep` and `system_did_wake` log events. |
+| Event log: lid/sleep event | Implemented | `system_will_sleep` and `system_did_wake slept_seconds=...` log events. |
 | Event log: charger removed | Implemented | `charger_disconnected` log event. |
 | Event log: alarm triggered | Implemented | `alarm_triggered` or `silent_response_triggered` log events. |
 | Event log: alarm stopped | Implemented | `alarm_stopped` log event. |
