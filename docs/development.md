@@ -83,35 +83,38 @@ Issue routing is automated by `.github/workflows/issue-triage.yml`. See
 23. Toggle `Settings > Launch at Login` off and confirm it is removed from login items.
 24. Click `Arm`.
 25. Disconnect the power adapter.
-26. Confirm an event is written to the log.
-27. Open `Recent Trigger Status` and confirm the power row now shows the adapter disconnected.
-28. Optionally change Wi-Fi networks or disconnect Wi-Fi and confirm `network_changed` is logged when that trigger is enabled.
-29. Open `Recent Trigger Status` and confirm the Wi-Fi row reflects the current SSID or `Unknown / disconnected`.
-30. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
-31. Wait for the grace period.
-32. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled.
-33. In maximum alarm volume mode, confirm alarm playback is louder without changing the Mac's global system volume.
-34. With lock screen disabled, confirm alarm/log/notification behavior continues without locking the screen.
-35. In silent mode, confirm log and optional lock happen without alarm sound.
-36. With notifications enabled, confirm macOS notification behavior in an app bundle build.
-37. With notifications disabled, confirm no macOS notification is sent.
-38. Open `Recent Events` and confirm the newest local log entries are shown first.
-39. Choose `Clear Event Log` and confirm the active storage log resets with a `log_cleared` entry.
-40. Re-open the app and choose `Disarm`.
-41. Confirm Touch ID/password is required.
-42. Confirm alarm stops after successful authentication.
-43. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
-44. Set `Settings > Event Log Detail > Minimal`, trigger Wi-Fi or Bluetooth events, and confirm new log entries omit SSIDs, Bluetooth names, and detailed response reasons.
-45. Arm PublicGuard, leave the Mac idle past the selected idle timeout, and confirm `idle_timeout` is logged and the configured response starts.
-46. Open `Recent Trigger Status` and confirm the idle row shows the current idle time and selected threshold.
-47. In the app bundle build, grant Bluetooth permission when prompted.
-48. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
-49. Confirm the event log records `bluetooth_device_learned`.
-50. Open `Recent Trigger Status` and confirm the Bluetooth rows show the learned device, scan state, last-seen status, and timeout.
-51. Change `Settings > Bluetooth Proximity > Out-of-Range Timeout` and confirm the checkmark moves.
-52. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
-53. After the selected timeout, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
-54. Sleep and wake the Mac, then confirm `Recent Trigger Status` shows the last observed sleep and wake notifications.
+26. Confirm brief reconnects inside the debounce window do not write `charger_disconnected`.
+27. Confirm a sustained disconnect writes `charger_disconnected` to the log.
+28. Open `Recent Trigger Status` and confirm the power row now shows the adapter disconnected.
+29. Change Wi-Fi networks and confirm `network_changed kind="ssidChanged"` is logged when that trigger is enabled.
+30. Disconnect Wi-Fi and confirm `network_changed kind="disconnected"` is logged when `Settings > Ignore Wi-Fi Disconnects` is off.
+31. Turn `Settings > Ignore Wi-Fi Disconnects` on, disconnect Wi-Fi again, and confirm the event is logged as `trigger_ignored name="networkChange.disconnect"`.
+32. Open `Recent Trigger Status` and confirm the Wi-Fi row reflects the current SSID or `Unknown / disconnected`.
+33. Disable a trigger and confirm the matching event is logged as `trigger_ignored`.
+34. Wait for the grace period.
+35. In loud mode, confirm each bundled alarm sound starts, loops until disarm, and the screen lock action runs when enabled.
+36. In maximum alarm volume mode, confirm alarm playback is louder without changing the Mac's global system volume.
+37. With lock screen disabled, confirm alarm/log/notification behavior continues without locking the screen.
+38. In silent mode, confirm log and optional lock happen without alarm sound.
+39. With notifications enabled, confirm macOS notification behavior in an app bundle build.
+40. With notifications disabled, confirm no macOS notification is sent.
+41. Open `Recent Events` and confirm the newest local log entries are shown first.
+42. Choose `Clear Event Log` and confirm the active storage log resets with a `log_cleared` entry.
+43. Re-open the app and choose `Disarm`.
+44. Confirm Touch ID/password is required.
+45. Confirm alarm stops after successful authentication.
+46. Confirm the event log records `alarm_stopped` when an active alarm is stopped.
+47. Set `Settings > Event Log Detail > Minimal`, trigger Wi-Fi or Bluetooth events, and confirm new log entries omit SSIDs, Bluetooth names, and detailed response reasons.
+48. Arm PublicGuard, leave the Mac idle past the selected idle timeout, and confirm `idle_timeout` is logged and the configured response starts.
+49. Open `Recent Trigger Status` and confirm the idle row shows the current idle time and selected threshold.
+50. In the app bundle build, grant Bluetooth permission when prompted.
+51. Choose `Settings > Bluetooth Proximity > Learn Nearby Device` near the target BLE device.
+52. Confirm the event log records `bluetooth_device_learned`.
+53. Open `Recent Trigger Status` and confirm the Bluetooth rows show the learned device, scan state, last-seen status, and timeout.
+54. Change `Settings > Bluetooth Proximity > Out-of-Range Timeout` and confirm the checkmark moves.
+55. With PublicGuard armed and `Settings > Triggers > Bluetooth Proximity` enabled, move the learned device away or turn it off.
+56. After the selected timeout, confirm `bluetooth_device_out_of_range` is logged and the configured response starts.
+57. Sleep and wake the Mac, then confirm `Recent Trigger Status` shows the last observed sleep and wake notifications.
 
 Bluetooth proximity is experimental. iPhones may not advertise a stable BLE identity in every state, so record which device and macOS/iOS versions were tested.
 

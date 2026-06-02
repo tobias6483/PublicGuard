@@ -38,9 +38,9 @@ final class PublicGuardController {
             }
         }
 
-        networkMonitor.onNetworkChanged = { [weak self] previous, current in
+        networkMonitor.onNetworkChanged = { [weak self] change in
             Task { @MainActor in
-                self?.handleTrigger(.networkChanged(previous: previous, current: current))
+                self?.handleTrigger(.networkChanged(change))
             }
         }
 
@@ -273,6 +273,10 @@ final class PublicGuardController {
         triggers.submenu = triggerSubmenu
         submenu.addItem(triggers)
 
+        let ignoreWiFiDisconnectsItem = NSMenuItem(title: "Ignore Wi-Fi Disconnects", action: #selector(toggleIgnoreWiFiDisconnects), keyEquivalent: "", target: self)
+        ignoreWiFiDisconnectsItem.state = settings.ignoreWiFiDisconnects ? .on : .off
+        submenu.addItem(ignoreWiFiDisconnectsItem)
+
         submenu.addItem(bluetoothProximityMenuItem())
 
         let notificationsItem = NSMenuItem(title: "Notifications", action: #selector(toggleNotifications), keyEquivalent: "", target: self)
@@ -298,13 +302,24 @@ final class PublicGuardController {
         let submenu = NSMenu()
 
         let powerSnapshot = powerMonitor.snapshot()
+        let powerTitle: String
+        if powerSnapshot.isAdapterConnected {
+            powerTitle = "Power: adapter connected"
+        } else if let pendingDisconnectStartedAt = powerSnapshot.pendingDisconnectStartedAt {
+            powerTitle = "Power: adapter disconnected, debouncing for \(Self.durationTitle(seconds: powerSnapshot.disconnectDebounceSeconds - Date().timeIntervalSince(pendingDisconnectStartedAt)))"
+        } else {
+            powerTitle = "Power: adapter disconnected"
+        }
         submenu.addItem(Self.disabledMenuItem(
-            title: "Power: adapter \(powerSnapshot.isAdapterConnected ? "connected" : "disconnected")"
+            title: powerTitle
         ))
 
         let networkSnapshot = networkMonitor.snapshot()
         submenu.addItem(Self.disabledMenuItem(
             title: "Wi-Fi: \(networkSnapshot.currentSSID ?? "Unknown / disconnected")"
+        ))
+        submenu.addItem(Self.disabledMenuItem(
+            title: "Wi-Fi disconnect policy: \(settings.ignoreWiFiDisconnects ? "ignored" : "triggers")"
         ))
 
         let bluetoothSnapshot = bluetoothMonitor.snapshot()
@@ -520,6 +535,11 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func toggleIgnoreWiFiDisconnects() {
+        settings.ignoreWiFiDisconnects.toggle()
+        persistSettings()
+    }
+
     @objc private func toggleNotifications() {
         settings.notificationsEnabled.toggle()
         if settings.notificationsEnabled {
@@ -625,7 +645,8 @@ final class PublicGuardController {
             launchAtLoginEnabled: settings.launchAtLoginEnabled,
             eventLogDetail: settings.eventLogDetail,
             eventLogStorage: settings.eventLogStorage,
-            bluetoothProximityTimeoutSeconds: settings.bluetoothProximityTimeoutSeconds
+            bluetoothProximityTimeoutSeconds: settings.bluetoothProximityTimeoutSeconds,
+            ignoreWiFiDisconnects: settings.ignoreWiFiDisconnects
         ))
         rebuildMenu()
     }
@@ -654,13 +675,17 @@ final class PublicGuardController {
             }
             writeEvent(.chargerDisconnected)
             triggerAlarmAfterGracePeriod(reason: "Power adapter disconnected")
-        case let .networkChanged(previous, current):
+        case let .networkChanged(change):
             guard settings.isTriggerEnabled(.networkChange) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.networkChange.rawValue))
                 return
             }
-            writeEvent(.networkChanged(previous: previous, current: current))
-            triggerAlarmAfterGracePeriod(reason: "Wi-Fi network changed")
+            if settings.ignoreWiFiDisconnects, change.kind == .disconnected {
+                writeEvent(.triggerIgnored(name: "\(GuardSettings.TriggerKind.networkChange.rawValue).disconnect"))
+                return
+            }
+            writeEvent(.networkChanged(previous: change.previousSSID, current: change.currentSSID, kind: change.kind))
+            triggerAlarmAfterGracePeriod(reason: "Wi-Fi \(change.kind.title.lowercased())")
         case let .bluetoothDeviceOutOfRange(name):
             guard settings.isTriggerEnabled(.bluetoothProximity) else {
                 writeEvent(.triggerIgnored(name: GuardSettings.TriggerKind.bluetoothProximity.rawValue))
