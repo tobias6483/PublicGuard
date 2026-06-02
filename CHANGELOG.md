@@ -38,3 +38,4 @@
 - Added a minimal event log detail setting.
 - Added a visible menu bar icon, active preset summary, preset checkmarks, and immediate armed sleep/lid-close response.
 - Added School and Office session presets plus a product requirement coverage matrix.
+- Added optional encrypted event log storage backed by a local macOS Keychain key.

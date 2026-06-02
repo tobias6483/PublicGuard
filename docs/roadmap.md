@@ -22,6 +22,7 @@
 - Optional launch at login setting for app bundle builds
 - Local-only event log
 - Minimal event log detail mode
+- Optional encrypted event log storage
 - Recent event preview in the menu bar
 - Authenticated alarm stop with local audit logging
 - Event log open and clear actions
@@ -41,7 +42,6 @@
 
 - Apple Watch support
 - Shortcuts integration
-- Encrypted event logs
 - Opt-in camera snapshot action with explicit local-only storage controls
 - Signed app release pipeline
 - Homebrew cask exploration

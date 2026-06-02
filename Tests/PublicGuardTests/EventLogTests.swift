@@ -1,4 +1,5 @@
 import XCTest
+import CryptoKit
 @testable import PublicGuard
 
 final class EventLogTests: XCTestCase {
@@ -27,6 +28,51 @@ final class EventLogTests: XCTestCase {
 
         let contents = try String(contentsOf: url, encoding: .utf8)
         XCTAssertEqual(contents, "")
+    }
+
+    func testEncryptedWriteDoesNotStorePlaintext() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
+
+        log.write(.networkChanged(previous: "Cafe WiFi", current: "Library WiFi"), storage: .encrypted)
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+
+        let encryptedData = try Data(contentsOf: log.encryptedURL)
+        let encryptedText = String(data: encryptedData, encoding: .utf8) ?? ""
+        XCTAssertFalse(encryptedText.contains("Cafe WiFi"))
+        XCTAssertFalse(encryptedText.contains("network_changed"))
+    }
+
+    func testEncryptedRecentEntriesDecryptNewestEventsWithinLimit() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
+
+        log.write(.appStarted, storage: .encrypted)
+        log.write(.armed, storage: .encrypted)
+        log.write(.chargerDisconnected, storage: .encrypted)
+
+        let entries = log.recentEntries(limit: 2, storage: .encrypted)
+
+        XCTAssertEqual(entries.count, 2)
+        XCTAssertTrue(entries[0].contains("armed"))
+        XCTAssertTrue(entries[1].contains("charger_disconnected"))
+    }
+
+    func testEncryptedClearRemovesExistingEvents() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
+
+        log.write(.armed, storage: .encrypted)
+        log.clear(storage: .encrypted)
+
+        XCTAssertEqual(log.recentEntries(storage: .encrypted), [])
     }
 
     func testRecentEntriesReturnsNewestEventsWithinLimit() {
@@ -109,10 +155,11 @@ final class EventLogTests: XCTestCase {
             alarmVolume: .maximum,
             lockScreenEnabled: false,
             launchAtLoginEnabled: true,
-            eventLogDetail: .standard
+            eventLogDetail: .standard,
+            eventLogStorage: .encrypted
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\"")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\"")
     }
 
     func testLaunchAtLoginChangeFailedMessageContainsError() {
@@ -167,5 +214,11 @@ final class EventLogTests: XCTestCase {
 
     func testLogClearedMessage() {
         XCTAssertEqual(GuardEvent.logCleared.message, "log_cleared")
+    }
+}
+
+private struct StaticEventLogKeyProvider: EventLogKeyProviding {
+    func key() throws -> SymmetricKey {
+        SymmetricKey(data: Data(repeating: 7, count: 32))
     }
 }
