@@ -29,6 +29,7 @@
 - Local unsigned app bundle script
 - Bundle validation script
 - GitHub Actions unsigned zipped app artifact with SHA-256 checksum
+- GitHub Actions issue triage labels for maintainer routing
 - App icon for local app bundles
 
 ## Next

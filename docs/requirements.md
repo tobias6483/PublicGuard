@@ -55,4 +55,4 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | Security policy | Implemented | `SECURITY.md` covers sensitive areas and reporting. |
 | Contributor onboarding | Implemented | `CONTRIBUTING.md` and development docs exist. |
 | Release automation | Partial | Local unsigned app bundle script, bundle validation, GitHub Actions unsigned zipped app artifact, and SHA-256 checksum exist; signing and notarization are roadmap. |
-| Issue triage / maintainer automation | Roadmap | Useful future OSS workflow area. |
+| Issue triage / maintainer automation | Implemented | GitHub Actions labels issues by area, hardware QA need, and privacy-review signals while keeping triage inside GitHub. |

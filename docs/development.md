@@ -53,6 +53,9 @@ PublicGuard is open source. External contributors can fork the repository, push 
 
 Maintainers and project agents with write access should follow the detailed workflow in [../AGENTS.md](../AGENTS.md). The short version is: work on a branch, stage only relevant files, run `swift test`, use `gh` for PR creation and merge, wait for the `Swift Build and Test` check, then squash-merge and delete the branch. Do not commit or push directly to `main`.
 
+Issue routing is automated by `.github/workflows/issue-triage.yml`. See
+[triage.md](triage.md) for label behavior and maintainer review notes.
+
 ## Manual Test Checklist
 
 1. Launch PublicGuard.

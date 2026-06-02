@@ -49,6 +49,7 @@ Planned:
 
 See [docs/roadmap.md](docs/roadmap.md) for the current roadmap.
 See [docs/requirements.md](docs/requirements.md) for the current feature coverage against the product brief.
+See [docs/triage.md](docs/triage.md) for the GitHub issue triage labels and automation.
 
 ## Why
 
