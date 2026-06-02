@@ -65,3 +65,4 @@
 - Preserved active alarm state when arming so a manual test alarm cannot become invisible to authenticated stop/disarm.
 - Hardened trigger latency by using CoreWLAN Wi-Fi events with fast polling fallback, shorter charger disconnect debounce, a no-delay Café preset, and 1 second grace-period options.
 - Hardened Bluetooth proximity invariants so the trigger is enabled only after a device is learned, clearing the learned device disables it, and out-of-range/learning state transitions are unit-tested.
+- Hardened event log storage tests so plain/encrypted switching, active-storage clearing, and active-storage pruning stay isolated.

@@ -15,6 +15,7 @@ remain untested until a manual pass is recorded below.
 | --- | --- | --- | --- |
 | Automated release baseline | Pass | 2026-06-02 | `scripts/release_check.sh` passed on commit `ece37b08375ee9a8ff347c0a320c230856164c18`; 72 tests passed; `dist/PublicGuard.app` validated; local unsigned artifact and SHA-256 checksum created. |
 | GitHub artifact workflow | Pass | 2026-06-02 | `App Artifact` workflow run `26817849127` passed for tag `v0.1.0`; the `v0.1.0` GitHub pre-release also has uploaded unsigned assets with GitHub asset digests. |
+| Event log storage invariants | Pass | 2026-06-02 | `swift test` passed with 86 tests, including plain/encrypted storage separation, active-storage clear behavior, and active-storage prune behavior. Manual menu UX still needs real app verification below. |
 
 ### Manual Hardware Scenarios
 
@@ -31,7 +32,7 @@ remain untested until a manual pass is recorded below.
 | Lock screen action | Not tested | - | Confirm setting enabled and disabled. |
 | Launch at login | Not tested | - | Test from `dist/PublicGuard.app`. |
 | Alarm sounds and volume | Not tested | - | Confirm bundled sounds loop and app volume setting works. |
-| Event log storage | Not tested | - | Confirm plain text, encrypted, clear, open, and Recent Events. |
+| Event log storage menu UX | Not tested | - | Automated storage invariants pass; still confirm menu switching, Finder open target, clear/prune commands, and Recent Events in `dist/PublicGuard.app`. |
 
 ## 2026-06-02 - Automated Release Baseline
 
@@ -51,6 +52,7 @@ Swift version: Apple Swift 6.2
 | `scripts/validate_app_bundle.sh` | Pass | Validated executable, Info.plist, icon, resource bundle, and bundled alarm assets. |
 | Unsigned artifact dry run | Pass | Created `dist/artifacts/PublicGuard.app.zip` and checksum file. |
 | GitHub `App Artifact` workflow | Pass | Run `26817849127` passed for tag `v0.1.0`; the `v0.1.0` GitHub pre-release also has uploaded unsigned release assets. |
+| Event log storage invariants | Pass | Later local `swift test` run passed with 86 tests, including storage switching, active-storage clear, and active-storage prune coverage. |
 | Real-device hardware QA | Not tested | Requires manual charger, Wi-Fi, Bluetooth, sleep/wake, notification, lock screen, launch-at-login, alarm, and event-log checks. |
 
 ### Evidence
@@ -111,7 +113,7 @@ PublicGuard settings:
 | Lock screen action | Not tested |  |
 | Launch at login | Not tested |  |
 | Alarm sounds and volume | Not tested |  |
-| Event log storage | Not tested |  |
+| Event log storage menu UX | Not tested |  |
 
 ### Evidence
 

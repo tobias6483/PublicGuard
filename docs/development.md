@@ -152,6 +152,11 @@ Minimal event log detail affects new log entries only. Existing standard-detail 
 
 Encrypted event log storage affects new log writes only. Existing plain-text `events.log` entries are not migrated or deleted when encrypted storage is enabled.
 
+Automated tests cover plain/encrypted storage separation, active-storage clear
+behavior, and active-storage prune behavior. Manual QA should still verify the
+menu checkmarks, `Open Event Log` Finder target, and `Recent Events`
+readability from `dist/PublicGuard.app`.
+
 Event log retention applies only to the active storage mode. `Forever` keeps
 entries until the user clears them. `7 Days` and `30 Days` prune older timestamped
 entries when new events are written or when `Prune Old Event Log Entries` is
