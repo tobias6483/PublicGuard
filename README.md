@@ -46,7 +46,7 @@ Implemented:
 
 Planned:
 
-- Manual lid-close hardware QA using the sleep/wake observation counters and sleep gap diagnostics
+- Manual hardware QA recorded in [docs/hardware-qa-results.md](docs/hardware-qa-results.md), including lid-close sleep/wake diagnostics and Bluetooth proximity behavior
 - Camera snapshot remains out of scope until the privacy review gate in [docs/camera-snapshot-privacy-review.md](docs/camera-snapshot-privacy-review.md) is satisfied
 - Shortcuts and Apple Watch support
 

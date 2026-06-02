@@ -11,6 +11,9 @@ This checklist is for validating PublicGuard's experimental Bluetooth proximity 
 - Whether the Mac is on battery or power adapter.
 - Whether the target device is locked, unlocked, screen-on, screen-off, or in low power mode.
 
+Record final results in [hardware-qa-results.md](hardware-qa-results.md), with
+separate notes for iPhone and non-phone BLE accessory behavior when possible.
+
 ## Learn Flow
 
 1. Open `dist/PublicGuard.app`.
@@ -50,4 +53,3 @@ Record false positives, missed events, and approximate time to response for each
 ## Known Limits
 
 iPhones and some accessories may not advertise a stable BLE identity in every state. If a phone is unreliable, test a common BLE accessory as a comparison point and keep the feature marked experimental until behavior is validated across devices.
-

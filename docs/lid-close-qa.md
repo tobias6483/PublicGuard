@@ -37,6 +37,10 @@ open dist/PublicGuard.app
 
 Clear the event log before each run from the PublicGuard menu bar menu.
 
+Record results in [hardware-qa-results.md](hardware-qa-results.md), including
+the observed sleep/wake counts, sleep gap, event log lines, and whether the
+closed-lid limitation wording still matches the result.
+
 ## Baseline: Open Lid Sleep/Wake
 
 1. Arm PublicGuard.
