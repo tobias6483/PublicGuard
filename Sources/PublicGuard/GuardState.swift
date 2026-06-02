@@ -7,7 +7,6 @@ final class GuardState {
 
     func arm() {
         isArmed = true
-        isAlarmActive = false
     }
 
     func disarm() {

@@ -3,14 +3,14 @@ import XCTest
 
 @MainActor
 final class GuardStateTests: XCTestCase {
-    func testArmEnablesGuardAndClearsAlarm() {
+    func testArmEnablesGuardWithoutClearingActiveAlarm() {
         let state = GuardState()
 
         state.markAlarmActive()
         state.arm()
 
         XCTAssertTrue(state.isArmed)
-        XCTAssertFalse(state.isAlarmActive)
+        XCTAssertTrue(state.isAlarmActive)
     }
 
     func testDisarmClearsGuardAndAlarm() {
