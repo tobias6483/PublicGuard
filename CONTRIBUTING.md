@@ -49,7 +49,7 @@ External contributors are welcome to use the standard GitHub fork workflow:
 3. Push your branch.
 4. Open a pull request against `tobias6483/PublicGuard:main`.
 
-Maintainers and project agents with write access should follow [AGENTS.md](AGENTS.md). In short: work on a branch, stage only relevant files, run `swift test`, create a PR with `gh`, wait for `Swift Build and Test`, then squash-merge and delete the branch. Do not commit or push directly to `main`.
+Maintainers and project agents with write access should follow [AGENTS.md](AGENTS.md). In short: work on a branch, stage only relevant files, run `swift test`, run `scripts/release_check.sh` when release packaging, app bundle metadata, or bundled assets changed, create a PR with `gh`, wait for `Swift Build and Test`, then squash-merge and delete the branch. Do not commit or push directly to `main`.
 
 Please keep pull requests focused and explain:
 
