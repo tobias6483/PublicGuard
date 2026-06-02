@@ -56,4 +56,6 @@ Record false positives, missed events, and approximate time to response for each
 
 ## Known Limits
 
-This is not Bluetooth pairing. PublicGuard watches for the confirmed CoreBluetooth identifier that macOS exposes to this app. iPhones and some accessories may not advertise a stable BLE identity in every state. If a phone is unreliable, test a common BLE accessory as a comparison point and keep the feature marked experimental until behavior is validated across devices.
+This is not Bluetooth pairing. PublicGuard watches for the confirmed CoreBluetooth identifier that macOS exposes to this app. CoreBluetooth proximity alone can only say that the previously confirmed BLE identifier is currently visible to this Mac. Cryptographic proof that the device is the user's phone requires a future verified companion or pairing flow, such as an iPhone app challenge/response.
+
+iPhones and some accessories may not advertise a stable BLE identity in every state. If a phone is unreliable, test a common BLE accessory as a comparison point and keep the feature marked experimental until behavior is validated across devices.
