@@ -57,3 +57,9 @@ Please keep pull requests focused and explain:
 - Why it changed
 - How it was tested
 - Whether it changes privacy, permissions, or background behavior
+
+## Issue Triage
+
+New and edited issues are labeled automatically by GitHub Actions based on the
+issue title/body and issue-form fields. See [docs/triage.md](docs/triage.md)
+for the current label set and privacy/security review signals.

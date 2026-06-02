@@ -1,0 +1,162 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    name: Label Issue
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Apply triage labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const text = [
+              issue.title,
+              issue.body || "",
+            ].join("\n").toLowerCase();
+
+            const labels = new Set();
+
+            const addWhen = (label, patterns) => {
+              if (patterns.some((pattern) => pattern.test(text))) {
+                labels.add(label);
+              }
+            };
+
+            addWhen("area:trigger", [
+              /\btrigger\b/,
+              /\bcharger\b/,
+              /\bpower adapter\b/,
+              /\bwi-?fi\b/,
+              /\bssid\b/,
+              /\bsleep\b/,
+              /\bwake\b/,
+              /\blid\b/,
+              /\bidle\b/,
+              /\bbluetooth\b/,
+              /\bble\b/,
+              /\bproximity\b/,
+            ]);
+            addWhen("area:action", [
+              /\baction\b/,
+              /\balarm\b/,
+              /\block screen\b/,
+              /\bnotification\b/,
+              /\bsilent\b/,
+              /\bevent log\b/,
+              /\blog\b/,
+            ]);
+            addWhen("area:menu-bar", [
+              /\bmenu bar\b/,
+              /\bmenu\b/,
+              /\bstatus item\b/,
+              /\bsettings\b/,
+              /\bpreset\b/,
+              /\bicon\b/,
+            ]);
+            addWhen("area:docs", [
+              /\bdocs?\b/,
+              /\bdocumentation\b/,
+              /\breadme\b/,
+              /\brelease notes?\b/,
+              /\broadmap\b/,
+            ]);
+            addWhen("area:release", [
+              /\brelease\b/,
+              /\bartifact\b/,
+              /\bsign(?:ed|ing)?\b/,
+              /\bnotari[sz]e?d?\b/,
+              /\bhomebrew\b/,
+              /\bcask\b/,
+              /\bchecksum\b/,
+            ]);
+            addWhen("hardware-qa", [
+              /\bhardware\b/,
+              /\bmanual qa\b/,
+              /\bmacbook\b/,
+              /\bapple silicon\b/,
+              /\blid\b/,
+              /\bcharger\b/,
+              /\bbluetooth\b/,
+              /\bble\b/,
+              /\bproximity\b/,
+            ]);
+            addWhen("privacy-review", [
+              /\bprivacy\b/,
+              /\bsecurity\b/,
+              /\bpermission\b/,
+              /\bpermissions\b/,
+              /\bcamera\b/,
+              /\bwebcam\b/,
+              /\bmicrophone\b/,
+              /\blocation\b/,
+              /\btracking\b/,
+              /\bcloud\b/,
+              /\bnetwork\b/,
+              /\bbluetooth\b/,
+              /\bble\b/,
+              /\bkeychain\b/,
+              /\bencrypt(?:ed|ion)?\b/,
+            ]);
+
+            if (labels.size === 0) {
+              labels.add("needs-triage");
+            }
+
+            const labelColors = {
+              "area:trigger": "1f77b4",
+              "area:action": "ff7f0e",
+              "area:menu-bar": "9467bd",
+              "area:docs": "0075ca",
+              "area:release": "5319e7",
+              "hardware-qa": "d4c5f9",
+              "privacy-review": "b60205",
+              "needs-triage": "ededed",
+            };
+
+            const labelDescriptions = {
+              "area:trigger": "Trigger-related behavior such as charger, Wi-Fi, sleep/wake, Bluetooth, or idle signals.",
+              "area:action": "Response actions such as alarms, lock screen, notifications, and event logs.",
+              "area:menu-bar": "Menu bar UX, settings, presets, or status presentation.",
+              "area:docs": "Documentation, README, roadmap, release notes, or contributor guidance.",
+              "area:release": "Build, packaging, artifact, signing, notarization, or distribution work.",
+              "hardware-qa": "Needs validation on real macOS hardware or accessories.",
+              "privacy-review": "Touches permissions, privacy-sensitive behavior, security, or local data handling.",
+              "needs-triage": "Needs maintainer review before a more specific label is known.",
+            };
+
+            for (const name of labels) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name,
+                });
+              } catch (error) {
+                if (error.status !== 404) {
+                  throw error;
+                }
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name,
+                  color: labelColors[name] || "ededed",
+                  description: labelDescriptions[name] || "PublicGuard triage label.",
+                });
+              }
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: [...labels],
+            });
