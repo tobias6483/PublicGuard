@@ -20,6 +20,7 @@ PublicGuard is security-adjacent software. Changes that affect permissions, auth
 - Keep sleep/wake instrumentation local and limited to timestamps, observation counts, and matched sleep duration.
 - Keep trigger grace overrides local settings; they should tune response timing without hiding trigger audit events.
 - Keep event log detail user-controlled; minimal mode should omit SSIDs, Bluetooth device names, detailed reasons, and most settings values from new log entries.
+- Keep event log retention user-controlled and local. Pruning should apply only to timestamped local log entries and should not hide the fact that pruning occurred.
 - Treat the `privacy-review` issue label as a maintainer routing hint, not as a substitute for manual security review.
 - Do not add camera snapshot behavior until the opt-in local-only review gate in `docs/camera-snapshot-privacy-review.md` is satisfied.
 

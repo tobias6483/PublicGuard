@@ -112,7 +112,8 @@ struct EventLog {
     func write(
         _ event: GuardEvent,
         detail: GuardSettings.EventLogDetail = .standard,
-        storage: GuardSettings.EventLogStorage = .plainText
+        storage: GuardSettings.EventLogStorage = .plainText,
+        retention: GuardSettings.EventLogRetention = .forever
     ) {
         let line = "\(Self.timestamp()) \(event.message(detail: detail))\n"
         guard let data = line.data(using: .utf8) else { return }
@@ -123,6 +124,8 @@ struct EventLog {
         case .encrypted:
             appendEncrypted(line)
         }
+
+        prune(retention: retention, storage: storage)
     }
 
     func clear(storage: GuardSettings.EventLogStorage = .plainText) {
@@ -146,6 +149,47 @@ struct EventLog {
             .split(separator: "\n")
             .suffix(limit)
             .map(String.init)
+    }
+
+    @discardableResult
+    func prune(
+        retention: GuardSettings.EventLogRetention,
+        storage: GuardSettings.EventLogStorage = .plainText,
+        now: Date = Date()
+    ) -> Int {
+        guard let days = retention.days else { return 0 }
+
+        return prune(olderThan: now.addingTimeInterval(-TimeInterval(days * 24 * 60 * 60)), storage: storage)
+    }
+
+    @discardableResult
+    func prune(olderThan cutoff: Date, storage: GuardSettings.EventLogStorage = .plainText) -> Int {
+        guard let contents = contents(storage: storage), !contents.isEmpty else {
+            return 0
+        }
+
+        let lines = contents.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        var keptLines: [String] = []
+        var removedCount = 0
+
+        for line in lines where !line.isEmpty {
+            guard let timestamp = Self.timestamp(from: line) else {
+                keptLines.append(line)
+                continue
+            }
+
+            if timestamp < cutoff {
+                removedCount += 1
+            } else {
+                keptLines.append(line)
+            }
+        }
+
+        guard removedCount > 0 else { return 0 }
+
+        let updatedContents = keptLines.isEmpty ? "" : keptLines.joined(separator: "\n") + "\n"
+        writeContents(updatedContents, storage: storage)
+        return removedCount
     }
 
     func url(for storage: GuardSettings.EventLogStorage) -> URL {
@@ -174,6 +218,16 @@ struct EventLog {
     private func appendEncrypted(_ line: String) {
         let currentContents = contents(storage: .encrypted) ?? ""
         writeEncryptedContents(currentContents + line)
+    }
+
+    private func writeContents(_ contents: String, storage: GuardSettings.EventLogStorage) {
+        switch storage {
+        case .plainText:
+            try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? contents.data(using: .utf8)?.write(to: url)
+        case .encrypted:
+            writeEncryptedContents(contents)
+        }
     }
 
     private func contents(storage: GuardSettings.EventLogStorage) -> String? {
@@ -215,6 +269,14 @@ struct EventLog {
     private static func timestamp() -> String {
         ISO8601DateFormatter().string(from: Date())
     }
+
+    private static func timestamp(from line: String) -> Date? {
+        guard let timestamp = line.split(separator: " ", maxSplits: 1).first else {
+            return nil
+        }
+
+        return ISO8601DateFormatter().date(from: String(timestamp))
+    }
 }
 
 enum GuardEvent {
@@ -244,6 +306,7 @@ enum GuardEvent {
         launchAtLoginEnabled: Bool,
         eventLogDetail: GuardSettings.EventLogDetail,
         eventLogStorage: GuardSettings.EventLogStorage,
+        eventLogRetention: GuardSettings.EventLogRetention,
         bluetoothProximityTimeoutSeconds: Int,
         ignoreWiFiDisconnects: Bool,
         triggerCooldownSeconds: Int,
@@ -252,6 +315,7 @@ enum GuardEvent {
     case launchAtLoginChangeFailed(error: String)
     case triggerIgnored(name: String)
     case logCleared
+    case logPruned(removedEntries: Int)
 
     var message: String {
         message(detail: .standard)
@@ -325,12 +389,12 @@ enum GuardEvent {
             case .minimal:
                 "silent_response_triggered"
             }
-        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects, triggerCooldownSeconds, triggerGracePeriodOverrides):
+        case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, eventLogRetention, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects, triggerCooldownSeconds, triggerGracePeriodOverrides):
             switch detail {
             case .standard:
-                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds) trigger_grace_overrides=\"\(Self.triggerGraceOverridesMessage(triggerGracePeriodOverrides))\""
+                "settings_changed grace_period_seconds=\(gracePeriodSeconds) idle_timeout_seconds=\(idleTimeoutSeconds) response_mode=\"\(responseMode.rawValue)\" alarm_sound=\"\(alarmSound.rawValue)\" alarm_volume=\"\(alarmVolume.rawValue)\" lock_screen_enabled=\(lockScreenEnabled) launch_at_login_enabled=\(launchAtLoginEnabled) event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" event_log_retention=\"\(eventLogRetention.rawValue)\" bluetooth_proximity_timeout_seconds=\(bluetoothProximityTimeoutSeconds) ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds) trigger_grace_overrides=\"\(Self.triggerGraceOverridesMessage(triggerGracePeriodOverrides))\""
             case .minimal:
-                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
+                "settings_changed event_log_detail=\"\(eventLogDetail.rawValue)\" event_log_storage=\"\(eventLogStorage.rawValue)\" event_log_retention=\"\(eventLogRetention.rawValue)\" ignore_wifi_disconnects=\(ignoreWiFiDisconnects) trigger_cooldown_seconds=\(triggerCooldownSeconds)"
             }
         case let .launchAtLoginChangeFailed(error):
             switch detail {
@@ -348,6 +412,8 @@ enum GuardEvent {
             }
         case .logCleared:
             "log_cleared"
+        case let .logPruned(removedEntries):
+            "log_pruned removed_entries=\(removedEntries)"
         }
     }
 

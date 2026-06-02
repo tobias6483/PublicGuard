@@ -92,6 +92,81 @@ final class EventLogTests: XCTestCase {
         XCTAssertTrue(entries[1].contains("charger_disconnected"))
     }
 
+    func testPruneRemovesPlainTextEntriesOlderThanCutoff() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url)
+
+        try? """
+        2026-01-01T00:00:00Z armed
+        2026-01-10T00:00:00Z charger_disconnected
+
+        """.data(using: .utf8)?.write(to: url)
+
+        let removedCount = log.prune(olderThan: ISO8601DateFormatter().date(from: "2026-01-05T00:00:00Z")!)
+        let entries = log.recentEntries(limit: 5)
+
+        XCTAssertEqual(removedCount, 1)
+        XCTAssertEqual(entries.count, 1)
+        XCTAssertTrue(entries[0].contains("charger_disconnected"))
+        XCTAssertFalse(entries[0].contains("armed"))
+    }
+
+    func testPruneKeepsMalformedPlainTextEntries() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url)
+
+        try """
+        malformed line
+        2026-01-01T00:00:00Z armed
+        2026-01-10T00:00:00Z charger_disconnected
+
+        """.write(to: url, atomically: true, encoding: .utf8)
+
+        let removedCount = log.prune(olderThan: ISO8601DateFormatter().date(from: "2026-01-05T00:00:00Z")!)
+        let entries = log.recentEntries(limit: 5)
+
+        XCTAssertEqual(removedCount, 1)
+        XCTAssertEqual(entries.count, 2)
+        XCTAssertTrue(entries[0].contains("malformed line"))
+        XCTAssertTrue(entries[1].contains("charger_disconnected"))
+    }
+
+    func testPruneRemovesEncryptedEntriesOlderThanCutoff() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
+
+        log.write(.armed, storage: .encrypted)
+        log.write(.chargerDisconnected, storage: .encrypted)
+        let oldContents = log.recentEntries(limit: 5, storage: .encrypted)
+            .enumerated()
+            .map { index, entry in
+                let timestamp = index == 0 ? "2026-01-01T00:00:00Z" : "2026-01-10T00:00:00Z"
+                return "\(timestamp) \(entry.split(separator: " ", maxSplits: 1).dropFirst().joined(separator: " "))"
+            }
+            .joined(separator: "\n") + "\n"
+        log.clear(storage: .encrypted)
+        for line in oldContents.split(separator: "\n").map(String.init) {
+            let eventMessage = line.split(separator: " ", maxSplits: 1).dropFirst().joined(separator: " ")
+            if eventMessage == "armed" {
+                log.write(.armed, storage: .encrypted)
+            } else {
+                log.write(.chargerDisconnected, storage: .encrypted)
+            }
+        }
+
+        let removedCount = log.prune(olderThan: Date().addingTimeInterval(1), storage: .encrypted)
+        let entries = log.recentEntries(limit: 5, storage: .encrypted)
+
+        XCTAssertEqual(removedCount, 2)
+        XCTAssertEqual(entries, [])
+    }
+
     func testRecentEntriesReturnsEmptyListWhenLogDoesNotExist() {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -169,13 +244,14 @@ final class EventLogTests: XCTestCase {
             launchAtLoginEnabled: true,
             eventLogDetail: .standard,
             eventLogStorage: .encrypted,
+            eventLogRetention: .sevenDays,
             bluetoothProximityTimeoutSeconds: 60,
             ignoreWiFiDisconnects: true,
             triggerCooldownSeconds: 120,
             triggerGracePeriodOverrides: [.networkChange: 60]
         ).message
 
-        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\" bluetooth_proximity_timeout_seconds=60 ignore_wifi_disconnects=true trigger_cooldown_seconds=120 trigger_grace_overrides=\"networkChange=60\"")
+        XCTAssertEqual(message, "settings_changed grace_period_seconds=10 idle_timeout_seconds=300 response_mode=\"silent\" alarm_sound=\"ping\" alarm_volume=\"maximum\" lock_screen_enabled=false launch_at_login_enabled=true event_log_detail=\"standard\" event_log_storage=\"encrypted\" event_log_retention=\"sevenDays\" bluetooth_proximity_timeout_seconds=60 ignore_wifi_disconnects=true trigger_cooldown_seconds=120 trigger_grace_overrides=\"networkChange=60\"")
     }
 
     func testLaunchAtLoginChangeFailedMessageContainsError() {
@@ -230,6 +306,10 @@ final class EventLogTests: XCTestCase {
 
     func testLogClearedMessage() {
         XCTAssertEqual(GuardEvent.logCleared.message, "log_cleared")
+    }
+
+    func testLogPrunedMessage() {
+        XCTAssertEqual(GuardEvent.logPruned(removedEntries: 3).message, "log_pruned removed_entries=3")
     }
 }
 

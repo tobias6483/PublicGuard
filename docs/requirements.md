@@ -28,6 +28,7 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | Event log: alarm triggered | Implemented | `alarm_triggered` or `silent_response_triggered` log events. |
 | Event log: alarm stopped | Implemented | `alarm_stopped` log event. |
 | Encrypted event logs | Implemented | Optional AES-GCM event log storage uses a local macOS Keychain-backed key. |
+| Event log retention | Implemented | User can keep logs forever, 7 days, or 30 days, and manually prune old entries with local `log_pruned` audit logging. |
 
 ## Stronger Features
 

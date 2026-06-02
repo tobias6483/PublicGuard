@@ -19,6 +19,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertFalse(settings.launchAtLoginEnabled)
         XCTAssertEqual(settings.eventLogDetail, .standard)
         XCTAssertEqual(settings.eventLogStorage, .plainText)
+        XCTAssertEqual(settings.eventLogRetention, .forever)
         XCTAssertNil(settings.bluetoothTargetIdentifier)
         XCTAssertNil(settings.bluetoothTargetName)
         XCTAssertEqual(settings.bluetoothProximityTimeoutSeconds, 30)
@@ -42,6 +43,7 @@ final class SettingsStoreTests: XCTestCase {
             launchAtLoginEnabled: true,
             eventLogDetail: .minimal,
             eventLogStorage: .encrypted,
+            eventLogRetention: .sevenDays,
             bluetoothTargetIdentifier: "C07F4E70-7A07-4032-8C77-8EB75490D620",
             bluetoothTargetName: "Tobias iPhone",
             bluetoothProximityTimeoutSeconds: 60,
@@ -63,6 +65,7 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertTrue(store.load().launchAtLoginEnabled)
         XCTAssertEqual(store.load().eventLogDetail, .minimal)
         XCTAssertEqual(store.load().eventLogStorage, .encrypted)
+        XCTAssertEqual(store.load().eventLogRetention, .sevenDays)
         XCTAssertEqual(store.load().bluetoothTargetIdentifier, "C07F4E70-7A07-4032-8C77-8EB75490D620")
         XCTAssertEqual(store.load().bluetoothTargetName, "Tobias iPhone")
         XCTAssertEqual(store.load().bluetoothProximityTimeoutSeconds, 60)
@@ -258,6 +261,31 @@ final class SettingsStoreTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         XCTAssertEqual(store.load().eventLogStorage, .plainText)
+    }
+
+    func testInvalidEventLogRetentionFallsBackToDefault() {
+        let defaults = makeDefaults()
+        defaults.set("not-a-real-retention", forKey: "eventLogRetention")
+        let store = SettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.load().eventLogRetention, .forever)
+    }
+
+    func testEventLogRetentionCanBeSevenDays() {
+        let defaults = makeDefaults()
+        let store = SettingsStore(defaults: defaults)
+
+        store.save(GuardSettings(
+            gracePeriodSeconds: 5,
+            responseMode: .loudAlarm,
+            enabledTriggers: Set(GuardSettings.TriggerKind.allCases),
+            notificationsEnabled: true,
+            alarmSound: .appleAlarm,
+            lockScreenEnabled: true,
+            eventLogRetention: .sevenDays
+        ))
+
+        XCTAssertEqual(store.load().eventLogRetention, .sevenDays)
     }
 
     func testAlarmVolumeValuesMapToSoundVolumes() {

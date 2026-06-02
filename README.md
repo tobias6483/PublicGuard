@@ -32,6 +32,7 @@ Implemented:
 - Launch at login setting for app bundle builds
 - Event log detail setting with a minimal privacy mode
 - Optional encrypted event log storage using a local Keychain-backed key
+- Event log retention controls with manual pruning
 - Manual response test from the menu bar
 - Looping local alarm sound
 - Touch ID/password protected alarm stop
@@ -144,6 +145,8 @@ Stopping an active alarm writes an `alarm_stopped` entry before any armed guard 
 The menu also includes `Clear Event Log`, which resets the local log and writes a fresh `log_cleared` entry.
 
 `Settings > Event Log Detail` can switch between `Standard` and `Minimal`. Minimal mode keeps event types and timing but omits SSIDs, Bluetooth device names, detailed response reasons, and most settings values from new log entries.
+
+`Settings > Event Log Retention` can keep entries forever, for 7 days, or for 30 days. Retention applies to the active log storage mode when new events are written. The menu also includes `Prune Old Event Log Entries`, which manually applies the current retention setting and writes a `log_pruned` audit entry with the number of removed entries.
 
 ## Bluetooth Proximity
 
