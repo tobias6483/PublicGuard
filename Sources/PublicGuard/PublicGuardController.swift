@@ -16,10 +16,10 @@ final class PublicGuardController {
     private let bluetoothMonitor = BluetoothProximityMonitor()
     private let idleMonitor = IdleActivityMonitor()
     private let loginItemController = LoginItemController()
+    private let gracePeriodScheduler = GracePeriodScheduler()
 
     private var settings: GuardSettings
     private var statusItem: NSStatusItem?
-    private var graceTask: Task<Void, Never>?
     private var lastAcceptedTriggerAt: Date?
 
     init() {
@@ -89,7 +89,7 @@ final class PublicGuardController {
 
     func stop() {
         writeEvent(.appStopped)
-        graceTask?.cancel()
+        gracePeriodScheduler.cancel()
         alarm.stop()
         powerMonitor.stop()
         networkMonitor.stop()
@@ -322,7 +322,7 @@ final class PublicGuardController {
 
         let launchAtLoginTitle = loginItemController.canManageLaunchAtLogin ? "Launch at Login" : "Launch at Login (App Bundle Only)"
         let launchAtLoginItem = NSMenuItem(title: launchAtLoginTitle, action: #selector(toggleLaunchAtLogin), keyEquivalent: "", target: self)
-        launchAtLoginItem.state = settings.launchAtLoginEnabled ? .on : .off
+        launchAtLoginItem.state = loginItemController.isLaunchAtLoginEnabled ? .on : .off
         launchAtLoginItem.isEnabled = loginItemController.canManageLaunchAtLogin
         submenu.addItem(launchAtLoginItem)
 
@@ -522,7 +522,7 @@ final class PublicGuardController {
                 return
             }
 
-            graceTask?.cancel()
+            gracePeriodScheduler.cancel()
             let wasArmed = state.isArmed
             let wasAlarmActive = state.isAlarmActive
 
@@ -679,11 +679,11 @@ final class PublicGuardController {
     }
 
     @objc private func toggleLaunchAtLogin() {
-        let enabled = !settings.launchAtLoginEnabled
+        let enabled = !loginItemController.isLaunchAtLoginEnabled
 
         do {
             try loginItemController.setLaunchAtLoginEnabled(enabled)
-            settings.launchAtLoginEnabled = enabled
+            settings.launchAtLoginEnabled = loginItemController.isLaunchAtLoginEnabled
             persistSettings()
         } catch {
             writeEvent(.launchAtLoginChangeFailed(error: String(describing: error)))
@@ -768,6 +768,7 @@ final class PublicGuardController {
     }
 
     private func persistSettings() {
+        settings.launchAtLoginEnabled = loginItemController.isLaunchAtLoginEnabled
         settingsStore.save(settings)
         writeEvent(.settingsChanged(
             gracePeriodSeconds: settings.gracePeriodSeconds,
@@ -903,20 +904,21 @@ final class PublicGuardController {
     }
 
     private func triggerAlarmAfterGracePeriod(reason: String, trigger: GuardSettings.TriggerKind? = nil, bypassArmedCheck: Bool = false) {
-        graceTask?.cancel()
         let gracePeriod = trigger.map(settings.gracePeriodDuration(for:)) ?? settings.gracePeriodDuration
-        writeEvent(.gracePeriodStarted(reason: reason, seconds: gracePeriod))
-
-        graceTask = Task { [weak self] in
+        let triggerName = trigger?.rawValue ?? "manual"
+        let scheduled = gracePeriodScheduler.schedule(after: gracePeriod) { [weak self] in
             guard let self else { return }
-            try? await Task.sleep(for: gracePeriod)
-            guard !Task.isCancelled else { return }
-
-            await MainActor.run {
-                guard bypassArmedCheck || self.state.isArmed else { return }
-                self.triggerConfiguredResponse(reason: reason)
-            }
+            guard bypassArmedCheck || self.state.isArmed else { return }
+            self.triggerConfiguredResponse(reason: reason)
         }
+
+        guard scheduled else {
+            writeEvent(.triggerIgnored(name: "\(triggerName).grace_period_pending"))
+            rebuildMenu()
+            return
+        }
+
+        writeEvent(.gracePeriodStarted(reason: reason, seconds: gracePeriod))
     }
 
     private func triggerConfiguredResponse(reason: String) {
