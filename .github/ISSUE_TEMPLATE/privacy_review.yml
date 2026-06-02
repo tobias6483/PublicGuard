@@ -1,0 +1,56 @@
+name: Privacy review
+description: Review a permission-sensitive feature before implementation.
+title: "[Privacy Review]: "
+labels: ["privacy-review"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What sensitive behavior, permission, or data handling is being proposed?
+    validations:
+      required: true
+  - type: dropdown
+    id: sensitive_area
+    attributes:
+      label: Sensitive area
+      options:
+        - Camera
+        - Microphone
+        - Location
+        - Bluetooth
+        - Networking
+        - Event logs or local storage
+        - Authentication or lock behavior
+        - Background execution
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: user_control
+    attributes:
+      label: User control
+      description: How will the user enable, disable, test, and understand this behavior?
+    validations:
+      required: true
+  - type: textarea
+    id: data_handling
+    attributes:
+      label: Data handling
+      description: What data is collected or stored, where is it stored, and how can it be cleared?
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: List behavior that must not be added, such as hidden recording, tracking, cloud upload, or analytics.
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Tests and QA
+      description: What automated tests and manual QA are required before release?
+    validations:
+      required: true

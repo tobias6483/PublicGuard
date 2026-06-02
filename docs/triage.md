@@ -22,6 +22,10 @@ repository labels when needed, and applies matching labels.
 - `privacy-review`: issues that mention permissions, privacy/security, camera, microphone, location, networking, Bluetooth, Keychain, encryption, tracking, or cloud behavior.
 - `needs-triage`: fallback label when no specific routing label matches.
 
+Use the `Privacy review` issue template for proposed camera, microphone,
+location, networking, storage, authentication, lock behavior, Bluetooth, or
+background-execution changes.
+
 ## Maintainer Notes
 
 Labels are hints, not decisions. Maintainers should still review privacy,
