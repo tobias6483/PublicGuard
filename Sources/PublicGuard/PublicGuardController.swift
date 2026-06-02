@@ -137,6 +137,7 @@ final class PublicGuardController {
         menu.addItem(triggerDiagnosticsMenuItem())
         menu.addItem(recentEventsMenuItem())
         menu.addItem(NSMenuItem(title: "Open Event Log", action: #selector(openEventLog), keyEquivalent: "l", target: self))
+        menu.addItem(NSMenuItem(title: "Prune Old Event Log Entries", action: #selector(pruneEventLog), keyEquivalent: "", target: self))
         menu.addItem(NSMenuItem(title: "Clear Event Log", action: #selector(clearEventLog), keyEquivalent: "", target: self))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit PublicGuard", action: #selector(quit), keyEquivalent: "q", target: self))
@@ -275,6 +276,19 @@ final class PublicGuardController {
 
         eventLogStorage.submenu = eventLogStorageSubmenu
         submenu.addItem(eventLogStorage)
+
+        let eventLogRetention = NSMenuItem(title: "Event Log Retention", action: nil, keyEquivalent: "")
+        let eventLogRetentionSubmenu = NSMenu()
+
+        for retention in GuardSettings.EventLogRetention.allCases {
+            let retentionItem = NSMenuItem(title: retention.title, action: #selector(setEventLogRetention(_:)), keyEquivalent: "", target: self)
+            retentionItem.representedObject = retention.rawValue
+            retentionItem.state = settings.eventLogRetention == retention ? .on : .off
+            eventLogRetentionSubmenu.addItem(retentionItem)
+        }
+
+        eventLogRetention.submenu = eventLogRetentionSubmenu
+        submenu.addItem(eventLogRetention)
 
         let triggers = NSMenuItem(title: "Triggers", action: nil, keyEquivalent: "")
         let triggerSubmenu = NSMenu()
@@ -534,6 +548,12 @@ final class PublicGuardController {
         writeEvent(.logCleared)
     }
 
+    @objc private func pruneEventLog() {
+        let removedCount = eventLog.prune(retention: settings.eventLogRetention, storage: settings.eventLogStorage)
+        writeEvent(.logPruned(removedEntries: removedCount))
+        rebuildMenu()
+    }
+
     @objc private func testResponse() {
         triggerAlarmAfterGracePeriod(reason: "Manual response test", bypassArmedCheck: true)
     }
@@ -730,6 +750,18 @@ final class PublicGuardController {
         persistSettings()
     }
 
+    @objc private func setEventLogRetention(_ sender: NSMenuItem) {
+        guard
+            let rawValue = sender.representedObject as? String,
+            let retention = GuardSettings.EventLogRetention(rawValue: rawValue)
+        else {
+            return
+        }
+
+        settings.eventLogRetention = retention
+        persistSettings()
+    }
+
     @objc private func quit() {
         NSApp.terminate(nil)
     }
@@ -746,6 +778,7 @@ final class PublicGuardController {
             launchAtLoginEnabled: settings.launchAtLoginEnabled,
             eventLogDetail: settings.eventLogDetail,
             eventLogStorage: settings.eventLogStorage,
+            eventLogRetention: settings.eventLogRetention,
             bluetoothProximityTimeoutSeconds: settings.bluetoothProximityTimeoutSeconds,
             ignoreWiFiDisconnects: settings.ignoreWiFiDisconnects,
             triggerCooldownSeconds: settings.triggerCooldownSeconds,
@@ -904,7 +937,7 @@ final class PublicGuardController {
     }
 
     private func writeEvent(_ event: GuardEvent) {
-        eventLog.write(event, detail: settings.eventLogDetail, storage: settings.eventLogStorage)
+        eventLog.write(event, detail: settings.eventLogDetail, storage: settings.eventLogStorage, retention: settings.eventLogRetention)
     }
 }
 
@@ -940,7 +973,7 @@ private extension PublicGuardController {
     func currentSettingsSummary() -> String {
         let enabledTriggerCount = settings.enabledTriggers.count
         let totalTriggerCount = GuardSettings.TriggerKind.allCases.count
-        return "Current: \(currentPresetSummary().trimmingCharacters(in: CharacterSet(charactersIn: "()"))) | \(settings.responseMode.title), \(Self.idleTimeoutTitle(seconds: settings.idleTimeoutSeconds)), \(enabledTriggerCount)/\(totalTriggerCount) triggers"
+        return "Current: \(currentPresetSummary().trimmingCharacters(in: CharacterSet(charactersIn: "()"))) | \(settings.responseMode.title), \(Self.idleTimeoutTitle(seconds: settings.idleTimeoutSeconds)), \(enabledTriggerCount)/\(totalTriggerCount) triggers, logs \(settings.eventLogRetention.title.lowercased())"
     }
 
     static func idleTimeoutTitle(seconds: Int) -> String {

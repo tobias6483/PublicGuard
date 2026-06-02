@@ -146,6 +146,34 @@ struct GuardSettings {
         }
     }
 
+    enum EventLogRetention: String, CaseIterable {
+        case forever
+        case sevenDays
+        case thirtyDays
+
+        var title: String {
+            switch self {
+            case .forever:
+                "Forever"
+            case .sevenDays:
+                "7 Days"
+            case .thirtyDays:
+                "30 Days"
+            }
+        }
+
+        var days: Int? {
+            switch self {
+            case .forever:
+                nil
+            case .sevenDays:
+                7
+            case .thirtyDays:
+                30
+            }
+        }
+    }
+
     enum SessionPreset: String, CaseIterable {
         case cafe
         case library
@@ -262,6 +290,7 @@ struct GuardSettings {
     var launchAtLoginEnabled: Bool = false
     var eventLogDetail: EventLogDetail = .standard
     var eventLogStorage: EventLogStorage = .plainText
+    var eventLogRetention: EventLogRetention = .forever
     var bluetoothTargetIdentifier: String?
     var bluetoothTargetName: String?
     var bluetoothProximityTimeoutSeconds: Int = 30
@@ -303,6 +332,7 @@ struct SettingsStore {
         static let launchAtLoginEnabled = "launchAtLoginEnabled"
         static let eventLogDetail = "eventLogDetail"
         static let eventLogStorage = "eventLogStorage"
+        static let eventLogRetention = "eventLogRetention"
         static let bluetoothTargetIdentifier = "bluetoothTargetIdentifier"
         static let bluetoothTargetName = "bluetoothTargetName"
         static let bluetoothProximityTimeoutSeconds = "bluetoothProximityTimeoutSeconds"
@@ -343,6 +373,8 @@ struct SettingsStore {
         let eventLogDetail = storedEventLogDetail.flatMap(GuardSettings.EventLogDetail.init(rawValue:)) ?? .standard
         let storedEventLogStorage = defaults.string(forKey: Key.eventLogStorage)
         let eventLogStorage = storedEventLogStorage.flatMap(GuardSettings.EventLogStorage.init(rawValue:)) ?? .plainText
+        let storedEventLogRetention = defaults.string(forKey: Key.eventLogRetention)
+        let eventLogRetention = storedEventLogRetention.flatMap(GuardSettings.EventLogRetention.init(rawValue:)) ?? .forever
         let bluetoothTargetIdentifier = defaults.string(forKey: Key.bluetoothTargetIdentifier)
         let bluetoothTargetName = defaults.string(forKey: Key.bluetoothTargetName)
         let storedBluetoothTimeout = defaults.object(forKey: Key.bluetoothProximityTimeoutSeconds) as? Int
@@ -366,6 +398,7 @@ struct SettingsStore {
             launchAtLoginEnabled: launchAtLoginEnabled,
             eventLogDetail: eventLogDetail,
             eventLogStorage: eventLogStorage,
+            eventLogRetention: eventLogRetention,
             bluetoothTargetIdentifier: bluetoothTargetIdentifier,
             bluetoothTargetName: bluetoothTargetName,
             bluetoothProximityTimeoutSeconds: bluetoothProximityTimeout,
@@ -387,6 +420,7 @@ struct SettingsStore {
         defaults.set(settings.launchAtLoginEnabled, forKey: Key.launchAtLoginEnabled)
         defaults.set(settings.eventLogDetail.rawValue, forKey: Key.eventLogDetail)
         defaults.set(settings.eventLogStorage.rawValue, forKey: Key.eventLogStorage)
+        defaults.set(settings.eventLogRetention.rawValue, forKey: Key.eventLogRetention)
         setOptional(settings.bluetoothTargetIdentifier, forKey: Key.bluetoothTargetIdentifier)
         setOptional(settings.bluetoothTargetName, forKey: Key.bluetoothTargetName)
         defaults.set(settings.bluetoothProximityTimeoutSeconds, forKey: Key.bluetoothProximityTimeoutSeconds)

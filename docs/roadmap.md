@@ -25,6 +25,7 @@
 - Local-only event log
 - Minimal event log detail mode
 - Optional encrypted event log storage
+- Event log retention controls with manual pruning
 - Recent event preview in the menu bar
 - Recent trigger diagnostics with sleep/wake observation counters
 - Authenticated alarm stop with local audit logging
