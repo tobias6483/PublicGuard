@@ -50,3 +50,4 @@
 - Added sleep/wake observation counts, matched sleep-gap diagnostics, and wake log entries with `slept_seconds`.
 - Added disabled, 30 minute, and 1 hour idle-timeout options for quieter sessions.
 - Added per-trigger grace period overrides for tuning noisy triggers without changing the global grace period.
+- Added a hardware QA results template for recording real-device release checks without overstating untested behavior.
