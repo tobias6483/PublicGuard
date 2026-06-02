@@ -113,6 +113,15 @@ open dist/PublicGuard.app
 
 The local bundle is unsigned, but it gives PublicGuard a real app bundle identity for more realistic manual testing. See [docs/release.md](docs/release.md).
 
+For release dry runs, use:
+
+```sh
+scripts/release_check.sh
+```
+
+It runs build, tests, app bundle validation, and creates an unsigned zipped
+artifact with a SHA-256 checksum under `dist/artifacts`.
+
 ## Event Log
 
 By default, the local event log is written as plain text to:
