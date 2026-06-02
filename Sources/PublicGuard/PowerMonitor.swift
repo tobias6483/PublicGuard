@@ -12,21 +12,24 @@ final class PowerMonitor {
     var onPowerAdapterDisconnected: (() -> Void)?
 
     private let disconnectDebounceSeconds: TimeInterval
+    private let pollInterval: TimeInterval
     private var timer: Timer?
     private var wasConnected: Bool?
     private var pendingDisconnectStartedAt: Date?
 
-    init(disconnectDebounceSeconds: TimeInterval = 4) {
+    init(disconnectDebounceSeconds: TimeInterval = 1.5, pollInterval: TimeInterval = 0.5) {
         self.disconnectDebounceSeconds = disconnectDebounceSeconds
+        self.pollInterval = pollInterval
     }
 
     func start() {
         wasConnected = isPowerAdapterConnected()
-        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.poll()
             }
         }
+        timer?.tolerance = 0.1
     }
 
     func stop() {

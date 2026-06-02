@@ -220,7 +220,7 @@ struct GuardSettings {
         private var gracePeriodSeconds: Int {
             switch self {
             case .cafe:
-                5
+                0
             case .library:
                 15
             case .school:
@@ -349,7 +349,7 @@ struct SettingsStore {
 
     func load() -> GuardSettings {
         let storedGracePeriod = defaults.object(forKey: Key.gracePeriodSeconds) as? Int
-        let gracePeriod = storedGracePeriod.flatMap { Self.validGracePeriods.contains($0) ? $0 : nil } ?? 5
+        let gracePeriod = storedGracePeriod.flatMap { Self.validGracePeriods.contains($0) ? $0 : nil } ?? 0
         let storedIdleTimeout = defaults.object(forKey: Key.idleTimeoutSeconds) as? Int
         let idleTimeout = storedIdleTimeout.flatMap { Self.validIdleTimeouts.contains($0) ? $0 : nil } ?? 300
 
@@ -432,11 +432,11 @@ struct SettingsStore {
         )
     }
 
-    static let validGracePeriods = [0, 5, 10, 15, 30]
+    static let validGracePeriods = [0, 1, 5, 10, 15, 30]
     static let validIdleTimeouts = [0, 60, 300, 600, 900, 1800, 3600]
     static let validBluetoothProximityTimeouts = [15, 30, 60, 120]
     static let validTriggerCooldowns = [0, 30, 60, 120]
-    static let validTriggerGraceOverrides = [0, 5, 10, 15, 30, 60, 120]
+    static let validTriggerGraceOverrides = [0, 1, 5, 10, 15, 30, 60, 120]
 
     private static func sanitizedTriggerGracePeriodOverrides(_ values: [String: Any]) -> [GuardSettings.TriggerKind: Int] {
         values.reduce(into: [:]) { result, item in

@@ -63,3 +63,4 @@
 - Hardened event log formatting by escaping quoted values before writing user-controlled names and reasons.
 - Prevented response mode and preset changes from silencing an already active alarm without authenticated stop/disarm.
 - Preserved active alarm state when arming so a manual test alarm cannot become invisible to authenticated stop/disarm.
+- Hardened trigger latency by using CoreWLAN Wi-Fi events with fast polling fallback, shorter charger disconnect debounce, a no-delay Café preset, and 1 second grace-period options.

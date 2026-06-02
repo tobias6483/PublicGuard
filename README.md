@@ -164,7 +164,7 @@ This is local-only and stores the confirmed CoreBluetooth device identifier and 
 
 `Settings > Presets` can quickly apply local public-work profiles:
 
-- `Café`: 5 second grace period, 5 minute idle timeout, loud response, maximum app playback volume, notifications, lock screen, and all triggers enabled.
+- `Café`: no response delay, 5 minute idle timeout, loud response, maximum app playback volume, notifications, lock screen, and all triggers enabled.
 - `Library`: 15 second grace period, 15 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and all triggers enabled.
 - `School`: 10 second grace period, 10 minute idle timeout, loud response, normal app playback volume, notifications, lock screen, and all triggers enabled.
 - `Office`: 30 second grace period, 10 minute idle timeout, silent response, normal app playback volume, notifications, lock screen, and charger, lid/wake, Bluetooth proximity, and idle triggers enabled. Wi-Fi change is disabled in this preset to reduce false alarms on roaming office networks.
@@ -177,7 +177,7 @@ Presets keep the selected alarm sound and learned Bluetooth device.
 
 ## Trigger Tuning
 
-`Settings > Trigger Grace Overrides` can override the global grace period per trigger. This is useful when a noisy signal, such as Wi-Fi or Bluetooth proximity, should wait longer before starting the configured response while charger or sleep/wake behavior stays fast.
+`Settings > Trigger Grace Overrides` can override the global grace period per trigger. This is useful when a noisy signal, such as Wi-Fi or Bluetooth proximity, should wait longer before starting the configured response while charger or sleep/wake behavior stays fast. The global grace period supports `No Delay` and a 1 second option for fast public-session tuning.
 
 ## Launch at Login
 
