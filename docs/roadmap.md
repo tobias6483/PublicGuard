@@ -27,6 +27,7 @@
 - Authenticated alarm stop with local audit logging
 - Event log open and clear actions
 - Local unsigned app bundle script
+- GitHub Actions unsigned zipped app artifact
 - App icon for local app bundles
 
 ## Next
@@ -44,4 +45,5 @@
 - Shortcuts integration
 - Opt-in camera snapshot action with explicit local-only storage controls
 - Signed app release pipeline
+- Notarized release pipeline
 - Homebrew cask exploration
