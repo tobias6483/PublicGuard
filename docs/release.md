@@ -5,6 +5,10 @@ publishing the first beta release. It defines the local verification commands,
 manual hardware QA gate, README media prep, artifact dry run, and release notes
 template.
 
+Use [v0.1-release-notes.md](v0.1-release-notes.md) as the working GitHub Release
+body draft. Update its hardware QA section with actual results before
+publishing.
+
 ## Local App Bundle
 
 Build a local unsigned app bundle:
