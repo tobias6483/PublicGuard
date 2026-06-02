@@ -45,6 +45,7 @@ Implemented:
 Planned:
 
 - Manual lid-close hardware QA and follow-up sleep/wake tuning
+- Camera snapshot remains out of scope until the privacy review gate in [docs/camera-snapshot-privacy-review.md](docs/camera-snapshot-privacy-review.md) is satisfied
 - Shortcuts and Apple Watch support
 
 See [docs/roadmap.md](docs/roadmap.md) for the current roadmap.

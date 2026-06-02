@@ -39,13 +39,13 @@
 - Validate Bluetooth proximity behavior with iPhone and common BLE accessories using `docs/bluetooth-proximity-qa.md`
 - Validate immediate lid-close/sleep response and wake fallback behavior against the research note
 - Tune bundled alarm sound files after hardware testing
-- Design opt-in privacy review for any future camera snapshot action
+- Keep camera snapshot out of scope unless the privacy review gate is completed
 
 ## Later
 
 - Apple Watch support
 - Shortcuts integration
-- Opt-in camera snapshot action with explicit local-only storage controls
+- Opt-in camera snapshot action only after `docs/camera-snapshot-privacy-review.md` is satisfied
 - Signed app release pipeline
 - Notarized release pipeline
 - Homebrew cask exploration

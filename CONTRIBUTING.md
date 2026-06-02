@@ -63,3 +63,7 @@ Please keep pull requests focused and explain:
 New and edited issues are labeled automatically by GitHub Actions based on the
 issue title/body and issue-form fields. See [docs/triage.md](docs/triage.md)
 for the current label set and privacy/security review signals.
+
+Permission-sensitive proposals should use the `Privacy review` issue template
+before implementation. Camera snapshot proposals must also satisfy
+[docs/camera-snapshot-privacy-review.md](docs/camera-snapshot-privacy-review.md).

@@ -43,3 +43,4 @@
 - Added a configurable Bluetooth proximity out-of-range timeout and QA checklist.
 - Added app bundle validation and SHA-256 checksums for unsigned app artifacts.
 - Added GitHub Actions issue triage labels for maintainer routing.
+- Added a camera snapshot privacy review gate and privacy review issue template.
