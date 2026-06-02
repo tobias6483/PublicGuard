@@ -158,7 +158,7 @@ Presets keep the selected alarm sound and learned Bluetooth device.
 
 ## Idle Timeout
 
-`Settings > Idle Timeout` controls how long the Mac can go without local keyboard or pointer activity before PublicGuard responds while armed. It uses macOS' local HID idle timer and does not record keystrokes, pointer movement, app usage, or content.
+`Settings > Idle Timeout` controls how long the Mac can go without local keyboard or pointer activity before PublicGuard responds while armed. It can be disabled, or set from 1 minute up to 1 hour for quieter sessions. It uses macOS' local HID idle timer and does not record keystrokes, pointer movement, app usage, or content.
 
 ## Launch at Login
 

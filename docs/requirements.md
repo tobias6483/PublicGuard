@@ -35,7 +35,7 @@ This document tracks PublicGuard against the current product brief: an open-sour
 | --- | --- | --- |
 | iPhone / phone proximity trigger | Configurable, needs hardware QA | BLE learning, configurable out-of-range timeout, and out-of-range trigger exist, but iPhone stability requires device QA. |
 | Charger disconnect action: alarm, lock, notification | Implemented | Response pipeline supports alarm/silent, optional lock, and optional notification. |
-| Motion signal | Covered by proxies | Modern MacBook motion sensors are not assumed; PublicGuard uses sleep/wake, charger, Bluetooth, Wi-Fi, and idle signals. |
+| Motion signal | Covered by proxies | Modern MacBook motion sensors are not assumed; PublicGuard uses sleep/wake, charger, Bluetooth, Wi-Fi, and configurable idle signals. |
 | Network/location change trigger | Implemented | Wi-Fi SSID changes are monitored locally. |
 | Silent mode | Implemented | Silent response logs, notifies if enabled, and locks if enabled without alarm audio. |
 | Camera snapshot | Privacy review designed, not implemented | Out of scope for v0.1. `docs/camera-snapshot-privacy-review.md` defines the opt-in, local-only, retention, logging, testing, and permission-copy gate required before implementation. |

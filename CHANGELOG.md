@@ -48,3 +48,4 @@
 - Tuned false-positive controls with charger disconnect debounce, Wi-Fi disconnect policy, and Wi-Fi change classification.
 - Added trigger cooldown controls and Bluetooth armed-baseline handling.
 - Added sleep/wake observation counts, matched sleep-gap diagnostics, and wake log entries with `slept_seconds`.
+- Added disabled, 30 minute, and 1 hour idle-timeout options for quieter sessions.

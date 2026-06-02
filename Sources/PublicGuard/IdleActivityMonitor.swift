@@ -37,6 +37,11 @@ final class IdleActivityMonitor {
     }
 
     func resetBaseline() {
+        guard thresholdSeconds > 0 else {
+            wasIdlePastThreshold = false
+            return
+        }
+
         wasIdlePastThreshold = currentIdleSeconds() >= TimeInterval(thresholdSeconds)
     }
 
@@ -48,6 +53,8 @@ final class IdleActivityMonitor {
     }
 
     private func poll() {
+        guard thresholdSeconds > 0 else { return }
+
         let isIdlePastThreshold = currentIdleSeconds() >= TimeInterval(thresholdSeconds)
         defer { wasIdlePastThreshold = isIdlePastThreshold }
 
