@@ -40,6 +40,7 @@ Implemented:
 - Local-only event log
 - Recent event preview from the menu bar
 - Event log open and clear actions
+- GitHub Actions unsigned app artifact workflow
 
 Planned:
 
