@@ -40,7 +40,7 @@ Implemented:
 - Local-only event log
 - Recent event preview from the menu bar
 - Event log open and clear actions
-- GitHub Actions unsigned app artifact workflow
+- GitHub Actions unsigned app artifact workflow with bundle validation and SHA-256 checksum
 
 Planned:
 
@@ -101,6 +101,7 @@ When running directly through SwiftPM, macOS notification delivery may be skippe
 
 ```sh
 scripts/build_app.sh
+scripts/validate_app_bundle.sh
 open dist/PublicGuard.app
 ```
 

@@ -6,6 +6,7 @@ Build a local unsigned app bundle:
 
 ```sh
 scripts/build_app.sh
+scripts/validate_app_bundle.sh
 ```
 
 The generated app is written to:
@@ -29,12 +30,17 @@ The bundle is intentionally local and unsigned for now. It includes:
 - `NSBluetoothAlwaysUsageDescription`: explains local Bluetooth proximity detection
 - SwiftPM resource bundles, including bundled alarm sounds
 
+`scripts/validate_app_bundle.sh` verifies the generated executable, Info.plist
+values, icon, SwiftPM resource bundle, and bundled alarm files before manual QA
+or artifact upload.
+
 `Settings > Launch at Login` uses macOS ServiceManagement and should be verified from this app bundle. It is not active when running the executable directly through SwiftPM.
 
 ## GitHub App Artifact
 
 The `App Artifact` workflow builds the same unsigned bundle on GitHub Actions,
-zips it, and uploads it as a workflow artifact named `PublicGuard-unsigned-app`.
+validates the app bundle, zips it, writes a SHA-256 checksum, and uploads both
+files as a workflow artifact named `PublicGuard-unsigned-app`.
 
 Run it manually from GitHub Actions, or push a version tag such as:
 
