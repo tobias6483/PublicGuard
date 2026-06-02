@@ -63,6 +63,77 @@ final class EventLogTests: XCTestCase {
         XCTAssertTrue(entries[1].contains("charger_disconnected"))
     }
 
+    func testSwitchingEventLogStorageKeepsPlainAndEncryptedLogsSeparate() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
+
+        log.write(.armed, storage: .plainText)
+        log.write(.chargerDisconnected, storage: .encrypted)
+        log.write(.appStarted, storage: .plainText)
+
+        let plainEntries = log.recentEntries(limit: 5, storage: .plainText)
+        let encryptedEntries = log.recentEntries(limit: 5, storage: .encrypted)
+        let encryptedData = try Data(contentsOf: log.encryptedURL)
+        let encryptedText = String(data: encryptedData, encoding: .utf8) ?? ""
+
+        XCTAssertEqual(plainEntries.count, 2)
+        XCTAssertTrue(plainEntries[0].contains("armed"))
+        XCTAssertTrue(plainEntries[1].contains("app_started"))
+        XCTAssertEqual(encryptedEntries.count, 1)
+        XCTAssertTrue(encryptedEntries[0].contains("charger_disconnected"))
+        XCTAssertFalse(encryptedText.contains("charger_disconnected"))
+    }
+
+    func testClearingActiveStorageDoesNotDeleteInactiveEventLogStorage() {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
+
+        log.write(.armed, storage: .plainText)
+        log.write(.chargerDisconnected, storage: .encrypted)
+
+        log.clear(storage: .encrypted)
+
+        XCTAssertEqual(log.recentEntries(storage: .encrypted), [])
+        XCTAssertEqual(log.recentEntries(storage: .plainText).count, 1)
+        XCTAssertTrue(log.recentEntries(storage: .plainText)[0].contains("armed"))
+
+        log.write(.networkChanged(previous: "Cafe WiFi", current: "Library WiFi", kind: .ssidChanged), storage: .encrypted)
+        log.clear(storage: .plainText)
+
+        XCTAssertEqual(log.recentEntries(storage: .plainText), [])
+        XCTAssertEqual(log.recentEntries(storage: .encrypted).count, 1)
+        XCTAssertTrue(log.recentEntries(storage: .encrypted)[0].contains("network_changed"))
+    }
+
+    func testPruningActiveStorageDoesNotPruneInactiveEventLogStorage() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url, keyProvider: StaticEventLogKeyProvider())
+
+        try """
+        2026-01-01T00:00:00Z armed
+        2026-01-10T00:00:00Z charger_disconnected
+
+        """.write(to: url, atomically: true, encoding: .utf8)
+        log.write(.appStarted, storage: .encrypted)
+
+        let removedCount = log.prune(
+            olderThan: ISO8601DateFormatter().date(from: "2026-01-05T00:00:00Z")!,
+            storage: .plainText
+        )
+
+        XCTAssertEqual(removedCount, 1)
+        XCTAssertEqual(log.recentEntries(limit: 5, storage: .plainText).count, 1)
+        XCTAssertTrue(log.recentEntries(limit: 5, storage: .plainText)[0].contains("charger_disconnected"))
+        XCTAssertEqual(log.recentEntries(limit: 5, storage: .encrypted).count, 1)
+        XCTAssertTrue(log.recentEntries(limit: 5, storage: .encrypted)[0].contains("app_started"))
+    }
+
     func testEncryptedClearRemovesExistingEvents() {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
