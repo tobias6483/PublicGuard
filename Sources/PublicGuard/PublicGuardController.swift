@@ -21,12 +21,14 @@ final class PublicGuardController {
     private var settings: GuardSettings
     private var statusItem: NSStatusItem?
     private var lastAcceptedTriggerAt: Date?
+    private var lastRetentionPrunedAt: Date?
 
     init() {
         settings = settingsStore.load()
     }
 
     func start() {
+        pruneEventLogIfNeeded()
         writeEvent(.appStarted)
         if settings.notificationsEnabled {
             notifications.requestAuthorization()
@@ -118,6 +120,7 @@ final class PublicGuardController {
         let title = NSMenuItem(title: state.isArmed ? "PublicGuard: Armed" : "PublicGuard: Disarmed", action: nil, keyEquivalent: "")
         title.isEnabled = false
         menu.addItem(title)
+        menu.addItem(Self.disabledMenuItem(title: protectionStatusTitle()))
 
         menu.addItem(.separator())
 
@@ -761,6 +764,7 @@ final class PublicGuardController {
 
         settings.eventLogRetention = retention
         persistSettings()
+        pruneEventLogIfNeeded(force: true)
     }
 
     @objc private func quit() {
@@ -934,13 +938,33 @@ final class PublicGuardController {
             notifications.sendAlarmNotification(reason: reason)
         }
         if settings.lockScreenEnabled {
-            locker.lock()
+            if !locker.lock() {
+                writeEvent(.lockScreenFailed)
+            }
         }
         rebuildMenu()
     }
 
     private func writeEvent(_ event: GuardEvent) {
         eventLog.write(event, detail: settings.eventLogDetail, storage: settings.eventLogStorage, retention: settings.eventLogRetention)
+    }
+
+    private func pruneEventLogIfNeeded(force: Bool = false) {
+        guard settings.eventLogRetention.days != nil else { return }
+
+        let now = Date()
+        if !force,
+           let lastRetentionPrunedAt,
+           Calendar.current.isDate(lastRetentionPrunedAt, inSameDayAs: now)
+        {
+            return
+        }
+
+        lastRetentionPrunedAt = now
+        let removedCount = eventLog.prune(retention: settings.eventLogRetention, storage: settings.eventLogStorage, now: now)
+        if removedCount > 0 {
+            writeEvent(.logPruned(removedEntries: removedCount))
+        }
     }
 }
 
@@ -977,6 +1001,54 @@ private extension PublicGuardController {
         let enabledTriggerCount = settings.enabledTriggers.count
         let totalTriggerCount = GuardSettings.TriggerKind.allCases.count
         return "Current: \(currentPresetSummary().trimmingCharacters(in: CharacterSet(charactersIn: "()"))) | \(settings.responseMode.title), \(Self.idleTimeoutTitle(seconds: settings.idleTimeoutSeconds)), \(enabledTriggerCount)/\(totalTriggerCount) triggers, logs \(settings.eventLogRetention.title.lowercased())"
+    }
+
+    func protectionStatusTitle() -> String {
+        guard state.isArmed else {
+            return "Protection: Disarmed"
+        }
+
+        let enabledTriggerCount = settings.enabledTriggers.count
+        let totalTriggerCount = GuardSettings.TriggerKind.allCases.count
+        let graceTitle = gracePeriodScheduler.hasPendingGracePeriod ? "grace pending" : "no grace pending"
+        let cooldownTitle = Self.cooldownDiagnosticsTitle(
+            lastAcceptedAt: lastAcceptedTriggerAt,
+            cooldownSeconds: settings.triggerCooldownSeconds
+        )
+        let bluetoothTitle = bluetoothProtectionTitle(snapshot: bluetoothMonitor.snapshot())
+        let notificationTitle = notificationProtectionTitle()
+        let lockTitle = lockProtectionTitle()
+
+        return "Protection: Armed | \(enabledTriggerCount)/\(totalTriggerCount) triggers | \(graceTitle) | cooldown \(cooldownTitle) | \(bluetoothTitle) | \(notificationTitle) | \(lockTitle)"
+    }
+
+    func bluetoothProtectionTitle(snapshot: BluetoothProximityMonitorSnapshot) -> String {
+        guard settings.isTriggerEnabled(.bluetoothProximity) else { return "BT off" }
+        guard settings.hasLearnedBluetoothDevice else { return "BT not learned" }
+
+        switch snapshot.scanState {
+        case .unavailable:
+            return "BT unavailable"
+        case .learning:
+            return "BT learning"
+        case .idle:
+            return "BT idle"
+        case .monitoring:
+            if snapshot.hasReportedCurrentLoss {
+                return "BT loss reported"
+            }
+            return snapshot.hasSeenTarget ? "BT seen" : "BT not seen"
+        }
+    }
+
+    func notificationProtectionTitle() -> String {
+        guard settings.notificationsEnabled else { return "notify off" }
+        return Bundle.main.bundleIdentifier == nil ? "notify unavailable" : "notify on"
+    }
+
+    func lockProtectionTitle() -> String {
+        guard settings.lockScreenEnabled else { return "lock off" }
+        return locker.isAvailable() ? "lock ready" : "lock unavailable"
     }
 
     static func idleTimeoutTitle(seconds: Int) -> String {

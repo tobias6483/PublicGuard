@@ -46,7 +46,7 @@ final class EventLogTests: XCTestCase {
         XCTAssertFalse(encryptedText.contains("network_changed"))
     }
 
-    func testEncryptedRecentEntriesDecryptNewestEventsWithinLimit() {
+    func testEncryptedRecentEntriesDecryptNewestEventsWithinLimit() throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let url = directory.appendingPathComponent("events.log")
@@ -55,9 +55,13 @@ final class EventLogTests: XCTestCase {
         log.write(.appStarted, storage: .encrypted)
         log.write(.armed, storage: .encrypted)
         log.write(.chargerDisconnected, storage: .encrypted)
+        let encryptedData = try Data(contentsOf: log.encryptedURL)
+        let encryptedRecords = String(data: encryptedData, encoding: .utf8) ?? ""
 
         let entries = log.recentEntries(limit: 2, storage: .encrypted)
 
+        XCTAssertEqual(encryptedRecords.split(separator: "\n").count, 3)
+        XCTAssertTrue(encryptedRecords.split(separator: "\n").allSatisfy { $0.hasPrefix("pglog1:") })
         XCTAssertEqual(entries.count, 2)
         XCTAssertTrue(entries[0].contains("armed"))
         XCTAssertTrue(entries[1].contains("charger_disconnected"))
@@ -184,6 +188,24 @@ final class EventLogTests: XCTestCase {
         XCTAssertFalse(entries[0].contains("armed"))
     }
 
+    func testWriteDoesNotPruneOnEveryEvent() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let url = directory.appendingPathComponent("events.log")
+        let log = EventLog(url: url)
+
+        try """
+        2026-01-01T00:00:00Z armed
+
+        """.write(to: url, atomically: true, encoding: .utf8)
+
+        log.write(.chargerDisconnected, retention: .sevenDays)
+
+        let contents = try String(contentsOf: url, encoding: .utf8)
+        XCTAssertTrue(contents.contains("armed"))
+        XCTAssertTrue(contents.contains("charger_disconnected"))
+    }
+
     func testPruneKeepsMalformedPlainTextEntries() throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -266,6 +288,10 @@ final class EventLogTests: XCTestCase {
 
     func testAlarmStoppedMessage() {
         XCTAssertEqual(GuardEvent.alarmStopped.message, "alarm_stopped")
+    }
+
+    func testLockScreenFailedMessage() {
+        XCTAssertEqual(GuardEvent.lockScreenFailed.message, "lock_screen_failed")
     }
 
     func testNetworkChangedMessageContainsSSIDValues() {
@@ -367,6 +393,10 @@ final class EventLogTests: XCTestCase {
         XCTAssertEqual(
             GuardEvent.launchAtLoginChangeFailed(error: "error \"bundle\"\nmissing").message,
             "launch_at_login_change_failed error=\"error \\\"bundle\\\"\\nmissing\""
+        )
+        XCTAssertEqual(
+            GuardEvent.lockScreenFailed.message(detail: .minimal),
+            "lock_screen_failed"
         )
         XCTAssertEqual(
             GuardEvent.triggerIgnored(name: "networkChange\ncooldown").message,

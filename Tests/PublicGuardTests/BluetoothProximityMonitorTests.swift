@@ -38,7 +38,7 @@ final class BluetoothProximityMonitorTests: XCTestCase {
         XCTAssertEqual(monitor.reportOutOfRangeTargetIfNeeded(at: now.addingTimeInterval(46))?.identifier, targetID)
     }
 
-    func testLearningReturnsStrongestCandidateAfterWindow() {
+    func testLearningReturnsStrongestRepeatedCandidateAfterWindow() {
         let monitor = BluetoothProximityMonitor(lostAfterSeconds: 15, learnDurationSeconds: 3)
         let now = Date()
         let weakDevice = LearnedBluetoothDevice(identifier: UUID(), name: "Weak")
@@ -47,10 +47,22 @@ final class BluetoothProximityMonitorTests: XCTestCase {
         monitor.beginLearning(at: now)
         monitor.recordLearningCandidate(weakDevice, rssi: -80)
         monitor.recordLearningCandidate(strongDevice, rssi: -40)
+        monitor.recordLearningCandidate(strongDevice, rssi: -45)
 
         XCTAssertNil(monitor.finishLearningIfNeeded(at: now.addingTimeInterval(2)))
         XCTAssertEqual(monitor.finishLearningIfNeeded(at: now.addingTimeInterval(3)), strongDevice)
         XCTAssertNil(monitor.finishLearningIfNeeded(at: now.addingTimeInterval(4)))
+    }
+
+    func testLearningIgnoresSingleObservationCandidate() {
+        let monitor = BluetoothProximityMonitor(lostAfterSeconds: 15, learnDurationSeconds: 3)
+        let now = Date()
+        let singleDevice = LearnedBluetoothDevice(identifier: UUID(), name: "Single")
+
+        monitor.beginLearning(at: now)
+        monitor.recordLearningCandidate(singleDevice, rssi: -35)
+
+        XCTAssertNil(monitor.finishLearningIfNeeded(at: now.addingTimeInterval(3)))
     }
 
     private var targetID: UUID {
