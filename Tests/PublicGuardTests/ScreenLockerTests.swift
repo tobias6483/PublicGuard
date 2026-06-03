@@ -39,4 +39,16 @@ final class ScreenLockerTests: XCTestCase {
 
         XCTAssertFalse(locker.lock())
     }
+
+    func testAvailabilityReflectsExecutableCommands() {
+        let availableLocker = ScreenLocker(commands: [
+            ScreenLocker.Command(path: "/usr/bin/true", arguments: [])
+        ])
+        let unavailableLocker = ScreenLocker(commands: [
+            ScreenLocker.Command(path: "/missing/PublicGuard/CGSession", arguments: ["-suspend"])
+        ])
+
+        XCTAssertTrue(availableLocker.isAvailable())
+        XCTAssertFalse(unavailableLocker.isAvailable())
+    }
 }

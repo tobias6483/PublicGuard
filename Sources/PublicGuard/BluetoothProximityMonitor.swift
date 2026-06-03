@@ -36,23 +36,31 @@ struct BluetoothProximityMonitorSnapshot: Equatable {
 }
 
 final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
+    private struct LearningCandidate {
+        var device: LearnedBluetoothDevice
+        var bestRSSI: Int
+        var observations: Int
+    }
+
     var onLearningCandidateFound: ((LearnedBluetoothDevice) -> Void)?
     var onDeviceOutOfRange: ((LearnedBluetoothDevice) -> Void)?
 
     private var lostAfterSeconds: TimeInterval
     private let learnDurationSeconds: TimeInterval
+    private let minimumLearningObservations: Int
     private var central: CBCentralManager?
     private var target: LearnedBluetoothDevice?
     private var lastSeenTargetAt: Date?
     private var hasSeenTarget = false
     private var hasReportedCurrentLoss = false
-    private var bestLearningCandidate: (device: LearnedBluetoothDevice, rssi: Int)?
+    private var learningCandidates: [UUID: LearningCandidate] = [:]
     private var learningEndsAt: Date?
     private var timer: Timer?
 
-    init(lostAfterSeconds: TimeInterval = 30, learnDurationSeconds: TimeInterval = 12) {
+    init(lostAfterSeconds: TimeInterval = 30, learnDurationSeconds: TimeInterval = 12, minimumLearningObservations: Int = 2) {
         self.lostAfterSeconds = lostAfterSeconds
         self.learnDurationSeconds = learnDurationSeconds
+        self.minimumLearningObservations = max(1, minimumLearningObservations)
     }
 
     func start(targetIdentifier: String?, targetName: String?) {
@@ -94,7 +102,7 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
         central?.delegate = nil
         central = nil
         learningEndsAt = nil
-        bestLearningCandidate = nil
+        learningCandidates = [:]
     }
 
     func learnNearbyDevice() {
@@ -105,15 +113,20 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
     }
 
     func beginLearning(at date: Date) {
-        bestLearningCandidate = nil
+        learningCandidates = [:]
         learningEndsAt = date.addingTimeInterval(learnDurationSeconds)
     }
 
     func recordLearningCandidate(_ device: LearnedBluetoothDevice, rssi: Int) {
         guard learningEndsAt != nil else { return }
 
-        if bestLearningCandidate == nil || rssi > bestLearningCandidate!.rssi {
-            bestLearningCandidate = (device, rssi)
+        if var candidate = learningCandidates[device.identifier] {
+            candidate.device = device
+            candidate.bestRSSI = max(candidate.bestRSSI, rssi)
+            candidate.observations += 1
+            learningCandidates[device.identifier] = candidate
+        } else {
+            learningCandidates[device.identifier] = LearningCandidate(device: device, bestRSSI: rssi, observations: 1)
         }
     }
 
@@ -122,11 +135,20 @@ final class BluetoothProximityMonitor: NSObject, CBCentralManagerDelegate {
 
         self.learningEndsAt = nil
         defer {
-            bestLearningCandidate = nil
+            learningCandidates = [:]
             updateScanState()
         }
 
-        return bestLearningCandidate?.device
+        return learningCandidates.values
+            .filter { $0.observations >= minimumLearningObservations }
+            .sorted {
+                if $0.bestRSSI == $1.bestRSSI {
+                    return $0.observations > $1.observations
+                }
+                return $0.bestRSSI > $1.bestRSSI
+            }
+            .first?
+            .device
     }
 
     func snapshot() -> BluetoothProximityMonitorSnapshot {

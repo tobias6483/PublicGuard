@@ -34,6 +34,10 @@ struct ScreenLocker {
         return false
     }
 
+    func isAvailable() -> Bool {
+        commands.contains { fileManager.isExecutableFile(atPath: $0.path) }
+    }
+
     private static let defaultCommands = [
         Command(
             path: "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession",

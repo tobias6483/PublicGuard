@@ -69,3 +69,13 @@
 - Fixed the lock screen action on macOS versions where the legacy `CGSession`
   path is unavailable by falling back to `pmset displaysleepnow`, with command
   fallback covered by unit tests.
+- Added a top-level protection status summary for armed sessions, including
+  trigger count, grace-period state, cooldown, Bluetooth baseline,
+  notification availability, and lock availability.
+- Added event logging when the configured lock screen action cannot launch.
+- Optimized encrypted event logs to append encrypted records instead of
+  rewriting the whole encrypted log on every new entry.
+- Moved event log retention pruning out of every log write and into app start,
+  manual prune, and retention-setting changes.
+- Improved Bluetooth proximity learning by requiring repeated observations
+  before a nearby BLE device can be confirmed.

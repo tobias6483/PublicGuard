@@ -88,6 +88,8 @@ struct EventLog {
     let url: URL
     let encryptedURL: URL
 
+    private static let encryptedRecordPrefix = "pglog1:"
+
     private let keyProvider: EventLogKeyProviding
 
     init(url: URL? = nil, keyProvider: EventLogKeyProviding = KeychainEventLogKeyProvider()) {
@@ -124,8 +126,6 @@ struct EventLog {
         case .encrypted:
             appendEncrypted(line)
         }
-
-        prune(retention: retention, storage: storage)
     }
 
     func clear(storage: GuardSettings.EventLogStorage = .plainText) {
@@ -216,8 +216,8 @@ struct EventLog {
     }
 
     private func appendEncrypted(_ line: String) {
-        let currentContents = contents(storage: .encrypted) ?? ""
-        writeEncryptedContents(currentContents + line)
+        guard let record = encryptedRecord(for: line) else { return }
+        append(record, to: encryptedURL)
     }
 
     private func writeContents(_ contents: String, storage: GuardSettings.EventLogStorage) {
@@ -243,6 +243,13 @@ struct EventLog {
         guard let data = try? Data(contentsOf: encryptedURL), !data.isEmpty else {
             return ""
         }
+
+        if let records = String(data: data, encoding: .utf8),
+           let decryptedRecords = decryptedRecordContents(records)
+        {
+            return decryptedRecords
+        }
+
         guard let key = try? keyProvider.key(),
               let sealedBox = try? AES.GCM.SealedBox(combined: data),
               let decryptedData = try? AES.GCM.open(sealedBox, using: key)
@@ -254,16 +261,60 @@ struct EventLog {
     }
 
     private func writeEncryptedContents(_ contents: String) {
-        guard let data = contents.data(using: .utf8),
+        guard !contents.isEmpty else {
+            try? FileManager.default.createDirectory(at: encryptedURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? Data().write(to: encryptedURL)
+            return
+        }
+
+        let encryptedContents = contents
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .compactMap { line -> Data? in
+                guard !line.isEmpty else { return nil }
+                return encryptedRecord(for: "\(line)\n")
+            }
+            .reduce(into: Data()) { result, record in
+                result.append(record)
+            }
+
+        try? FileManager.default.createDirectory(at: encryptedURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try? encryptedContents.write(to: encryptedURL)
+    }
+
+    private func encryptedRecord(for line: String) -> Data? {
+        guard let data = line.data(using: .utf8),
               let key = try? keyProvider.key(),
               let sealedBox = try? AES.GCM.seal(data, using: key),
               let encryptedData = sealedBox.combined
         else {
-            return
+            return nil
         }
 
-        try? FileManager.default.createDirectory(at: encryptedURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? encryptedData.write(to: encryptedURL)
+        return "\(Self.encryptedRecordPrefix)\(encryptedData.base64EncodedString())\n".data(using: .utf8)
+    }
+
+    private func decryptedRecordContents(_ records: String) -> String? {
+        let lines = records.split(separator: "\n", omittingEmptySubsequences: false)
+        let nonEmptyLines = lines.filter { !$0.isEmpty }
+        guard !nonEmptyLines.isEmpty else { return "" }
+        guard nonEmptyLines.allSatisfy({ $0.hasPrefix(Self.encryptedRecordPrefix) }) else { return nil }
+
+        var contents = ""
+        for line in nonEmptyLines {
+            let base64 = line.dropFirst(Self.encryptedRecordPrefix.count)
+            guard let encryptedData = Data(base64Encoded: String(base64)),
+                  let key = try? keyProvider.key(),
+                  let sealedBox = try? AES.GCM.SealedBox(combined: encryptedData),
+                  let decryptedData = try? AES.GCM.open(sealedBox, using: key),
+                  let decryptedLine = String(data: decryptedData, encoding: .utf8)
+            else {
+                return nil
+            }
+
+            contents += decryptedLine
+        }
+
+        return contents
     }
 
     private static func timestamp() -> String {
@@ -296,6 +347,7 @@ enum GuardEvent {
     case alarmTriggered(reason: String)
     case alarmStopped
     case silentResponseTriggered(reason: String)
+    case lockScreenFailed
     case settingsChanged(
         gracePeriodSeconds: Int,
         idleTimeoutSeconds: Int,
@@ -389,6 +441,8 @@ enum GuardEvent {
             case .minimal:
                 "silent_response_triggered"
             }
+        case .lockScreenFailed:
+            "lock_screen_failed"
         case let .settingsChanged(gracePeriodSeconds, idleTimeoutSeconds, responseMode, alarmSound, alarmVolume, lockScreenEnabled, launchAtLoginEnabled, eventLogDetail, eventLogStorage, eventLogRetention, bluetoothProximityTimeoutSeconds, ignoreWiFiDisconnects, triggerCooldownSeconds, triggerGracePeriodOverrides):
             switch detail {
             case .standard:
