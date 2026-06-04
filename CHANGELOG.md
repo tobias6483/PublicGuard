@@ -83,3 +83,4 @@
   treating an empty saved trigger list as first-run defaults.
 - Hardened the lock screen action to require a successful command exit before
   reporting success or skipping fallback commands.
+- Prepared the next unsigned beta release as `v0.1.1`.
