@@ -63,12 +63,24 @@ Verify the downloaded ZIP bytes before opening the app:
 shasum -a 256 -c PublicGuard.app.zip.sha256
 ```
 
-Then unzip and open the app:
+Then unzip the app:
 
 ```sh
 unzip PublicGuard.app.zip
-open PublicGuard.app
 ```
+
+Move `PublicGuard.app` to `Applications`, for example by dragging it there in
+Finder. From Terminal, you can also copy it:
+
+```sh
+cp -R PublicGuard.app /Applications/
+open /Applications/PublicGuard.app
+```
+
+Running the app from `Downloads` is acceptable for a one-off smoke test, but
+release users should keep it in `Applications`. That matches normal macOS app
+placement, makes launch-at-login behavior easier to reason about, and gives
+future update instructions one stable app location.
 
 The checksum confirms that the ZIP matches the published digest. It does not
 prove developer identity, replace code signing, or remove macOS Gatekeeper

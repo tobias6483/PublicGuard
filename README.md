@@ -98,11 +98,17 @@ may warn before opening them.
    ```
 
 3. Unzip the app.
-4. Open PublicGuard from Finder or with:
+4. Move `PublicGuard.app` to `Applications`, for example by dragging it there
+   in Finder.
+5. Open PublicGuard from `Applications`, or with:
 
    ```sh
-   open PublicGuard.app
+   open /Applications/PublicGuard.app
    ```
+
+Running the app directly from `Downloads` is fine for a quick test, but
+`Applications` is the expected location for normal use, launch-at-login testing,
+and future upgrade instructions.
 
 The checksum verifies the downloaded ZIP bytes only. It is not a code-signing
 or notarization substitute. See [docs/release.md](docs/release.md) for release
