@@ -45,6 +45,36 @@ or artifact upload.
 
 `Settings > Launch at Login` uses macOS ServiceManagement and should be verified from this app bundle. It is not active when running the executable directly through SwiftPM.
 
+## Downloading A Public Artifact
+
+Early PublicGuard artifacts are for technical testers. Unless a release says
+otherwise, they are unsigned and not notarized.
+
+Download both files from the GitHub release:
+
+```text
+PublicGuard.app.zip
+PublicGuard.app.zip.sha256
+```
+
+Verify the downloaded ZIP bytes before opening the app:
+
+```sh
+shasum -a 256 -c PublicGuard.app.zip.sha256
+```
+
+Then unzip and open the app:
+
+```sh
+unzip PublicGuard.app.zip
+open PublicGuard.app
+```
+
+The checksum confirms that the ZIP matches the published digest. It does not
+prove developer identity, replace code signing, or remove macOS Gatekeeper
+warnings. Review the release notes for current hardware QA status, known limits,
+and whether the artifact is signed or notarized.
+
 ## Local Release Check
 
 Run the full local release check before opening a v0.1 release PR or tagging a
