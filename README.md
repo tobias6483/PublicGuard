@@ -180,6 +180,8 @@ still needs a real app-bundle pass with the setting enabled and disabled.
 
 Presets keep the selected alarm sound and learned Bluetooth device. Bluetooth Proximity is included by presets only when a learned device exists.
 
+Trigger enable/disable choices are persisted exactly as selected. If all triggers are disabled, PublicGuard keeps that explicit zero-trigger configuration across relaunches until the user re-enables triggers or applies a preset.
+
 ## Idle Timeout
 
 `Settings > Idle Timeout` controls how long the Mac can go without local keyboard or pointer activity before PublicGuard responds while armed. It can be disabled, or set from 1 minute up to 1 hour for quieter sessions. It uses macOS' local HID idle timer and does not record keystrokes, pointer movement, app usage, or content.

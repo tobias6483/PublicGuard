@@ -227,12 +227,12 @@ final class SettingsStoreTests: XCTestCase {
         XCTAssertEqual(settings.triggerGracePeriodOverrides, [.networkChange: 1])
     }
 
-    func testEmptyStoredTriggerListFallsBackToAllTriggers() {
+    func testEmptyStoredTriggerListKeepsAllTriggersDisabled() {
         let defaults = makeDefaults()
         defaults.set([String](), forKey: "enabledTriggers")
         let store = SettingsStore(defaults: defaults)
 
-        XCTAssertEqual(store.load().enabledTriggers, allTriggersExceptBluetooth)
+        XCTAssertEqual(store.load().enabledTriggers, [])
     }
 
     func testBluetoothTriggerIsValidWhenTargetIsLearned() {
