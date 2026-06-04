@@ -98,17 +98,18 @@ may warn before opening them.
    ```
 
 3. Unzip the app.
-4. Move `PublicGuard.app` to `Applications`, for example by dragging it there
+4. Move `PublicGuard.app` to `/Applications`, for example by dragging it there
    in Finder.
-5. Open PublicGuard from `Applications`, or with:
+5. Open PublicGuard from `/Applications`, or with:
 
    ```sh
    open /Applications/PublicGuard.app
    ```
 
-Running the app directly from `Downloads` is fine for a quick test, but
-`Applications` is the expected location for normal use, launch-at-login testing,
-and future upgrade instructions.
+Running the app directly from `Downloads` is fine for a quick smoke test, but
+`/Applications` is the expected location for normal use. It is the normal macOS
+app location, gives launch-at-login and app identity behavior a more stable
+path, and makes future update instructions easier to follow.
 
 The checksum verifies the downloaded ZIP bytes only. It is not a code-signing
 or notarization substitute. See [docs/release.md](docs/release.md) for release
@@ -147,8 +148,9 @@ swift test
 swift run PublicGuard
 ```
 
-Use a branch for changes and open a pull request when ready. See
-[CONTRIBUTING.md](CONTRIBUTING.md) and [docs/development.md](docs/development.md).
+Contributors should fork the repository, create a focused branch, run the build
+and tests, then open a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) and
+[docs/development.md](docs/development.md).
 
 ## Local App Bundle
 

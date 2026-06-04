@@ -69,7 +69,7 @@ Then unzip the app:
 unzip PublicGuard.app.zip
 ```
 
-Move `PublicGuard.app` to `Applications`, for example by dragging it there in
+Move `PublicGuard.app` to `/Applications`, for example by dragging it there in
 Finder. From Terminal, you can also copy it:
 
 ```sh
@@ -78,7 +78,7 @@ open /Applications/PublicGuard.app
 ```
 
 Running the app from `Downloads` is acceptable for a one-off smoke test, but
-release users should keep it in `Applications`. That matches normal macOS app
+release users should keep it in `/Applications`. That matches normal macOS app
 placement, makes launch-at-login behavior easier to reason about, and gives
 future update instructions one stable app location.
 
