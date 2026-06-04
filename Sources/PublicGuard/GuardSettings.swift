@@ -465,7 +465,7 @@ struct SettingsStore {
         _ triggers: Set<GuardSettings.TriggerKind>,
         bluetoothTargetIdentifier: String?
     ) -> Set<GuardSettings.TriggerKind> {
-        var result = triggers.isEmpty ? defaultEnabledTriggers(bluetoothTargetIdentifier: bluetoothTargetIdentifier) : triggers
+        var result = triggers
         if bluetoothTargetIdentifier == nil {
             result.remove(.bluetoothProximity)
         }

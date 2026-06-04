@@ -10,6 +10,7 @@ final class ScreenLockerTests: XCTestCase {
             ScreenLocker.Command(path: "/usr/bin/false", arguments: ["second"])
         ]) { command in
             ranCommands.append(command)
+            return 0
         }
 
         XCTAssertTrue(locker.lock())
@@ -24,6 +25,7 @@ final class ScreenLockerTests: XCTestCase {
             fallbackCommand
         ]) { command in
             ranCommands.append(command)
+            return 0
         }
 
         XCTAssertTrue(locker.lock())
@@ -35,9 +37,40 @@ final class ScreenLockerTests: XCTestCase {
             ScreenLocker.Command(path: "/missing/PublicGuard/CGSession", arguments: ["-suspend"])
         ]) { _ in
             XCTFail("Missing commands should not be run")
+            return 1
         }
 
         XCTAssertFalse(locker.lock())
+    }
+
+    func testLockFallsBackWhenExecutableCommandExitsNonZero() {
+        let failingCommand = ScreenLocker.Command(path: "/usr/bin/false", arguments: ["first"])
+        let fallbackCommand = ScreenLocker.Command(path: "/usr/bin/true", arguments: ["fallback"])
+        var ranCommands: [ScreenLocker.Command] = []
+        let locker = ScreenLocker(commands: [
+            failingCommand,
+            fallbackCommand
+        ]) { command in
+            ranCommands.append(command)
+            return command == failingCommand ? 1 : 0
+        }
+
+        XCTAssertTrue(locker.lock())
+        XCTAssertEqual(ranCommands, [failingCommand, fallbackCommand])
+    }
+
+    func testLockReturnsFalseWhenExecutableCommandsExitNonZero() {
+        let command = ScreenLocker.Command(path: "/usr/bin/false", arguments: ["fail"])
+        var ranCommands: [ScreenLocker.Command] = []
+        let locker = ScreenLocker(commands: [
+            command
+        ]) { command in
+            ranCommands.append(command)
+            return 1
+        }
+
+        XCTAssertFalse(locker.lock())
+        XCTAssertEqual(ranCommands, [command])
     }
 
     func testAvailabilityReflectsExecutableCommands() {

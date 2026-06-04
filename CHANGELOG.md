@@ -75,7 +75,11 @@
 - Added event logging when the configured lock screen action cannot launch.
 - Optimized encrypted event logs to append encrypted records instead of
   rewriting the whole encrypted log on every new entry.
-- Moved event log retention pruning out of every log write and into app start,
-  manual prune, and retention-setting changes.
+- Applied event log retention pruning when new events are written, matching the
+  documented retention behavior for active plain-text and encrypted log storage.
 - Improved Bluetooth proximity learning by requiring repeated observations
   before a nearby BLE device can be confirmed.
+- Preserved an explicit zero-trigger configuration across relaunches instead of
+  treating an empty saved trigger list as first-run defaults.
+- Hardened the lock screen action to require a successful command exit before
+  reporting success or skipping fallback commands.

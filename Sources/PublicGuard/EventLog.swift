@@ -117,6 +117,7 @@ struct EventLog {
         storage: GuardSettings.EventLogStorage = .plainText,
         retention: GuardSettings.EventLogRetention = .forever
     ) {
+        _ = prune(retention: retention, storage: storage)
         let line = "\(Self.timestamp()) \(event.message(detail: detail))\n"
         guard let data = line.data(using: .utf8) else { return }
 

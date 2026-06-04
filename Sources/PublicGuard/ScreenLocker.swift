@@ -8,12 +8,12 @@ struct ScreenLocker {
 
     private let commands: [Command]
     private let fileManager: FileManager
-    private let runProcess: (Command) throws -> Void
+    private let runProcess: (Command) throws -> Int32
 
     init(
         commands: [Command] = Self.defaultCommands,
         fileManager: FileManager = .default,
-        runProcess: @escaping (Command) throws -> Void = Self.runProcess
+        runProcess: @escaping (Command) throws -> Int32 = Self.runProcess
     ) {
         self.commands = commands
         self.fileManager = fileManager
@@ -24,8 +24,9 @@ struct ScreenLocker {
     func lock() -> Bool {
         for command in commands where fileManager.isExecutableFile(atPath: command.path) {
             do {
-                try runProcess(command)
-                return true
+                if try runProcess(command) == 0 {
+                    return true
+                }
             } catch {
                 continue
             }
@@ -46,10 +47,12 @@ struct ScreenLocker {
         Command(path: "/usr/bin/pmset", arguments: ["displaysleepnow"])
     ]
 
-    private static func runProcess(_ command: Command) throws {
+    private static func runProcess(_ command: Command) throws -> Int32 {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: command.path)
         task.arguments = command.arguments
         try task.run()
+        task.waitUntilExit()
+        return task.terminationStatus
     }
 }

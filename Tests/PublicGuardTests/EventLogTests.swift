@@ -188,7 +188,7 @@ final class EventLogTests: XCTestCase {
         XCTAssertFalse(entries[0].contains("armed"))
     }
 
-    func testWriteDoesNotPruneOnEveryEvent() throws {
+    func testWriteAppliesRetention() throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let url = directory.appendingPathComponent("events.log")
@@ -202,7 +202,7 @@ final class EventLogTests: XCTestCase {
         log.write(.chargerDisconnected, retention: .sevenDays)
 
         let contents = try String(contentsOf: url, encoding: .utf8)
-        XCTAssertTrue(contents.contains("armed"))
+        XCTAssertFalse(contents.contains("armed"))
         XCTAssertTrue(contents.contains("charger_disconnected"))
     }
 
