@@ -4,6 +4,13 @@ Thanks for helping make PublicGuard better.
 
 ## Development
 
+Clone the repository:
+
+```sh
+git clone https://github.com/tobias6483/PublicGuard.git
+cd PublicGuard
+```
+
 Build the project:
 
 ```sh
@@ -14,6 +21,28 @@ Run the app:
 
 ```sh
 swift run PublicGuard
+```
+
+Run the test suite:
+
+```sh
+swift test
+```
+
+For app-bundle behavior such as notifications, Bluetooth permission copy, app
+icon packaging, bundled alarm resources, and launch at login, build the local
+unsigned app bundle:
+
+```sh
+scripts/build_app.sh
+scripts/validate_app_bundle.sh
+open dist/PublicGuard.app
+```
+
+For a release-style local dry run:
+
+```sh
+scripts/release_check.sh
 ```
 
 ## Project Direction
@@ -57,6 +86,10 @@ Please keep pull requests focused and explain:
 - Why it changed
 - How it was tested
 - Whether it changes privacy, permissions, or background behavior
+
+By contributing, you agree to follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Security- or privacy-sensitive changes should also be checked against
+[SECURITY.md](SECURITY.md) and [PRIVACY.md](PRIVACY.md).
 
 ## Issue Triage
 

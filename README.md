@@ -56,6 +56,7 @@ See [docs/requirements.md](docs/requirements.md) for the current feature coverag
 See [docs/v0.1-release-checklist.md](docs/v0.1-release-checklist.md) for the current beta release gate.
 See [docs/v0.1-release-notes.md](docs/v0.1-release-notes.md) for the current release notes draft.
 See [docs/triage.md](docs/triage.md) for the GitHub issue triage labels and automation.
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), and [SUPPORT.md](SUPPORT.md) for public user and contributor policies.
 
 ## Why
 
@@ -82,6 +83,31 @@ PublicGuard is not a tracking product. It is a local-first protection utility th
 
 PublicGuard is in MVP beta development. The current goal is to harden and manually validate the local protection loop before a v0.1 release.
 
+## Download A Release
+
+Early PublicGuard releases are intended for technical testers. Release artifacts
+are unsigned and not notarized unless the release notes say otherwise, so macOS
+may warn before opening them.
+
+1. Download `PublicGuard.app.zip` and `PublicGuard.app.zip.sha256` from the
+   GitHub release.
+2. Verify the ZIP checksum:
+
+   ```sh
+   shasum -a 256 -c PublicGuard.app.zip.sha256
+   ```
+
+3. Unzip the app.
+4. Open PublicGuard from Finder or with:
+
+   ```sh
+   open PublicGuard.app
+   ```
+
+The checksum verifies the downloaded ZIP bytes only. It is not a code-signing
+or notarization substitute. See [docs/release.md](docs/release.md) for release
+artifact details and current limits.
+
 ## Build
 
 ```sh
@@ -103,6 +129,20 @@ swift run PublicGuard
 PublicGuard appears in the macOS menu bar.
 
 When running directly through SwiftPM, macOS notification delivery may be skipped because the process is not inside a signed app bundle. The rest of the local response loop still runs.
+
+## Clone And Test
+
+For local development or fork-based testing:
+
+```sh
+git clone https://github.com/tobias6483/PublicGuard.git
+cd PublicGuard
+swift test
+swift run PublicGuard
+```
+
+Use a branch for changes and open a pull request when ready. See
+[CONTRIBUTING.md](CONTRIBUTING.md) and [docs/development.md](docs/development.md).
 
 ## Local App Bundle
 
@@ -230,3 +270,6 @@ PublicGuard is intentionally small and modular. Good first contributions include
 - Adding tests around state and logging
 - Improving documentation
 - Adding privacy-preserving proximity detection
+
+Please follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and use the issue
+templates for bugs, feature requests, and permission-sensitive privacy reviews.

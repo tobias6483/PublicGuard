@@ -2,6 +2,20 @@
 
 ## Build
 
+Clone the repository:
+
+```sh
+git clone https://github.com/tobias6483/PublicGuard.git
+cd PublicGuard
+```
+
+If you are contributing through a fork, clone your fork instead and add the
+upstream repository:
+
+```sh
+git remote add upstream https://github.com/tobias6483/PublicGuard.git
+```
+
 ```sh
 swift build
 ```
