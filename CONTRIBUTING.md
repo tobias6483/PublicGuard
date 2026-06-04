@@ -74,13 +74,9 @@ The `main` branch is protected. Changes should go through a pull request, and th
 External contributors are welcome to use the standard GitHub fork workflow:
 
 1. Fork the repository.
-2. Clone your fork.
-3. Create a focused branch in your fork.
-4. Build and test locally with `swift build` and `swift test`.
-5. Run `scripts/release_check.sh` when app bundle packaging, release behavior,
-   app resources, permissions, or bundled assets changed.
-6. Push your branch.
-7. Open a pull request against `tobias6483/PublicGuard:main`.
+2. Create a branch in your fork.
+3. Push your branch.
+4. Open a pull request against `tobias6483/PublicGuard:main`.
 
 Maintainers and project agents with write access should follow [AGENTS.md](AGENTS.md). In short: work on a branch, stage only relevant files, run `swift test`, run `scripts/release_check.sh` when release packaging, app bundle metadata, or bundled assets changed, create a PR with `gh`, wait for `Swift Build and Test`, then squash-merge and delete the branch. Do not commit or push directly to `main`.
 
@@ -93,14 +89,7 @@ Please keep pull requests focused and explain:
 
 By contributing, you agree to follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 Security- or privacy-sensitive changes should also be checked against
-[SECURITY.md](SECURITY.md) and [PRIVACY.md](PRIVACY.md). This includes camera,
-microphone, location, Bluetooth, networking, authentication, encryption, local
-logs, launch-at-login behavior, background execution, and release packaging.
-
-Use GitHub issues for bugs, support requests, feature requests, and
-documentation gaps. Use [SUPPORT.md](SUPPORT.md) for support scope, and report
-security-sensitive issues through [SECURITY.md](SECURITY.md) rather than a
-public issue when public details would put users at risk.
+[SECURITY.md](SECURITY.md) and [PRIVACY.md](PRIVACY.md).
 
 ## Issue Triage
 
