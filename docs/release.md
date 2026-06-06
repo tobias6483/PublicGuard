@@ -116,8 +116,8 @@ checksum, and uploads both files as a workflow artifact named
 Run it manually from GitHub Actions, or push a version tag such as:
 
 ```sh
-git tag v0.1.1
-git push origin v0.1.1
+git tag v0.1.2
+git push origin v0.1.2
 ```
 
 The artifact is useful for maintainer QA and release dry runs. It is still
