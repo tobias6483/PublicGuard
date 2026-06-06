@@ -328,6 +328,10 @@ final class SettingsStoreTests: XCTestCase {
     func testAlarmVolumeValuesMapToSoundVolumes() {
         XCTAssertEqual(GuardSettings.AlarmVolume.normal.soundVolume, 0.8)
         XCTAssertEqual(GuardSettings.AlarmVolume.maximum.soundVolume, 1.0)
+        XCTAssertEqual(GuardSettings.AlarmVolume.maximumSystem.soundVolume, 1.0)
+        XCTAssertFalse(GuardSettings.AlarmVolume.normal.raisesSystemOutputVolume)
+        XCTAssertFalse(GuardSettings.AlarmVolume.maximum.raisesSystemOutputVolume)
+        XCTAssertTrue(GuardSettings.AlarmVolume.maximumSystem.raisesSystemOutputVolume)
     }
 
     func testCafePresetAppliesFastLoudPublicSettings() {

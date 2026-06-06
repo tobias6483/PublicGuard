@@ -206,7 +206,7 @@ This is local-only and stores the confirmed CoreBluetooth device identifier and 
 
 ## Alarm Volume
 
-`Settings > Alarm Volume` controls PublicGuard's own alarm playback volume. `Maximum` sets bundled and system alarm sounds to full app playback volume, but it does not change the Mac's global system volume.
+`Settings > Alarm Volume` controls PublicGuard's alarm playback volume. `Maximum` sets bundled and system alarm sounds to full app playback volume without changing the Mac's global system volume. `Maximum + Mac Volume` is an explicit attention mode that temporarily unmutes the current default output device and raises its output volume while the alarm is active, then restores the previous output mute and volume values when the alarm is stopped.
 
 ## Lock Screen Action
 

@@ -11,7 +11,7 @@ PublicGuard is security-adjacent software. Changes that affect permissions, auth
 - Make every sensitive permission clear to the user.
 - Keep sensitive actions, including screen locking, user-controlled.
 - Keep alarm sound selection local; do not fetch or upload audio.
-- Do not silently change global system volume; alarm volume settings should affect PublicGuard playback only.
+- Do not silently change global system volume. Only the explicit `Maximum + Mac Volume` alarm volume mode may temporarily unmute and raise the current default output device, and it must restore the previous output mute and volume values when the alarm is stopped.
 - Keep Bluetooth proximity local-only; do not upload learned device identifiers, names, or scan history.
 - Bluetooth proximity learning must require visible user confirmation before saving a scanned candidate. Do not present passive BLE scanning as Bluetooth pairing or proof of ownership.
 - Cryptographic proof that a nearby device is the user's phone requires a future verified companion or pairing flow, such as an iPhone app challenge/response. CoreBluetooth proximity alone can only match a previously confirmed BLE identifier exposed to this Mac.
