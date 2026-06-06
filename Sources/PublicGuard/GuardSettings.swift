@@ -98,6 +98,7 @@ struct GuardSettings {
     enum AlarmVolume: String, CaseIterable {
         case normal
         case maximum
+        case maximumSystem
 
         var title: String {
             switch self {
@@ -105,6 +106,8 @@ struct GuardSettings {
                 "Normal"
             case .maximum:
                 "Maximum"
+            case .maximumSystem:
+                "Maximum + Mac Volume"
             }
         }
 
@@ -112,9 +115,13 @@ struct GuardSettings {
             switch self {
             case .normal:
                 0.8
-            case .maximum:
+            case .maximum, .maximumSystem:
                 1.0
             }
+        }
+
+        var raisesSystemOutputVolume: Bool {
+            self == .maximumSystem
         }
     }
 

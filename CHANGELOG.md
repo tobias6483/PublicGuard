@@ -31,6 +31,7 @@
 - Added `alarm_stopped` audit logging for authenticated alarm stops.
 - Added an experimental Bluetooth proximity trigger for a learned local BLE device.
 - Added configurable alarm playback volume.
+- Added `Maximum + Mac Volume` alarm volume mode that temporarily unmutes and raises the current Mac output volume while a loud alarm is active, then restores the previous output state when the alarm is stopped.
 - Added Café and Library session presets.
 - Added a local idle timeout trigger.
 - Added an optional launch at login setting for app bundle builds.
